@@ -55,6 +55,8 @@ const Login = () => {
 
       // navigate to dashboard/home
       navigate("/dashboard");
+      window.location.reload();
+
     } catch (error) {
       console.error("Login Error:", error.response?.data || error.message);
       alert(error.response?.data?.message || "Invalid credentials");

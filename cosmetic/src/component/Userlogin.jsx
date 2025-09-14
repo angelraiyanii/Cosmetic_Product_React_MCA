@@ -73,6 +73,8 @@ const Register = () => {
       );
       console.log("User added: ", response.data);
       alert("User registered successfully!");
+      window.location.reload();
+
     } catch (error) {
       console.error("Error:", error.response?.data || error.message);
       alert(error.response?.data?.error || "Something went wrong");

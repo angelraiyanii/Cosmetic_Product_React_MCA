@@ -7,7 +7,6 @@ function Navbar() {
   const [user, setUser] = useState(null);
   const navigate = useNavigate();
 
-  // Check localStorage on mount
   useEffect(() => {
     const savedUser = localStorage.getItem("user") || localStorage.getItem("admin");
     if (savedUser) {
@@ -15,7 +14,6 @@ function Navbar() {
     }
   }, []);
 
-  // Logout handler
   const handleLogout = () => {
     localStorage.removeItem("usertoken");
     localStorage.removeItem("admintoken");
@@ -24,6 +22,8 @@ function Navbar() {
     setUser(null);
     navigate("/");
   };
+
+  const isAdmin = user && user.role === "admin";
 
   return (
     <>
@@ -67,13 +67,12 @@ function Navbar() {
             <i className="fas fa-bars"></i>
           </button>
 
-          {/* Nav links */}
           <div className="collapse navbar-collapse" id="navbarContent">
             <ul className="navbar-nav me-auto mb-2 mb-lg-0">
               <li className="nav-item">
-                <a className="nav-link active" href="#">
+                <Link className="nav-link active" to="/">
                   <i className="fas fa-home me-1"></i>Home
-                </a>
+                </Link>
               </li>
 
               <li className="nav-item dropdown">
@@ -118,22 +117,79 @@ function Navbar() {
               </li>
 
               <li className="nav-item">
-                <a className="nav-link" href="#">
-                  <i className="fas fa-leaf me-1 text-success"></i>Skincare
-                </a>
-              </li>
-
-              <li className="nav-item">
-                <a className="nav-link" href="#">
+                <Link className="nav-link" to="/About">
                   <i className="fas fa-info-circle me-1"></i>About Us
-                </a>
+                </Link>
               </li>
 
               <li className="nav-item">
-                <a className="nav-link" href="#">
+                <Link className="nav-link" to="/Contact">
                   <i className="fas fa-phone me-1"></i>Contact
-                </a>
+                </Link>
               </li>
+
+              {/* Admin Menu */}
+              {isAdmin && (
+                <li className="nav-item dropdown">
+                  <a
+                    className="nav-link dropdown-toggle"
+                    href="#"
+                    id="adminDropdown"
+                    role="button"
+                    data-bs-toggle="dropdown"
+                    aria-expanded="false"
+                  >
+                    <i className="fas fa-user-shield me-1 text-danger"></i>Admin
+                  </a>
+                  <ul className="dropdown-menu" aria-labelledby="adminDropdown">
+                    <li>
+                      <Link className="dropdown-item" to="/Admin/AdCategory">
+                        <i className="fas fa-list me-2 text-primary"></i> Category
+                      </Link>
+                    </li>
+                    <li>
+                      <Link className="dropdown-item" to="/Admin/AdPro">
+                        <i className="fas fa-box me-2 text-success"></i> Product
+                      </Link>
+                    </li>
+                    <li>
+                      <Link className="dropdown-item" to="/Admin/AdUser">
+                        <i className="fas fa-user me-2 text-info"></i> User
+                      </Link>
+                    </li>
+                    <li>
+                      <Link className="dropdown-item" to="/Admin/AdOrder">
+                        <i className="fas fa-shopping-bag me-2 text-warning"></i> Order
+                      </Link>
+                    </li>
+                    <li>
+                      <Link className="dropdown-item" to="/Admin/AdOffers">
+                        <i className="fas fa-tags me-2 text-primary"></i> Offers
+                      </Link>
+                    </li>
+                    <li>
+                      <Link className="dropdown-item" to="/Admin/AdReviews">
+                        <i className="fas fa-star me-2 text-success"></i> Reviews
+                      </Link>
+                    </li>
+                    <li>
+                      <Link className="dropdown-item" to="/Admin/AdBanner">
+                        <i className="fas fa-ad me-2 text-info"></i> Banners
+                      </Link>
+                    </li>
+                    <li>
+                      <Link className="dropdown-item" to="/Admin/AdContact">
+                        <i className="fas fa-phone me-2 text-danger"></i> Contact
+                      </Link>
+                    </li>
+                    <li>
+                      <Link className="dropdown-item" to="/Admin/AdAbout">
+                        <i className="fas fa-info-circle me-2 text-secondary"></i> About Us
+                      </Link>
+                    </li>
+                  </ul>
+                </li>
+              )}
             </ul>
 
             {/* Right side: search, cart, login/user */}
@@ -153,12 +209,12 @@ function Navbar() {
               </div>
 
               {/* Cart */}
-              <a href="#" className="position-relative text-dark">
+              <Link to="/Cart" className="position-relative text-dark">
                 <i className="fas fa-shopping-cart fa-lg"></i>
                 <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
                   3
                 </span>
-              </a>
+              </Link>
 
               {/* User Dropdown */}
               <div className="dropdown">
