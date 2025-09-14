@@ -20,7 +20,7 @@ const transporter = nodemailer.createTransport({
 
 // Multer Storage Configuration
 const storage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, "public/images/profile_pictures"),
+  destination: (req, file, cb) => cb(null, "backend/public/images/profile_pictures"),
   filename: (req, file, cb) => cb(null, Date.now() + path.extname(file.originalname)),
 });
 const upload = multer({ storage });

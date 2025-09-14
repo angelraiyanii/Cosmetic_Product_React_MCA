@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import Navbar from './component/Navbar'
 import Footer from './component/Footer'
+import Userlogin from './component/Userlogin'
 import './App.css'
 
 function App() {
@@ -14,9 +15,7 @@ function App() {
 
       {/* Page routes */}
       <Routes>
-        <Route path='/' element={<h1>Home Page</h1>} />
-        <Route path='/about' element={<h1>About Page</h1>} />
-        <Route path='/contact' element={<h1>Contact Page</h1>} />
+      <Route path="/" element={<Userlogin />} />
       </Routes>
 
       {/* Always visible */}
