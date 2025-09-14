@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import Navbar from './component/Navbar'
 import Footer from './component/Footer'
 import Userlogin from './component/Userlogin'
+import Login from './component/Login'
 import './App.css'
 
 function App() {
@@ -15,7 +16,8 @@ function App() {
 
       {/* Page routes */}
       <Routes>
-      <Route path="/" element={<Userlogin />} />
+      <Route path="/Userlogin" element={<Userlogin />} />
+      <Route path="/login" element={<Login />} />
       </Routes>
 
       {/* Always visible */}
