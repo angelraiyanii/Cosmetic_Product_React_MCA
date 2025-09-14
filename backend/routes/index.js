@@ -14,6 +14,10 @@ router.get('/', (req, res) => {
 // User 
 const Userroutes = require("./Userroutes");
 router.use("/UserModel", Userroutes);
+//category
+const categoryRoutes = require("./categoryRoutes");
+router.use("/CategoryModel", categoryRoutes);
+
 
 
 module.exports = router;
