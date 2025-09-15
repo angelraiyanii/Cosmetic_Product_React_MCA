@@ -10,8 +10,8 @@ import AdPro from './component/Admin/AdPro'
 import ASlider from './component/Admin/ASlider'
 import Slider from './component/Slider'
 import AdBanner from "./component/Admin/AdBanner";
-// import Category from './component/Category'
-// import Product from './component/Product'
+import Category from './component/Category'
+import Product from './component/Product'
 // import OfferBanner from './component/OfferBanner'
 
 function App() {
@@ -29,8 +29,8 @@ function App() {
           element={
             <>
               <Slider />
-              {/* <Category /> */}
-              {/* <Product /> */}
+              <Category />
+              <Product />
               {/* <OfferBanner/> */}
             </>
           }
@@ -38,6 +38,8 @@ function App() {
       <Route path="/Userlogin" element={<Userlogin />} />
       <Route path="/login" element={<Login />} />
       <Route path='/Slider' element={<Slider />} />
+      <Route path='/Category' element={<Category />} />
+      <Route path='/Product' element={<Product />} />
       <Route path='/Admin/ASlider' element={<ASlider />} />
        <Route path="/Admin/AdBanner" element={<AdBanner />} />
       <Route path="/Admin/AdCategory" element={<AdCategory />} />
