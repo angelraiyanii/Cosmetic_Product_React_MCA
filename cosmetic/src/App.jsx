@@ -12,6 +12,8 @@ import Slider from './component/Slider'
 import AdBanner from "./component/Admin/AdBanner";
 import Category from './component/Category'
 import Product from './component/Product'
+import Ct_product from './component/Ct_product'
+
 // import OfferBanner from './component/OfferBanner'
 
 function App() {
@@ -40,6 +42,8 @@ function App() {
       <Route path='/Slider' element={<Slider />} />
       <Route path='/Category' element={<Category />} />
       <Route path='/Product' element={<Product />} />
+      <Route path="/Ct_product" element={<Ct_product />} />
+
       <Route path='/Admin/ASlider' element={<ASlider />} />
        <Route path="/Admin/AdBanner" element={<AdBanner />} />
       <Route path="/Admin/AdCategory" element={<AdCategory />} />
