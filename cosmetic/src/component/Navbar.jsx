@@ -438,6 +438,12 @@ function Navbar() {
                         </Link>
                       </li>
                       <li>
+                        <Link className="dropdown-item" to="/Cart">
+                          <i className="fas fa-shopping-cart me-2 text-primary"></i> Cart
+                        </Link>
+
+                      </li>
+                      <li>
                         <Link className="dropdown-item" to="/OrderHistory">
                           <i className="fas fa-history me-2 text-warning"></i> Order History
                         </Link>

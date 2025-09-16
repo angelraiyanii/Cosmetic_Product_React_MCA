@@ -12,7 +12,7 @@ app.use(express.json()); // Parse JSON requests
 app.use(express.urlencoded({ extended: true })); // Parse URL-encoded requests
 app.use(express.static("public"));
 app.use('/api', routes);
-
+const fs = require('fs');
 // Serve static files (for profile pictures, etc.)
 app.use("/public", express.static(path.join(__dirname, "public")));
 

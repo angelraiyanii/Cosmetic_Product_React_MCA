@@ -64,13 +64,13 @@ class SingleProClass extends Component {
       const response = await axios.get(
         `http://localhost:5000/api/WishlistModel/${userId}`
       );
-      
+
       // Handle both array and object responses
       const wishlistData = Array.isArray(response.data) ? response.data : response.data.items || [];
-      const wishlistProductIds = wishlistData.map((item) => 
+      const wishlistProductIds = wishlistData.map((item) =>
         typeof item === 'string' ? item : item.productId?._id || item.productId
       );
-      
+
       this.setState({
         isInWishlist: wishlistProductIds.includes(productId)
       });
@@ -143,7 +143,7 @@ class SingleProClass extends Component {
           isInWishlist: false
         });
       }
-      
+
       setTimeout(() => this.setState({ wishlistMessage: "" }), 3000);
     } catch (error) {
       console.error("Error updating wishlist:", error.response?.data || error.message);
@@ -156,6 +156,22 @@ class SingleProClass extends Component {
   handleQuantityChange = (e) => {
     const quantity = Math.max(1, Math.min(parseInt(e.target.value) || 1, this.state.product?.stock || 1));
     this.setState({ quantity });
+  };
+  shareViaEmail = () => {
+    const { product } = this.state;
+    // Use actual product link or fallback
+    const productLink = product
+      ? `http://localhost:3000/product/${product._id}`
+      : "http://localhost:3000/";
+
+    const subject = encodeURIComponent(`Check out this product: ${product?.name || "Awesome Product"}`);
+    const body = encodeURIComponent(`I found this product and thought you might like it: ${productLink}`);
+
+    // Opens default email client
+     window.open(
+    `https://mail.google.com/mail/?view=cm&fs=1&to=&su=${subject}&body=${body}`,
+    "_blank"
+  );
   };
 
   render() {
@@ -194,7 +210,7 @@ class SingleProClass extends Component {
     };
 
     const displayProduct = product || defaultProduct;
-    const discountedPrice = displayProduct.discount 
+    const discountedPrice = displayProduct.discount
       ? (displayProduct.price - (displayProduct.price * displayProduct.discount / 100)).toFixed(2)
       : null;
     const originalPrice = displayProduct.price?.toFixed(2);
@@ -313,7 +329,7 @@ class SingleProClass extends Component {
                     <div className="quantity-section mb-4">
                       <label className="form-label fw-bold">Quantity:</label>
                       <div className="quantity-controls d-flex align-items-center">
-                        <button 
+                        <button
                           className="btn btn-outline-secondary btn-sm"
                           onClick={() => this.setState({ quantity: Math.max(1, quantity - 1) })}
                           disabled={quantity <= 1}
@@ -329,7 +345,7 @@ class SingleProClass extends Component {
                           min="1"
                           max={displayProduct.stock}
                         />
-                        <button 
+                        <button
                           className="btn btn-outline-secondary btn-sm"
                           onClick={() => this.setState({ quantity: Math.min(displayProduct.stock, quantity + 1) })}
                           disabled={quantity >= displayProduct.stock}
@@ -376,7 +392,11 @@ class SingleProClass extends Component {
                           <FaHeart />
                         )}
                       </button>
-                      <button className="btn btn-outline-secondary btn-lg rounded-pill" style={{ minWidth: "60px" }}>
+                      <button
+                        className="btn btn-outline-secondary btn-lg rounded-pill"
+                        style={{ minWidth: "60px" }}
+                        onClick={this.shareViaEmail}
+                      >
                         <FaShare />
                       </button>
                     </div>
@@ -435,36 +455,36 @@ class SingleProClass extends Component {
                 <div className="product-info-tabs">
                   <ul className="nav nav-tabs border-0 mb-4" id="productTabs" role="tablist">
                     <li className="nav-item" role="presentation">
-                      <button 
-                        className="nav-link active border-0 bg-light rounded-pill me-2 px-4" 
-                        id="description-tab" 
-                        data-bs-toggle="tab" 
-                        data-bs-target="#description" 
-                        type="button" 
+                      <button
+                        className="nav-link active border-0 bg-light rounded-pill me-2 px-4"
+                        id="description-tab"
+                        data-bs-toggle="tab"
+                        data-bs-target="#description"
+                        type="button"
                         role="tab"
                       >
                         Description
                       </button>
                     </li>
                     <li className="nav-item" role="presentation">
-                      <button 
-                        className="nav-link border-0 bg-light rounded-pill me-2 px-4" 
-                        id="ingredients-tab" 
-                        data-bs-toggle="tab" 
-                        data-bs-target="#ingredients" 
-                        type="button" 
+                      <button
+                        className="nav-link border-0 bg-light rounded-pill me-2 px-4"
+                        id="ingredients-tab"
+                        data-bs-toggle="tab"
+                        data-bs-target="#ingredients"
+                        type="button"
                         role="tab"
                       >
                         Ingredients
                       </button>
                     </li>
                     <li className="nav-item" role="presentation">
-                      <button 
-                        className="nav-link border-0 bg-light rounded-pill px-4" 
-                        id="usage-tab" 
-                        data-bs-toggle="tab" 
-                        data-bs-target="#usage" 
-                        type="button" 
+                      <button
+                        className="nav-link border-0 bg-light rounded-pill px-4"
+                        id="usage-tab"
+                        data-bs-toggle="tab"
+                        data-bs-target="#usage"
+                        type="button"
                         role="tab"
                       >
                         How to Use

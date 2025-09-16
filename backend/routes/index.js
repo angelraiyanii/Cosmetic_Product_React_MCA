@@ -33,7 +33,7 @@ router.use("/WishlistModel", wishlistRoutes);
 
 //About Us
 const aboutRoutes = require("./aboutRoutes");
-router.use("/aboutModel", aboutRoutes);
+router.use("/AboutModel", aboutRoutes);
 
 
 // Test route

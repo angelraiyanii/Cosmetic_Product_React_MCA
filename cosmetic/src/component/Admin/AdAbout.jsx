@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import aboutBannerDefault from "../images/banner1.jpeg"; // Updated default banner
-import img1Default from "../images/banner2.jpg"; // Updated section 1 image
-import img2Default from "../images/banner3.jpg"; // Updated section 2 image
+import aboutBannerDefault from "../images/banner1.jpeg";
+import img1Default from "../images/banner2.jpg";
+import img2Default from "../images/banner3.jpg";
 import "../../App.css";
 
 const AdAbout = () => {
@@ -10,14 +10,19 @@ const AdAbout = () => {
   const [showAddForm, setShowAddForm] = useState(false);
   const [formData, setFormData] = useState({
     bannerImage: null,
+    bannerVideo: null,
     content: "",
     section1Image: null,
+    section1Video: null,
     section1Text: "",
     section2Image: null,
+    section2Video: null,
     section2Text: "",
     missionStatement: "",
     values: [""],
-    teamMembers: [{ name: "", role: "", image: null }]
+    teamMembers: [{ name: "", role: "", image: null }],
+    mediaType1: "image", // Default to image
+    mediaType2: "image"  // Default to image
   });
   const [errors, setErrors] = useState({});
 
@@ -25,18 +30,23 @@ const AdAbout = () => {
   useEffect(() => {
     const fetchAboutData = async () => {
       try {
-        const response = await axios.get("http://localhost:5000/api/about");
+        const response = await axios.get("http://localhost:5000/api/AboutModel");
         setAboutData(response.data);
         setFormData({
           bannerImage: null,
+          bannerVideo: null,
           content: response.data.content || "",
           section1Image: null,
+          section1Video: null,
           section1Text: response.data.section1Text || "",
           section2Image: null,
+          section2Video: null,
           section2Text: response.data.section2Text || "",
           missionStatement: response.data.missionStatement || "",
           values: response.data.values || [""],
-          teamMembers: response.data.teamMembers || [{ name: "", role: "", image: null }]
+          teamMembers: response.data.teamMembers || [{ name: "", role: "", image: null }],
+          mediaType1: response.data.mediaType1 || "image",
+          mediaType2: response.data.mediaType2 || "image"
         });
       } catch (error) {
         console.error("Error fetching about data:", error);
@@ -51,6 +61,11 @@ const AdAbout = () => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
     setErrors({ ...errors, [name]: "" });
+  };
+
+  // Handle media type changes
+  const handleMediaTypeChange = (section, type) => {
+    setFormData({ ...formData, [section]: type });
   };
 
   // Handle values array changes
@@ -88,9 +103,9 @@ const AdAbout = () => {
   };
 
   const addTeamMember = () => {
-    setFormData({ 
-      ...formData, 
-      teamMembers: [...formData.teamMembers, { name: "", role: "", image: null }] 
+    setFormData({
+      ...formData,
+      teamMembers: [...formData.teamMembers, { name: "", role: "", image: null }]
     });
   };
 
@@ -112,29 +127,59 @@ const AdAbout = () => {
     }
   };
 
+  // Handle video uploads
+  const handleVideoChange = (e, field) => {
+    const file = e.target.files[0];
+    if (file && ["video/mp4", "video/mov", "video/avi", "video/wmv"].includes(file.type)) {
+      const videoUrl = URL.createObjectURL(file);
+      setFormData({ ...formData, [field]: { file, url: videoUrl } });
+      setErrors({ ...errors, [field]: "" });
+    } else {
+      setErrors({ ...errors, [field]: "Only MP4, MOV, AVI, and WMV allowed" });
+    }
+  };
+
   // Validate form
   const validateForm = (isAdd = false) => {
     let tempErrors = {};
     if (!formData.content.trim()) tempErrors.content = "Content is required.";
-    if (isAdd && !formData.bannerImage) tempErrors.bannerImage = "Banner image is required.";
-    if (isAdd && !formData.section1Image) tempErrors.section1Image = "Section 1 image is required.";
+
+    // Banner validation
+    if (isAdd && !formData.bannerImage && !formData.bannerVideo) {
+      tempErrors.bannerMedia = "Banner media (image or video) is required";
+    }
+
+    // Section 1 validation
+    if (formData.mediaType1 === "image" && isAdd && !formData.section1Image) {
+      tempErrors.section1Image = "Section 1 image is required when using image media type";
+    } else if (formData.mediaType1 === "video" && isAdd && !formData.section1Video) {
+      tempErrors.section1Video = "Section 1 video is required when using video media type";
+    }
+
     if (!formData.section1Text.trim()) tempErrors.section1Text = "Section 1 text is required.";
-    if (isAdd && !formData.section2Image) tempErrors.section2Image = "Section 2 image is required.";
+
+    // Section 2 validation
+    if (formData.mediaType2 === "image" && isAdd && !formData.section2Image) {
+      tempErrors.section2Image = "Section 2 image is required when using image media type";
+    } else if (formData.mediaType2 === "video" && isAdd && !formData.section2Video) {
+      tempErrors.section2Video = "Section 2 video is required when using video media type";
+    }
+
     if (!formData.section2Text.trim()) tempErrors.section2Text = "Section 2 text is required.";
     if (!formData.missionStatement.trim()) tempErrors.missionStatement = "Mission statement is required.";
-    
+
     // Validate values
     formData.values.forEach((value, index) => {
       if (!value.trim()) tempErrors[`value-${index}`] = "Value cannot be empty";
     });
-    
+
     // Validate team members
     formData.teamMembers.forEach((member, index) => {
       if (!member.name.trim()) tempErrors[`teamName-${index}`] = "Team member name is required";
       if (!member.role.trim()) tempErrors[`teamRole-${index}`] = "Team member role is required";
       if (isAdd && !member.image) tempErrors[`teamImage-${index}`] = "Team member image is required";
     });
-    
+
     setErrors(tempErrors);
     return Object.keys(tempErrors).length === 0;
   };
@@ -145,15 +190,20 @@ const AdAbout = () => {
     if (!validateForm(true)) return;
 
     const data = new FormData();
-    data.append("bannerImage", formData.bannerImage.file);
+    if (formData.bannerImage) data.append("bannerImage", formData.bannerImage.file);
+    if (formData.bannerVideo) data.append("bannerVideo", formData.bannerVideo.file);
     data.append("content", formData.content);
-    data.append("section1Image", formData.section1Image.file);
+    if (formData.section1Image) data.append("section1Image", formData.section1Image.file);
+    if (formData.section1Video) data.append("section1Video", formData.section1Video.file);
     data.append("section1Text", formData.section1Text);
-    data.append("section2Image", formData.section2Image.file);
+    if (formData.section2Image) data.append("section2Image", formData.section2Image.file);
+    if (formData.section2Video) data.append("section2Video", formData.section2Video.file);
     data.append("section2Text", formData.section2Text);
     data.append("missionStatement", formData.missionStatement);
     data.append("values", JSON.stringify(formData.values));
-    
+    data.append("mediaType1", formData.mediaType1);
+    data.append("mediaType2", formData.mediaType2);
+
     formData.teamMembers.forEach((member, index) => {
       data.append(`teamMemberName${index}`, member.name);
       data.append(`teamMemberRole${index}`, member.role);
@@ -163,7 +213,7 @@ const AdAbout = () => {
     });
 
     try {
-      const response = await axios.post("http://localhost:5000/api/about", data, {
+      const response = await axios.post("http://localhost:5000/api/AboutModel", data, {
         headers: { "Content-Type": "multipart/form-data" },
       });
       setAboutData(response.data);
@@ -186,11 +236,16 @@ const AdAbout = () => {
     data.append("section2Text", formData.section2Text);
     data.append("missionStatement", formData.missionStatement);
     data.append("values", JSON.stringify(formData.values));
-    
+    data.append("mediaType1", formData.mediaType1);
+    data.append("mediaType2", formData.mediaType2);
+
     if (formData.bannerImage?.file) data.append("bannerImage", formData.bannerImage.file);
+    if (formData.bannerVideo?.file) data.append("bannerVideo", formData.bannerVideo.file);
     if (formData.section1Image?.file) data.append("section1Image", formData.section1Image.file);
+    if (formData.section1Video?.file) data.append("section1Video", formData.section1Video.file);
     if (formData.section2Image?.file) data.append("section2Image", formData.section2Image.file);
-    
+    if (formData.section2Video?.file) data.append("section2Video", formData.section2Video.file);
+
     formData.teamMembers.forEach((member, index) => {
       data.append(`teamMemberName${index}`, member.name);
       data.append(`teamMemberRole${index}`, member.role);
@@ -203,7 +258,7 @@ const AdAbout = () => {
 
     try {
       const response = await axios.put(
-        `http://localhost:5000/api/about/${aboutData._id}`,
+        `http://localhost:5000/api/AboutModel/${aboutData._id}`,
         data,
         { headers: { "Content-Type": "multipart/form-data" } }
       );
@@ -220,23 +275,123 @@ const AdAbout = () => {
     if (!aboutData || !window.confirm("Are you sure you want to delete the About data?")) return;
 
     try {
-      await axios.delete(`http://localhost:5000/api/about/${aboutData._id}`);
+      await axios.delete(`http://localhost:5000/api/AboutModel/${aboutData._id}`);
       setAboutData(null);
       setFormData({
         bannerImage: null,
+        bannerVideo: null,
         content: "",
         section1Image: null,
+        section1Video: null,
         section1Text: "",
         section2Image: null,
+        section2Video: null,
         section2Text: "",
         missionStatement: "",
         values: [""],
-        teamMembers: [{ name: "", role: "", image: null }]
+        teamMembers: [{ name: "", role: "", image: null }],
+        mediaType1: "image",
+        mediaType2: "image"
       });
       alert("About data deleted successfully!");
     } catch (error) {
       console.error("Error deleting about data:", error);
       alert("Failed to delete about data");
+    }
+  };
+
+  // Render media preview based on type
+  const renderMediaPreview = (section, imageField, videoField, defaultImage) => {
+    const mediaType = formData[section];
+
+    if (mediaType === "image") {
+      return (
+        <>
+          <label className="form-label fw-bold">Image</label>
+          <input
+            type="file"
+            className="form-control"
+            onChange={(e) => handleImageChange(e, imageField)}
+          />
+          {errors[imageField] && <small className="text-danger">{errors[imageField]}</small>}
+          {formData[imageField] && (
+            <img
+              src={formData[imageField].url}
+              alt="Preview"
+              className="img-fluid mt-2 rounded shadow-sm"
+              style={{ maxHeight: "200px" }}
+            />
+          )}
+          {aboutData && !formData[imageField] && aboutData[imageField] && (
+            <img
+              src={`http://localhost:5000/public/images/about_images/${aboutData[imageField]}`}
+              alt="Current"
+              className="img-fluid mt-2 rounded shadow-sm"
+              style={{ maxHeight: "200px" }}
+              onError={(e) => (e.target.src = defaultImage)}
+            />
+          )}
+        </>
+      );
+    } else {
+      return (
+        <>
+          <label className="form-label fw-bold">Video</label>
+          <input
+            type="file"
+            className="form-control"
+            onChange={(e) => handleVideoChange(e, videoField)}
+          />
+          {errors[videoField] && <small className="text-danger">{errors[videoField]}</small>}
+          {formData[videoField] && (
+            <video
+              src={formData[videoField].url}
+              controls
+              className="img-fluid mt-2 rounded shadow-sm"
+              style={{ maxHeight: "200px" }}
+            />
+          )}
+          {aboutData && !formData[videoField] && aboutData[videoField] && (
+            <video
+              src={`http://localhost:5000/public/videos/about_videos/${aboutData[videoField]}`}
+              controls
+              className="img-fluid mt-2 rounded shadow-sm"
+              style={{ maxHeight: "200px" }}
+            />
+          )}
+        </>
+      );
+    }
+  };
+
+  // Render media display based on type
+  const renderMediaDisplay = (section, imageField, videoField, defaultImage, altText) => {
+    if (!aboutData) return null;
+
+    if (aboutData[section] === "image") {
+      return (
+        <img
+          src={
+            aboutData[imageField]
+              ? `http://localhost:5000/public/images/about_images/${aboutData[imageField]}`
+              : defaultImage
+          }
+          height={350}
+          width={350}
+          alt={altText}
+          className="img-fluid rounded-circle shadow about-img"
+          onError={(e) => (e.target.src = defaultImage)}
+        />
+      );
+    } else {
+      return (
+        <video
+          src={`http://localhost:5000/public/videos/about_videos/${aboutData[videoField]}`}
+          controls
+          className="img-fluid rounded shadow about-img"
+          style={{ height: "350px", width: "350px", objectFit: "cover" }}
+        />
+      );
     }
   };
 
@@ -249,17 +404,28 @@ const AdAbout = () => {
         <div className="about-container">
           {/* Banner Section */}
           <div className="container-fluid px-0">
-            <img
-              src={
-                aboutData.bannerImage
-                  ? `http://localhost:5000/public/images/about_images/${aboutData.bannerImage}`
-                  : aboutBannerDefault
-              }
-              alt="About Us"
-              className="d-block w-100 banner-img rounded shadow"
-              style={{ height: "400px", objectFit: "cover" }}
-              onError={(e) => (e.target.src = aboutBannerDefault)}
-            />
+            {aboutData.bannerVideo ? (
+              <video
+                src={`http://localhost:5000/public/videos/about_videos/${aboutData.bannerVideo}`}
+                autoPlay
+                muted
+                loop
+                className="d-block w-100 banner-img rounded shadow"
+                style={{ height: "400px", objectFit: "cover" }}
+              />
+            ) : (
+              <img
+                src={
+                  aboutData.bannerImage
+                    ? `http://localhost:5000/public/images/about_images/${aboutData.bannerImage}`
+                    : aboutBannerDefault
+                }
+                alt="About Us"
+                className="d-block w-100 banner-img rounded shadow"
+                style={{ height: "400px", objectFit: "cover" }}
+                onError={(e) => (e.target.src = aboutBannerDefault)}
+              />
+            )}
           </div>
 
           {/* Mission Statement */}
@@ -276,18 +442,7 @@ const AdAbout = () => {
           <div className="container mt-5">
             <div className="row align-items-center">
               <div className="col-md-6 text-center mb-4 mb-md-0">
-                <img
-                  src={
-                    aboutData.section1Image
-                      ? `http://localhost:5000/public/images/about_images/${aboutData.section1Image}`
-                      : img1Default
-                  }
-                  height={350}
-                  width={350}
-                  alt="Skincare Products"
-                  className="img-fluid rounded-circle shadow about-img"
-                  onError={(e) => (e.target.src = img1Default)}
-                />
+                {renderMediaDisplay("mediaType1", "section1Image", "section1Video", img1Default, "Skincare Products")}
               </div>
               <div className="col-md-6 text-center text-md-start">
                 <h2 className="about-title fw-bold">Our Skincare Philosophy</h2>
@@ -304,18 +459,7 @@ const AdAbout = () => {
                 <p className="about-text">{aboutData.section2Text}</p>
               </div>
               <div className="col-lg-6 text-center order-1 order-lg-2">
-                <img
-                  src={
-                    aboutData.section2Image
-                      ? `http://localhost:5000/public/images/about_images/${aboutData.section2Image}`
-                      : img2Default
-                  }
-                  height={350}
-                  width={350}
-                  alt="Makeup Products"
-                  className="img-fluid rounded shadow about-img"
-                  onError={(e) => (e.target.src = img2Default)}
-                />
+                {renderMediaDisplay("mediaType2", "section2Image", "section2Video", img2Default, "Makeup Products")}
               </div>
             </div>
           </div>
@@ -329,8 +473,8 @@ const AdAbout = () => {
                   <div key={index} className="col-md-4 mb-3">
                     <div className="card h-100 border-0 shadow-sm">
                       <div className="card-body text-center">
-                        <div className="bg-light rounded-circle d-inline-flex align-items-center justify-content-center mb-3" 
-                             style={{ width: "60px", height: "60px" }}>
+                        <div className="bg-light rounded-circle d-inline-flex align-items-center justify-content-center mb-3"
+                          style={{ width: "60px", height: "60px" }}>
                           <span className="text-primary fw-bold">{index + 1}</span>
                         </div>
                         <p className="card-text">{value}</p>
@@ -389,7 +533,11 @@ const AdAbout = () => {
         <div className="card p-4 mb-5 shadow">
           <h4 className="mb-4 border-bottom pb-2">{showAddForm ? "Add About Data" : "Edit About Data"}</h4>
           <form onSubmit={showAddForm ? handleAdd : handleUpdate}>
-            <div className="row">
+            {/* Banner Section */}
+            <div className="row mb-4">
+              <div className="col-12">
+                <h5 className="border-bottom pb-2">Banner Section</h5>
+              </div>
               <div className="col-md-6 mb-3">
                 <label className="form-label fw-bold">Banner Image</label>
                 <input
@@ -406,169 +554,263 @@ const AdAbout = () => {
                     style={{ maxHeight: "200px" }}
                   />
                 )}
+                {aboutData && !formData.bannerImage && aboutData.bannerImage && (
+                  <img
+                    src={`http://localhost:5000/public/images/about_images/${aboutData.bannerImage}`}
+                    alt="Current Banner"
+                    className="img-fluid mt-2 rounded shadow-sm"
+                    style={{ maxHeight: "200px" }}
+                    onError={(e) => (e.target.src = aboutBannerDefault)}
+                  />
+                )}
               </div>
-
               <div className="col-md-6 mb-3">
-                <label className="form-label fw-bold">Content</label>
-                <textarea
-                  name="content"
-                  className="form-control"
-                  rows="3"
-                  value={formData.content}
-                  onChange={handleInputChange}
-                  placeholder="Brief description of your cosmetic brand..."
-                />
-                {errors.content && <small className="text-danger">{errors.content}</small>}
-              </div>
-            </div>
-
-            <div className="row">
-              <div className="col-md-6 mb-3">
-                <label className="form-label fw-bold">Section 1 Image (Skincare)</label>
+                <label className="form-label fw-bold">Banner Video</label>
                 <input
                   type="file"
                   className="form-control"
-                  onChange={(e) => handleImageChange(e, "section1Image")}
+                  onChange={(e) => handleVideoChange(e, "bannerVideo")}
                 />
-                {errors.section1Image && <small className="text-danger">{errors.section1Image}</small>}
-                {formData.section1Image && (
-                  <img
-                    src={formData.section1Image.url}
-                    alt="Section 1 Preview"
+                {errors.bannerVideo && <small className="text-danger">{errors.bannerVideo}</small>}
+                {formData.bannerVideo && (
+                  <video
+                    src={formData.bannerVideo.url}
+                    controls
                     className="img-fluid mt-2 rounded shadow-sm"
                     style={{ maxHeight: "200px" }}
                   />
                 )}
+                {aboutData && !formData.bannerVideo && aboutData.bannerVideo && (
+                  <video
+                    src={`http://localhost:5000/public/videos/about_videos/${aboutData.bannerVideo}`}
+                    controls
+                    className="img-fluid mt-2 rounded shadow-sm"
+                    style={{ maxHeight: "200px" }}
+                  />
+                )}
+                {errors.bannerMedia && <small className="text-danger">{errors.bannerMedia}</small>}
               </div>
+            </div>
 
+            {/* Main Content */}
+            <div className="mb-4">
+              <label className="form-label fw-bold">About Content</label>
+              <textarea
+                className="form-control"
+                name="content"
+                value={formData.content}
+                onChange={handleInputChange}
+                rows="5"
+                placeholder="Enter the main about content..."
+              />
+              {errors.content && <small className="text-danger">{errors.content}</small>}
+            </div>
+
+            {/* Mission Statement */}
+            <div className="mb-4">
+              <label className="form-label fw-bold">Mission Statement</label>
+              <textarea
+                className="form-control"
+                name="missionStatement"
+                value={formData.missionStatement}
+                onChange={handleInputChange}
+                rows="3"
+                placeholder="Enter your mission statement..."
+              />
+              {errors.missionStatement && <small className="text-danger">{errors.missionStatement}</small>}
+            </div>
+
+            {/* Section 1 */}
+            <div className="row mb-4">
+              <div className="col-12">
+                <h5 className="border-bottom pb-2">Section 1</h5>
+              </div>
+              <div className="col-md-6 mb-3">
+                <label className="form-label fw-bold">Media Type</label>
+                <div>
+                  <div className="form-check form-check-inline">
+                    <input
+                      className="form-check-input"
+                      type="radio"
+                      name="mediaType1"
+                      id="mediaType1Image"
+                      value="image"
+                      checked={formData.mediaType1 === "image"}
+                      onChange={() => handleMediaTypeChange("mediaType1", "image")}
+                    />
+                    <label className="form-check-label" htmlFor="mediaType1Image">
+                      Image
+                    </label>
+                  </div>
+                  <div className="form-check form-check-inline">
+                    <input
+                      className="form-check-input"
+                      type="radio"
+                      name="mediaType1"
+                      id="mediaType1Video"
+                      value="video"
+                      checked={formData.mediaType1 === "video"}
+                      onChange={() => handleMediaTypeChange("mediaType1", "video")}
+                    />
+                    <label className="form-check-label" htmlFor="mediaType1Video">
+                      Video
+                    </label>
+                  </div>
+                </div>
+                {renderMediaPreview("mediaType1", "section1Image", "section1Video", img1Default)}
+              </div>
               <div className="col-md-6 mb-3">
                 <label className="form-label fw-bold">Section 1 Text</label>
                 <textarea
-                  name="section1Text"
                   className="form-control"
-                  rows="3"
+                  name="section1Text"
                   value={formData.section1Text}
                   onChange={handleInputChange}
-                  placeholder="Describe your skincare philosophy..."
+                  rows="5"
+                  placeholder="Enter section 1 text..."
                 />
                 {errors.section1Text && <small className="text-danger">{errors.section1Text}</small>}
               </div>
             </div>
 
-            <div className="row">
-              <div className="col-md-6 mb-3">
-                <label className="form-label fw-bold">Section 2 Image (Makeup)</label>
-                <input
-                  type="file"
-                  className="form-control"
-                  onChange={(e) => handleImageChange(e, "section2Image")}
-                />
-                {errors.section2Image && <small className="text-danger">{errors.section2Image}</small>}
-                {formData.section2Image && (
-                  <img
-                    src={formData.section2Image.url}
-                    alt="Section 2 Preview"
-                    className="img-fluid mt-2 rounded shadow-sm"
-                    style={{ maxHeight: "200px" }}
-                  />
-                )}
+            {/* Section 2 */}
+            <div className="row mb-4">
+              <div className="col-12">
+                <h5 className="border-bottom pb-2">Section 2</h5>
               </div>
-
+              <div className="col-md-6 mb-3">
+                <label className="form-label fw-bold">Media Type</label>
+                <div>
+                  <div className="form-check form-check-inline">
+                    <input
+                      className="form-check-input"
+                      type="radio"
+                      name="mediaType2"
+                      id="mediaType2Image"
+                      value="image"
+                      checked={formData.mediaType2 === "image"}
+                      onChange={() => handleMediaTypeChange("mediaType2", "image")}
+                    />
+                    <label className="form-check-label" htmlFor="mediaType2Image">
+                      Image
+                    </label>
+                  </div>
+                  <div className="form-check form-check-inline">
+                    <input
+                      className="form-check-input"
+                      type="radio"
+                      name="mediaType2"
+                      id="mediaType2Video"
+                      value="video"
+                      checked={formData.mediaType2 === "video"}
+                      onChange={() => handleMediaTypeChange("mediaType2", "video")}
+                    />
+                    <label className="form-check-label" htmlFor="mediaType2Video">
+                      Video
+                    </label>
+                  </div>
+                </div>
+                {renderMediaPreview("mediaType2", "section2Image", "section2Video", img2Default)}
+              </div>
               <div className="col-md-6 mb-3">
                 <label className="form-label fw-bold">Section 2 Text</label>
                 <textarea
-                  name="section2Text"
                   className="form-control"
-                  rows="3"
+                  name="section2Text"
                   value={formData.section2Text}
                   onChange={handleInputChange}
-                  placeholder="Describe your makeup products and approach..."
+                  rows="5"
+                  placeholder="Enter section 2 text..."
                 />
                 {errors.section2Text && <small className="text-danger">{errors.section2Text}</small>}
               </div>
             </div>
 
-            <div className="mb-3">
-              <label className="form-label fw-bold">Mission Statement</label>
-              <textarea
-                name="missionStatement"
-                className="form-control"
-                rows="2"
-                value={formData.missionStatement}
-                onChange={handleInputChange}
-                placeholder="Your brand's mission statement..."
-              />
-              {errors.missionStatement && <small className="text-danger">{errors.missionStatement}</small>}
-            </div>
-
+            {/* Values Section */}
             <div className="mb-4">
-              <label className="form-label fw-bold">Core Values</label>
+              <div className="d-flex justify-content-between align-items-center mb-3">
+                <h5 className="mb-0">Core Values</h5>
+                <button type="button" className="btn btn-sm btn-outline-primary" onClick={addValueField}>
+                  <i className="fas fa-plus me-1"></i>Add Value
+                </button>
+              </div>
               {formData.values.map((value, index) => (
-                <div key={index} className="input-group mb-2">
-                  <input
-                    type="text"
-                    className="form-control"
-                    value={value}
-                    onChange={(e) => handleValueChange(index, e.target.value)}
-                    placeholder={`Value ${index + 1}`}
-                  />
-                  <button
-                    type="button"
-                    className="btn btn-outline-danger"
-                    onClick={() => removeValueField(index)}
-                    disabled={formData.values.length <= 1}
-                  >
-                    <i className="fas fa-times"></i>
-                  </button>
-                  {errors[`value-${index}`] && <small className="text-danger">{errors[`value-${index}`]}</small>}
+                <div key={index} className="row mb-2 align-items-center">
+                  <div className="col-10">
+                    <input
+                      type="text"
+                      className="form-control"
+                      value={value}
+                      onChange={(e) => handleValueChange(index, e.target.value)}
+                      placeholder={`Value ${index + 1}`}
+                    />
+                    {errors[`value-${index}`] && <small className="text-danger">{errors[`value-${index}`]}</small>}
+                  </div>
+                  <div className="col-2">
+                    <button
+                      type="button"
+                      className="btn btn-sm btn-outline-danger"
+                      onClick={() => removeValueField(index)}
+                      disabled={formData.values.length <= 1}
+                    >
+                      <i className="fas fa-trash"></i>
+                    </button>
+                  </div>
                 </div>
               ))}
-              <button type="button" className="btn btn-outline-primary btn-sm mt-2" onClick={addValueField}>
-                <i className="fas fa-plus me-1"></i>Add Value
-              </button>
             </div>
 
+            {/* Team Members Section */}
             <div className="mb-4">
-              <label className="form-label fw-bold">Team Members</label>
+              <div className="d-flex justify-content-between align-items-center mb-3">
+                <h5 className="mb-0">Team Members</h5>
+                <button type="button" className="btn btn-sm btn-outline-primary" onClick={addTeamMember}>
+                  <i className="fas fa-plus me-1"></i>Add Member
+                </button>
+              </div>
               {formData.teamMembers.map((member, index) => (
                 <div key={index} className="card mb-3">
                   <div className="card-body">
                     <div className="row">
                       <div className="col-md-4 mb-3">
-                        <label className="form-label">Team Member Image</label>
+                        <label className="form-label fw-bold">Image</label>
                         <input
                           type="file"
                           className="form-control"
                           onChange={(e) => handleTeamImageChange(e, index)}
+                          accept="image/*"
                         />
                         {errors[`teamImage-${index}`] && <small className="text-danger">{errors[`teamImage-${index}`]}</small>}
                         {member.image && (
                           <img
-                            src={typeof member.image === 'object' ? member.image.url : `http://localhost:5000/public/images/about_images/${member.image}`}
-                            alt="Team Preview"
+                            src={typeof member.image === 'string'
+                              ? `http://localhost:5000/public/images/about_images/${member.image}`
+                              : member.image.url}
+                            alt="Preview"
                             className="img-fluid mt-2 rounded shadow-sm"
                             style={{ maxHeight: "150px" }}
+                            onError={(e) => (e.target.src = img1Default)}
                           />
                         )}
                       </div>
                       <div className="col-md-4 mb-3">
-                        <label className="form-label">Name</label>
+                        <label className="form-label fw-bold">Name</label>
                         <input
                           type="text"
                           className="form-control"
                           value={member.name}
-                          onChange={(e) => handleTeamMemberChange(index, 'name', e.target.value)}
+                          onChange={(e) => handleTeamMemberChange(index, "name", e.target.value)}
                           placeholder="Team member name"
                         />
                         {errors[`teamName-${index}`] && <small className="text-danger">{errors[`teamName-${index}`]}</small>}
                       </div>
                       <div className="col-md-3 mb-3">
-                        <label className="form-label">Role</label>
+                        <label className="form-label fw-bold">Role</label>
                         <input
                           type="text"
                           className="form-control"
                           value={member.role}
-                          onChange={(e) => handleTeamMemberChange(index, 'role', e.target.value)}
+                          onChange={(e) => handleTeamMemberChange(index, "role", e.target.value)}
                           placeholder="Team member role"
                         />
                         {errors[`teamRole-${index}`] && <small className="text-danger">{errors[`teamRole-${index}`]}</small>}
@@ -576,33 +818,44 @@ const AdAbout = () => {
                       <div className="col-md-1 mb-3 d-flex align-items-end">
                         <button
                           type="button"
-                          className="btn btn-outline-danger"
+                          className="btn btn-sm btn-outline-danger"
                           onClick={() => removeTeamMember(index)}
                           disabled={formData.teamMembers.length <= 1}
                         >
-                          <i className="fas fa-times"></i>
+                          <i className="fas fa-trash"></i>
                         </button>
                       </div>
                     </div>
                   </div>
                 </div>
               ))}
-              <button type="button" className="btn btn-outline-primary btn-sm" onClick={addTeamMember}>
-                <i className="fas fa-plus me-1"></i>Add Team Member
-              </button>
             </div>
 
-            {errors.form && <div className="alert alert-danger">{errors.form}</div>}
-            <div className="d-flex justify-content-between mt-4">
-              <button type="submit" className="btn btn-primary btn-lg">
-                <i className="fas fa-save me-2"></i>{showAddForm ? "Add" : "Update"} Changes
-              </button>
-              {!showAddForm && aboutData && (
-                <button type="button" className="btn btn-danger btn-lg" onClick={handleDelete}>
-                  <i className="fas fa-trash me-2"></i>Delete
+            {/* Form Actions */}
+            <div className="d-flex gap-2 justify-content-end">
+              {showAddForm && (
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  onClick={() => setShowAddForm(false)}
+                >
+                  Cancel
                 </button>
               )}
+              {aboutData && (
+                <button
+                  type="button"
+                  className="btn btn-danger"
+                  onClick={handleDelete}
+                >
+                  Delete
+                </button>
+              )}
+              <button type="submit" className="btn btn-primary">
+                {showAddForm ? "Add About Data" : "Update About Data"}
+              </button>
             </div>
+            {errors.form && <div className="alert alert-danger mt-3">{errors.form}</div>}
           </form>
         </div>
       )}

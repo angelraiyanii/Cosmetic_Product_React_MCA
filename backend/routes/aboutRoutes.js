@@ -6,16 +6,26 @@ const About = require("../models/AboutModel");
 
 const router = express.Router();
 
-// Ensure upload directory exists
-const uploadDir = "public/images/about_images";
-if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir, { recursive: true });
+// Ensure upload directories exist
+const imageUploadDir = "public/images/about_images";
+const videoUploadDir = "public/videos/about_videos";
+if (!fs.existsSync(imageUploadDir)) {
+  fs.mkdirSync(imageUploadDir, { recursive: true });
+}
+if (!fs.existsSync(videoUploadDir)) {
+  fs.mkdirSync(videoUploadDir, { recursive: true });
 }
 
-// Configure Multer for image uploads
+// Configure Multer for both images and videos
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, uploadDir);
+    if (file.mimetype.startsWith("image/")) {
+      cb(null, imageUploadDir);
+    } else if (file.mimetype.startsWith("video/")) {
+      cb(null, videoUploadDir);
+    } else {
+      cb(new Error("Invalid file type"), false);
+    }
   },
   filename: (req, file, cb) => {
     cb(null, Date.now() + path.extname(file.originalname));
@@ -25,174 +35,145 @@ const storage = multer.diskStorage({
 const upload = multer({
   storage,
   fileFilter: (req, file, cb) => {
-    const filetypes = /jpeg|jpg|png/;
-    const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
-    const mimetype = filetypes.test(file.mimetype);
-    if (extname && mimetype) {
+    const imageTypes = /jpeg|jpg|png/;
+    const videoTypes = /mp4|mov|avi|wmv/;
+
+    const ext = path.extname(file.originalname).toLowerCase();
+    const mime = file.mimetype.toLowerCase();
+
+    if (
+      imageTypes.test(ext) && imageTypes.test(mime) ||
+      videoTypes.test(ext) && videoTypes.test(mime)
+    ) {
       cb(null, true);
     } else {
-      cb(new Error("Only JPG, JPEG, and PNG images are allowed"));
+      cb(new Error("Only JPG, JPEG, PNG images or MP4, MOV, AVI, WMV videos are allowed"));
     }
   },
 });
 
-// Middleware to upload multiple images
+// Multer field configuration
 const uploadFields = upload.fields([
   { name: "bannerImage", maxCount: 1 },
+  { name: "bannerVideo", maxCount: 1 },
   { name: "section1Image", maxCount: 1 },
+  { name: "section1Video", maxCount: 1 },
   { name: "section2Image", maxCount: 1 },
+  { name: "section2Video", maxCount: 1 },
   { name: "teamMemberImage0", maxCount: 1 },
   { name: "teamMemberImage1", maxCount: 1 },
   { name: "teamMemberImage2", maxCount: 1 },
-  { name: "teamMemberImage3", maxCount: 1 },
-  { name: "teamMemberImage4", maxCount: 1 },
 ]);
 
-// Get About Data (single document)
-router.get("/about", async (req, res) => {
+// ================= CRUD ROUTES =================
+
+// GET (fetch latest About data)
+router.get("/", async (req, res) => {
   try {
-    const about = await About.findOne(); // Assumes one document
-    if (!about) return res.status(404).json({ error: "About data not found" });
-    res.status(200).json(about);
-  } catch (error) {
-    console.error("Error fetching about data:", error);
-    res.status(500).json({ error: "Internal Server Error" });
+    const about = await About.findOne().sort({ createdAt: -1 });
+    res.json(about || {});
+  } catch (err) {
+    res.status(500).json({ message: "Failed to fetch about data", error: err.message });
   }
 });
 
-// Add About Data
-router.post("/about", uploadFields, async (req, res) => {
+// POST (create new About data)
+router.post("/", uploadFields, async (req, res) => {
   try {
-    const { content, section1Text, section2Text, missionStatement, values } = req.body;
-    const existingAbout = await About.findOne();
-    if (existingAbout) {
-      return res.status(400).json({ error: "About data already exists. Use PUT to update." });
-    }
+    const data = req.body;
 
-    if (!req.files || !req.files.bannerImage || !req.files.section1Image || !req.files.section2Image) {
-      return res.status(400).json({ error: "All main images are required" });
-    }
-
-    // Process team members
     const teamMembers = [];
-    let index = 0;
-    while (req.body[`teamMemberName${index}`]) {
-      const name = req.body[`teamMemberName${index}`];
-      const role = req.body[`teamMemberRole${index}`];
-      const imageFile = req.files[`teamMemberImage${index}`];
-      
-      if (!imageFile) {
-        return res.status(400).json({ error: `Image for team member ${index + 1} is required` });
-      }
-      
-      teamMembers.push({
-        name,
-        role,
-        image: imageFile[0].filename
-      });
-      index++;
-    }
-
-    const newAbout = new About({
-      bannerImage: req.files.bannerImage[0].filename,
-      content,
-      section1Image: req.files.section1Image[0].filename,
-      section1Text,
-      section2Image: req.files.section2Image[0].filename,
-      section2Text,
-      missionStatement,
-      values: JSON.parse(values),
-      teamMembers
-    });
-
-    await newAbout.save();
-    res.status(201).json(newAbout);
-  } catch (error) {
-    console.error("Error adding about data:", error);
-    res.status(500).json({ error: "Internal Server Error" });
-  }
-});
-
-// Update About Data
-router.put("/about/:id", uploadFields, async (req, res) => {
-  try {
-    const { id } = req.params;
-    const { content, section1Text, section2Text, missionStatement, values } = req.body;
-
-    const about = await About.findById(id);
-    if (!about) return res.status(404).json({ error: "About data not found" });
-
-    const updatedFields = {};
-    if (content) updatedFields.content = content;
-    if (section1Text) updatedFields.section1Text = section1Text;
-    if (section2Text) updatedFields.section2Text = section2Text;
-    if (missionStatement) updatedFields.missionStatement = missionStatement;
-    if (values) updatedFields.values = JSON.parse(values);
-    
-    if (req.files?.bannerImage) updatedFields.bannerImage = req.files.bannerImage[0].filename;
-    if (req.files?.section1Image) updatedFields.section1Image = req.files.section1Image[0].filename;
-    if (req.files?.section2Image) updatedFields.section2Image = req.files.section2Image[0].filename;
-
-    // Process team members
-    const teamMembers = [];
-    let index = 0;
-    while (req.body[`teamMemberName${index}`]) {
-      const name = req.body[`teamMemberName${index}`];
-      const role = req.body[`teamMemberRole${index}`];
-      const imageFile = req.files[`teamMemberImage${index}`];
-      const existingImagePath = req.body[`teamMemberImagePath${index}`];
-      
-      teamMembers.push({
-        name,
-        role,
-        image: imageFile ? imageFile[0].filename : existingImagePath
-      });
-      index++;
-    }
-    
-    if (teamMembers.length > 0) {
-      updatedFields.teamMembers = teamMembers;
-    }
-
-    const updatedAbout = await About.findByIdAndUpdate(id, updatedFields, { new: true });
-    res.status(200).json(updatedAbout);
-  } catch (error) {
-    console.error("Error updating about data:", error);
-    res.status(500).json({ error: "Internal Server Error" });
-  }
-});
-
-// Delete About Data
-router.delete("/about/:id", async (req, res) => {
-  try {
-    const { id } = req.params;
-    const about = await About.findById(id);
-    if (!about) return res.status(404).json({ error: "About data not found" });
-
-    // Delete images from server
-    const imagesToDelete = [
-      about.bannerImage, 
-      about.section1Image, 
-      about.section2Image
-    ];
-    
-    // Add team member images
-    about.teamMembers.forEach(member => {
-      if (member.image) imagesToDelete.push(member.image);
-    });
-
-    imagesToDelete.forEach((image) => {
-      if (image) {
-        const imagePath = path.join(uploadDir, image);
-        if (fs.existsSync(imagePath)) fs.unlinkSync(imagePath);
+    Object.keys(req.body).forEach((key) => {
+      if (key.startsWith("teamMemberName")) {
+        const index = key.replace("teamMemberName", "");
+        teamMembers[index] = {
+          name: req.body[`teamMemberName${index}`],
+          role: req.body[`teamMemberRole${index}`],
+          image: req.files[`teamMemberImage${index}`]
+            ? req.files[`teamMemberImage${index}`][0].filename
+            : null,
+        };
       }
     });
 
-    await About.findByIdAndDelete(id);
-    res.status(200).json({ message: "About data deleted successfully" });
-  } catch (error) {
-    console.error("Error deleting about data:", error);
-    res.status(500).json({ error: "Internal Server Error" });
+    const about = new About({
+      bannerImage: req.files.bannerImage ? req.files.bannerImage[0].filename : null,
+      bannerVideo: req.files.bannerVideo ? req.files.bannerVideo[0].filename : null,
+      content: data.content,
+      section1Image: req.files.section1Image ? req.files.section1Image[0].filename : null,
+      section1Video: req.files.section1Video ? req.files.section1Video[0].filename : null,
+      section1Text: data.section1Text,
+      section2Image: req.files.section2Image ? req.files.section2Image[0].filename : null,
+      section2Video: req.files.section2Video ? req.files.section2Video[0].filename : null,
+      section2Text: data.section2Text,
+      missionStatement: data.missionStatement,
+      values: JSON.parse(data.values || "[]"),
+      teamMembers,
+      mediaType1: data.mediaType1,
+      mediaType2: data.mediaType2,
+    });
+
+    await about.save();
+    res.json(about);
+  } catch (err) {
+    res.status(500).json({ message: "Failed to create about data", error: err.message });
+  }
+});
+
+// PUT (update About data)
+router.put("/:id", uploadFields, async (req, res) => {
+  try {
+    const data = req.body;
+
+    const teamMembers = [];
+    for (let i = 0; i < 10; i++) {
+      if (data[`teamMemberName${i}`]) {
+        teamMembers.push({
+          name: data[`teamMemberName${i}`],
+          role: data[`teamMemberRole${i}`],
+          image: req.files?.[`teamMemberImage${i}`]?.[0]?.filename ||
+            data[`teamMemberImagePath${i}`] ||
+            null,
+        });
+      }
+    }
+
+    const updated = await About.findByIdAndUpdate(
+      req.params.id,
+      {
+        bannerImage: req.files?.bannerImage?.[0]?.filename || undefined,
+        bannerVideo: req.files?.bannerVideo?.[0]?.filename || undefined,
+        content: data.content,
+        section1Image: req.files?.section1Image?.[0]?.filename || undefined,
+        section1Video: req.files?.section1Video?.[0]?.filename || undefined,
+        section1Text: data.section1Text,
+        section2Image: req.files?.section2Image?.[0]?.filename || undefined,
+        section2Video: req.files?.section2Video?.[0]?.filename || undefined,
+        section2Text: data.section2Text,
+        missionStatement: data.missionStatement,
+        values: typeof data.values === "string" ? JSON.parse(data.values) : data.values,
+        teamMembers,
+        mediaType1: data.mediaType1,
+        mediaType2: data.mediaType2,
+      },
+      { new: true }
+    );
+
+    res.json(updated);
+  } catch (err) {
+    console.error("PUT /about/:id error:", err);
+    res.status(500).json({ message: "Failed to update about data", error: err.message });
+  }
+});
+
+
+// DELETE (remove About data)
+router.delete("/:id", async (req, res) => {
+  try {
+    await About.findByIdAndDelete(req.params.id);
+    res.json({ message: "About data deleted successfully" });
+  } catch (err) {
+    res.status(500).json({ message: "Failed to delete about data", error: err.message });
   }
 });
 

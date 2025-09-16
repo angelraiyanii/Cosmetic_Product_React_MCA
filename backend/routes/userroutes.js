@@ -187,13 +187,17 @@ router.post("/Usermodel", async (req, res) => {
     console.error("🔥 Backend Error:", error.message, error.stack);
     return res.status(500).json({ error: "Internal server error", details: error.message });
   }
-});router.get('/user-details/:userId', async (req, res) => {
+
+});
+// Get user details by ID
+
+router.get("/user-details/:userId", async (req, res) => {
   try {
     const { userId } = req.params;
 
-    // Validate ObjectId
+    // Validate MongoDB ObjectId
     if (!mongoose.Types.ObjectId.isValid(userId)) {
-      return res.status(400).json({ success: false, error: "Invalid user ID" });
+      return res.status(400).json({ success: false, error: "Invalid user ID format" });
     }
 
     const user = await User.findById(userId);
@@ -202,9 +206,9 @@ router.post("/Usermodel", async (req, res) => {
       return res.status(404).json({ success: false, error: "User not found" });
     }
 
-    res.status(200).json(user);
+    res.status(200).json({ success: true, user });
   } catch (error) {
-    console.error("Error fetching user:", error);
+    console.error("Error fetching user:", error.message);
     res.status(500).json({ success: false, error: "Failed to fetch user details" });
   }
 });

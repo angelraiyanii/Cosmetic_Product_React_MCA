@@ -15,7 +15,7 @@ import Category from './component/Category'
 import Product from './component/Product'
 import Ct_product from './component/Ct_product'
 import SinglePro from './component/SinglePro'
-// import  Wishlist  from './component/Wishlist'
+import  Wishlist  from './component/Wishlist'
 // import Aboutus from './component/Aboutus'
 
 // import OfferBanner from './component/OfferBanner'
@@ -48,7 +48,7 @@ function App() {
         <Route path='/Product' element={<Product />} />
         <Route path="/Ct_product" element={<Ct_product />} />
         <Route path="/SinglePro/:productId" element={<SinglePro />} />
-        {/* <Route path="/Wishlist" element={<Wishlist />} /> */}
+        <Route path="/Wishlist" element={<Wishlist />} />
 
         {/* <Route path='/Aboutus' element={<Aboutus />} /> */}
         <Route path='/Admin/AdAbout' element={<AdAbout />} />
