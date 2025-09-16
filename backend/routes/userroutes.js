@@ -187,18 +187,25 @@ router.post("/Usermodel", async (req, res) => {
     console.error("🔥 Backend Error:", error.message, error.stack);
     return res.status(500).json({ error: "Internal server error", details: error.message });
   }
-});
-router.get('/user-details/:userId', async (req, res) => {
+});router.get('/user-details/:userId', async (req, res) => {
   try {
-    const user = await User.findById(req.params.userId);
-    if (!user) {
-      return res.status(404).json({ success: false, error: 'User not found' });
+    const { userId } = req.params;
+
+    // Validate ObjectId
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+      return res.status(400).json({ success: false, error: "Invalid user ID" });
     }
+
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({ success: false, error: "User not found" });
+    }
+
     res.status(200).json(user);
   } catch (error) {
-    console.error('Error fetching user:', error);
-    res.status(500).json({ success: false, error: 'Failed to fetch user details' });
+    console.error("Error fetching user:", error);
+    res.status(500).json({ success: false, error: "Failed to fetch user details" });
   }
 });
-
 module.exports = router;

@@ -41,6 +41,11 @@ const uploadFields = upload.fields([
   { name: "bannerImage", maxCount: 1 },
   { name: "section1Image", maxCount: 1 },
   { name: "section2Image", maxCount: 1 },
+  { name: "teamMemberImage0", maxCount: 1 },
+  { name: "teamMemberImage1", maxCount: 1 },
+  { name: "teamMemberImage2", maxCount: 1 },
+  { name: "teamMemberImage3", maxCount: 1 },
+  { name: "teamMemberImage4", maxCount: 1 },
 ]);
 
 // Get About Data (single document)
@@ -58,14 +63,34 @@ router.get("/about", async (req, res) => {
 // Add About Data
 router.post("/about", uploadFields, async (req, res) => {
   try {
-    const { content, section1Text, section2Text } = req.body;
+    const { content, section1Text, section2Text, missionStatement, values } = req.body;
     const existingAbout = await About.findOne();
     if (existingAbout) {
       return res.status(400).json({ error: "About data already exists. Use PUT to update." });
     }
 
     if (!req.files || !req.files.bannerImage || !req.files.section1Image || !req.files.section2Image) {
-      return res.status(400).json({ error: "All images are required" });
+      return res.status(400).json({ error: "All main images are required" });
+    }
+
+    // Process team members
+    const teamMembers = [];
+    let index = 0;
+    while (req.body[`teamMemberName${index}`]) {
+      const name = req.body[`teamMemberName${index}`];
+      const role = req.body[`teamMemberRole${index}`];
+      const imageFile = req.files[`teamMemberImage${index}`];
+      
+      if (!imageFile) {
+        return res.status(400).json({ error: `Image for team member ${index + 1} is required` });
+      }
+      
+      teamMembers.push({
+        name,
+        role,
+        image: imageFile[0].filename
+      });
+      index++;
     }
 
     const newAbout = new About({
@@ -75,6 +100,9 @@ router.post("/about", uploadFields, async (req, res) => {
       section1Text,
       section2Image: req.files.section2Image[0].filename,
       section2Text,
+      missionStatement,
+      values: JSON.parse(values),
+      teamMembers
     });
 
     await newAbout.save();
@@ -89,7 +117,7 @@ router.post("/about", uploadFields, async (req, res) => {
 router.put("/about/:id", uploadFields, async (req, res) => {
   try {
     const { id } = req.params;
-    const { content, section1Text, section2Text } = req.body;
+    const { content, section1Text, section2Text, missionStatement, values } = req.body;
 
     const about = await About.findById(id);
     if (!about) return res.status(404).json({ error: "About data not found" });
@@ -98,9 +126,33 @@ router.put("/about/:id", uploadFields, async (req, res) => {
     if (content) updatedFields.content = content;
     if (section1Text) updatedFields.section1Text = section1Text;
     if (section2Text) updatedFields.section2Text = section2Text;
+    if (missionStatement) updatedFields.missionStatement = missionStatement;
+    if (values) updatedFields.values = JSON.parse(values);
+    
     if (req.files?.bannerImage) updatedFields.bannerImage = req.files.bannerImage[0].filename;
     if (req.files?.section1Image) updatedFields.section1Image = req.files.section1Image[0].filename;
     if (req.files?.section2Image) updatedFields.section2Image = req.files.section2Image[0].filename;
+
+    // Process team members
+    const teamMembers = [];
+    let index = 0;
+    while (req.body[`teamMemberName${index}`]) {
+      const name = req.body[`teamMemberName${index}`];
+      const role = req.body[`teamMemberRole${index}`];
+      const imageFile = req.files[`teamMemberImage${index}`];
+      const existingImagePath = req.body[`teamMemberImagePath${index}`];
+      
+      teamMembers.push({
+        name,
+        role,
+        image: imageFile ? imageFile[0].filename : existingImagePath
+      });
+      index++;
+    }
+    
+    if (teamMembers.length > 0) {
+      updatedFields.teamMembers = teamMembers;
+    }
 
     const updatedAbout = await About.findByIdAndUpdate(id, updatedFields, { new: true });
     res.status(200).json(updatedAbout);
@@ -117,10 +169,23 @@ router.delete("/about/:id", async (req, res) => {
     const about = await About.findById(id);
     if (!about) return res.status(404).json({ error: "About data not found" });
 
-    // Optionally delete images from server
-    [about.bannerImage, about.section1Image, about.section2Image].forEach((image) => {
-      const imagePath = path.join(uploadDir, image);
-      if (fs.existsSync(imagePath)) fs.unlinkSync(imagePath);
+    // Delete images from server
+    const imagesToDelete = [
+      about.bannerImage, 
+      about.section1Image, 
+      about.section2Image
+    ];
+    
+    // Add team member images
+    about.teamMembers.forEach(member => {
+      if (member.image) imagesToDelete.push(member.image);
+    });
+
+    imagesToDelete.forEach((image) => {
+      if (image) {
+        const imagePath = path.join(uploadDir, image);
+        if (fs.existsSync(imagePath)) fs.unlinkSync(imagePath);
+      }
     });
 
     await About.findByIdAndDelete(id);

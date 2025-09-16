@@ -8,11 +8,15 @@ import Login from './component/Login'
 import AdCategory from './component/Admin/AdCategory'
 import AdPro from './component/Admin/AdPro'
 import ASlider from './component/Admin/ASlider'
+import AdAbout from './component/Admin/AdAbout'
 import Slider from './component/Slider'
 import AdBanner from "./component/Admin/AdBanner";
 import Category from './component/Category'
 import Product from './component/Product'
 import Ct_product from './component/Ct_product'
+import SinglePro from './component/SinglePro'
+// import  Wishlist  from './component/Wishlist'
+// import Aboutus from './component/Aboutus'
 
 // import OfferBanner from './component/OfferBanner'
 
@@ -22,11 +26,11 @@ function App() {
   return (
     <Router>
       {/* Always visible */}
-      <Navbar />  
+      <Navbar />
 
       {/* Page routes */}
       <Routes>
-         <Route
+        <Route
           path="/"
           element={
             <>
@@ -37,17 +41,21 @@ function App() {
             </>
           }
         />
-      <Route path="/Userlogin" element={<Userlogin />} />
-      <Route path="/login" element={<Login />} />
-      <Route path='/Slider' element={<Slider />} />
-      <Route path='/Category' element={<Category />} />
-      <Route path='/Product' element={<Product />} />
-      <Route path="/Ct_product" element={<Ct_product />} />
+        <Route path="/Userlogin" element={<Userlogin />} />
+        <Route path="/login" element={<Login />} />
+        <Route path='/Slider' element={<Slider />} />
+        <Route path='/Category' element={<Category />} />
+        <Route path='/Product' element={<Product />} />
+        <Route path="/Ct_product" element={<Ct_product />} />
+        <Route path="/SinglePro/:productId" element={<SinglePro />} />
+        {/* <Route path="/Wishlist" element={<Wishlist />} /> */}
 
-      <Route path='/Admin/ASlider' element={<ASlider />} />
-       <Route path="/Admin/AdBanner" element={<AdBanner />} />
-      <Route path="/Admin/AdCategory" element={<AdCategory />} />
-      <Route path="/Admin/AdPro" element={<AdPro />} />
+        {/* <Route path='/Aboutus' element={<Aboutus />} /> */}
+        <Route path='/Admin/AdAbout' element={<AdAbout />} />
+        <Route path='/Admin/ASlider' element={<ASlider />} />
+        <Route path="/Admin/AdBanner" element={<AdBanner />} />
+        <Route path="/Admin/AdCategory" element={<AdCategory />} />
+        <Route path="/Admin/AdPro" element={<AdPro />} />
       </Routes>
 
       {/* Always visible */}

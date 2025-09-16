@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import axios from "axios";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
 
 function Navbar() {
   const [user, setUser] = useState(null);
+  const [categories, setCategories] = useState([]);
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -12,7 +15,36 @@ function Navbar() {
     if (savedUser) {
       setUser(JSON.parse(savedUser));
     }
+
+    // Fetch categories from the database
+    fetchCategories();
   }, []);
+
+  const fetchCategories = async () => {
+    try {
+      setLoading(true);
+      const response = await axios.get(
+        "http://localhost:5000/api/CategoryModel/categories"
+      );
+
+      // Filter only active categories
+      const activeCategories = response.data.filter(
+        (category) => category.categoryStatus === "Active"
+      );
+
+      setCategories(activeCategories);
+    } catch (error) {
+      console.error("Error fetching categories:", error);
+      // Fallback categories if API fails
+      setCategories([
+        { _id: "1", categoryName: "Skincare", categoryStatus: "Active" },
+        { _id: "2", categoryName: "Makeup", categoryStatus: "Active" },
+        { _id: "3", categoryName: "Haircare", categoryStatus: "Active" },
+      ]);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleLogout = () => {
     localStorage.removeItem("usertoken");
@@ -23,7 +55,84 @@ function Navbar() {
     navigate("/");
   };
 
+  const handleCategoryClick = (categoryName) => {
+    // Navigate to Ct_product page with the selected category
+    navigate(`/Ct_product?category=${encodeURIComponent(categoryName)}`);
+
+    // Close the dropdown (optional)
+    const dropdownElement = document.getElementById('productsDropdown');
+    if (dropdownElement) {
+      const bsDropdown = window.bootstrap.Dropdown.getInstance(dropdownElement);
+      if (bsDropdown) {
+        bsDropdown.hide();
+      }
+    }
+  };
+
+  const handleBestSellersClick = () => {
+    // Navigate to products page with best sellers sorting
+    navigate("/Ct_product?sort=sales-desc");
+
+    // Close the dropdown
+    const dropdownElement = document.getElementById('productsDropdown');
+    if (dropdownElement) {
+      const bsDropdown = window.bootstrap.Dropdown.getInstance(dropdownElement);
+      if (bsDropdown) {
+        bsDropdown.hide();
+      }
+    }
+  };
+
+  const handleNewArrivalsClick = () => {
+    // Navigate to products page with new arrivals sorting
+    navigate("/Ct_product?sort=newest");
+
+    // Close the dropdown
+    const dropdownElement = document.getElementById('productsDropdown');
+    if (dropdownElement) {
+      const bsDropdown = window.bootstrap.Dropdown.getInstance(dropdownElement);
+      if (bsDropdown) {
+        bsDropdown.hide();
+      }
+    }
+  };
+
   const isAdmin = user && user.role === "admin";
+
+  // Helper functions for category icons and colors
+  const getCategoryIcon = (categoryName) => {
+    switch (categoryName.toLowerCase()) {
+      case 'skincare': return 'fa-spray-can';
+      case 'makeup': return 'fa-palette';
+      case 'haircare': return 'fa-spa';
+      case 'fragrance': return 'fa-wind';
+      case 'bath & body': return 'fa-bath';
+      case 'face': return 'fa-smile';
+      case 'lips': return 'fa-kiss';
+      case 'eyes': return 'fa-eye';
+      case 'nails': return 'fa-hand-paper';
+      case 'gift sets': return 'fa-gift';
+      case 'luxury collection': return 'fa-crown';
+      default: return 'fa-shopping-bag';
+    }
+  };
+
+  const getCategoryColor = (categoryName) => {
+    switch (categoryName.toLowerCase()) {
+      case 'skincare': return 'text-info';
+      case 'makeup': return 'text-danger';
+      case 'haircare': return 'text-success';
+      case 'fragrance': return 'text-warning';
+      case 'bath & body': return 'text-primary';
+      case 'face': return 'text-info';
+      case 'lips': return 'text-danger';
+      case 'eyes': return 'text-purple';
+      case 'nails': return 'text-pink';
+      case 'gift sets': return 'text-success';
+      case 'luxury collection': return 'text-warning';
+      default: return 'text-secondary';
+    }
+  };
 
   return (
     <>
@@ -38,10 +147,12 @@ function Navbar() {
       />
       <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
 
-      {/* Special offers banner */}
-      <div className="offers-banner fade-in bg-light py-2 text-center">
-        <span className="me-2">✨ Free shipping on orders over $50! Limited time offer ✨</span>
-        <a href="#" className="text-decoration-none fw-bold">
+      {/* Special offers banner with theme colors */}
+      <div className="offers-banner fade-in py-2 text-center" style={{
+        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+        color: 'white'
+      }}>        <span className="me-2">✨ Free shipping on orders over $50! Limited time offer ✨</span>
+        <a href="#" className="text-decoration-none fw-bold" style={{ color: 'white' }}>
           Shop Now <i className="fas fa-arrow-right ms-1"></i>
         </a>
       </div>
@@ -50,9 +161,10 @@ function Navbar() {
       <nav className="navbar navbar-expand-lg cosmetics-navbar sticky-top bg-white shadow-sm">
         <div className="container-fluid">
           {/* Brand */}
-          <a className="navbar-brand fw-bold" href="#">
-            <i className="fas fa-gem me-2 text-pink"></i>GlowCosmetics
-          </a>
+          <Link className="navbar-brand fw-bold" to="/">
+            <i className="fas fa-gem me-2"></i>
+            <i className=" text-pink"></i>GlowCosmetics
+          </Link>
 
           {/* Toggle for mobile */}
           <button
@@ -87,37 +199,101 @@ function Navbar() {
                   <i className="fas fa-shopping-bag me-1"></i>Products
                 </a>
                 <ul className="dropdown-menu" aria-labelledby="productsDropdown">
-                  <li>
-                    <a className="dropdown-item" href="#">
-                      <i className="fas fa-spray-can me-2 text-info"></i>Skincare
-                    </a>
-                  </li>
-                  <li>
-                    <a className="dropdown-item" href="#">
-                      <i className="fas fa-smile-beam me-2 text-warning"></i>Haircare
-                    </a>
-                  </li>
-                  <li>
-                    <a className="dropdown-item" href="#">
-                      <i className="fas fa-star me-2 text-primary"></i>Fragrance
-                    </a>
-                  </li>
-                  <li><hr className="dropdown-divider" /></li>
-                  <li>
-                    <a className="dropdown-item" href="#">
-                      <i className="fas fa-gift me-2 text-success"></i>Gift Sets
-                    </a>
-                  </li>
-                  <li>
-                    <a className="dropdown-item" href="#">
-                      <i className="fas fa-crown me-2 text-secondary"></i>Luxury Collection
-                    </a>
-                  </li>
+                  {loading ? (
+                    <li>
+                      <div className="dropdown-item-text">
+                        <div className="spinner-border spinner-border-sm text-primary me-2" role="status">
+                          <span className="visually-hidden">Loading...</span>
+                        </div>
+                        Loading categories...
+                      </div>
+                    </li>
+                  ) : (
+                    <>
+                      {/* Main Categories */}
+                      <li className="dropdown-header fw-bold">Categories</li>
+                      {categories.map((category) => (
+                        <li key={category._id}>
+                          <button
+                            className="dropdown-item d-flex align-items-center"
+                            onClick={() => handleCategoryClick(category.categoryName)}
+                            style={{ cursor: 'pointer', background: 'none', border: 'none', width: '100%', textAlign: 'left' }}
+                          >
+                            <i className={`fas ${getCategoryIcon(category.categoryName)} me-2 ${getCategoryColor(category.categoryName)}`}></i>
+                            {category.categoryName}
+                          </button>
+                        </li>
+                      ))}
+
+                      <li><hr className="dropdown-divider" /></li>
+
+                      {/* Special Collections */}
+                      <li className="dropdown-header fw-bold">Special Collections</li>
+
+                      {/* Best Sellers */}
+                      <li>
+                        <button
+                          className="dropdown-item d-flex align-items-center"
+                          onClick={handleBestSellersClick}
+                          style={{ cursor: 'pointer', background: 'none', border: 'none', width: '100%', textAlign: 'left' }}
+                        >
+                          <i className="fas fa-fire me-2 text-danger"></i>
+                          Best Sellers
+                        </button>
+                      </li>
+
+                      {/* New Arrivals */}
+                      <li>
+                        <button
+                          className="dropdown-item d-flex align-items-center"
+                          onClick={handleNewArrivalsClick}
+                          style={{ cursor: 'pointer', background: 'none', border: 'none', width: '100%', textAlign: 'left' }}
+                        >
+                          <i className="fas fa-star me-2 text-warning"></i>
+                          New Arrivals
+                        </button>
+                      </li>
+
+                      {/* Gift Sets */}
+                      <li>
+                        <button
+                          className="dropdown-item d-flex align-items-center"
+                          onClick={() => handleCategoryClick("Gift Sets")}
+                          style={{ cursor: 'pointer', background: 'none', border: 'none', width: '100%', textAlign: 'left' }}
+                        >
+                          <i className="fas fa-gift me-2 text-success"></i>
+                          Gift Sets
+                        </button>
+                      </li>
+
+                      {/* Luxury Collection */}
+                      <li>
+                        <button
+                          className="dropdown-item d-flex align-items-center"
+                          onClick={() => handleCategoryClick("Luxury Collection")}
+                          style={{ cursor: 'pointer', background: 'none', border: 'none', width: '100%', textAlign: 'left' }}
+                        >
+                          <i className="fas fa-crown me-2 text-warning"></i>
+                          Luxury Collection
+                        </button>
+                      </li>
+
+                      <li><hr className="dropdown-divider" /></li>
+
+                      {/* All Products */}
+                      <li>
+                        <Link className="dropdown-item d-flex align-items-center" to="/Ct_product">
+                          <i className="fas fa-boxes me-2 text-primary"></i>
+                          All Products
+                        </Link>
+                      </li>
+                    </>
+                  )}
                 </ul>
               </li>
 
               <li className="nav-item">
-                <Link className="nav-link" to="/About">
+                <Link className="nav-link" to="/Aboutus">
                   <i className="fas fa-info-circle me-1"></i>About Us
                 </Link>
               </li>
@@ -282,6 +458,34 @@ function Navbar() {
           </div>
         </div>
       </nav>
+
+      {/* Custom CSS for additional colors */}
+      <style>
+        {`
+          .text-pink { color: #e83e8c; }
+          .text-purple { color: #6f42c1; }
+          .offers-banner {
+            background: linear-gradient(45deg, #e83e8c, #d63384);
+            font-size: 0.9rem;
+          }
+          .dropdown-header {
+            font-size: 0.85rem;
+            padding: 0.5rem 1rem;
+          }
+          .navbar-brand {
+            color: #e83e8c !important;
+          }
+          .nav-link {
+            color: #495057;
+          }
+          .nav-link:hover {
+            color: #e83e8c;
+          }
+          .dropdown-item:hover {
+            background-color: #f8d7da;
+          }
+        `}
+      </style>
     </>
   );
 }

@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import { FaStar, FaRegStar, FaStarHalfAlt } from "react-icons/fa";
-import u1 from "./Images/user_photo.png";
-import u2 from "./Images/user_photo.png";
+import u1 from "./images/c1.jpeg";
+import u2 from "./images/c1.jpeg";
 class Rating_Review extends Component {
   render() {
     return (

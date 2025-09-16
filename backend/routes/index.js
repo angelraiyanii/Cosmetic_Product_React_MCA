@@ -23,6 +23,19 @@ router.use("/ProductModel", productRoutes);
 //banner
 const bannerRoutes = require("./bannerRoutes");
 router.use("/BannerModel", bannerRoutes);
+// Cart 
+const cartRoutes = require("./cartRoutes"); 
+router.use("/CartModel", cartRoutes);
+
+// Wishlist 
+const wishlistRoutes = require("./wishlistRoutes"); 
+router.use("/WishlistModel", wishlistRoutes);
+
+//About Us
+const aboutRoutes = require("./aboutRoutes");
+router.use("/aboutModel", aboutRoutes);
+
+
 // Test route
 router.get("/", (req, res) => {
   res.json({ message: 'API is working!' });
