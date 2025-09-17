@@ -19,7 +19,7 @@ import  Wishlist  from './component/Wishlist'
 import Cart from './component/Cart'
 import Contactus from './component/Contactus'
 import AdContact from './component/Admin/AdContact'
-// import Aboutus from './component/Aboutus'
+import Aboutus from './component/Aboutus'
 
 // import OfferBanner from './component/OfferBanner'
 
@@ -54,7 +54,9 @@ function App() {
         <Route path="/Wishlist" element={<Wishlist />} />
         <Route path="/Cart" element={<Cart />} />
         <Route path='/Contactus' element={<Contactus />} />
-        {/* <Route path='/Aboutus' element={<Aboutus />} /> */}
+        <Route path='/Aboutus' element={<Aboutus />} />
+        
+        
         <Route path='/Admin/AdAbout' element={<AdAbout />} />
         <Route path='/Admin/ASlider' element={<ASlider />} />
         <Route path="/Admin/AdBanner" element={<AdBanner />} />
