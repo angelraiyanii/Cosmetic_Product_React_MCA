@@ -437,7 +437,7 @@ export class Wishlist extends Component {
         <style jsx>{`
           .wishlist-container {
             min-height: 100vh;
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+           
             padding-bottom: 4rem;
           }
 

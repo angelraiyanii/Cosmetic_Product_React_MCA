@@ -16,6 +16,9 @@ import Product from './component/Product'
 import Ct_product from './component/Ct_product'
 import SinglePro from './component/SinglePro'
 import  Wishlist  from './component/Wishlist'
+import Cart from './component/Cart'
+import Contactus from './component/Contactus'
+import AdContact from './component/Admin/AdContact'
 // import Aboutus from './component/Aboutus'
 
 // import OfferBanner from './component/OfferBanner'
@@ -49,13 +52,15 @@ function App() {
         <Route path="/Ct_product" element={<Ct_product />} />
         <Route path="/SinglePro/:productId" element={<SinglePro />} />
         <Route path="/Wishlist" element={<Wishlist />} />
-
+        <Route path="/Cart" element={<Cart />} />
+        <Route path='/Contactus' element={<Contactus />} />
         {/* <Route path='/Aboutus' element={<Aboutus />} /> */}
         <Route path='/Admin/AdAbout' element={<AdAbout />} />
         <Route path='/Admin/ASlider' element={<ASlider />} />
         <Route path="/Admin/AdBanner" element={<AdBanner />} />
         <Route path="/Admin/AdCategory" element={<AdCategory />} />
         <Route path="/Admin/AdPro" element={<AdPro />} />
+        <Route path="/Admin/AdContact" element={<AdContact />} />
       </Routes>
 
       {/* Always visible */}

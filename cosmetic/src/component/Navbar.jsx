@@ -299,7 +299,7 @@ function Navbar() {
               </li>
 
               <li className="nav-item">
-                <Link className="nav-link" to="/Contact">
+                <Link className="nav-link" to="/Contactus">
                   <i className="fas fa-phone me-1"></i>Contact
                 </Link>
               </li>

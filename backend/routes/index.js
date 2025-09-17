@@ -35,6 +35,10 @@ router.use("/WishlistModel", wishlistRoutes);
 const aboutRoutes = require("./aboutRoutes");
 router.use("/AboutModel", aboutRoutes);
 
+//Contact Us
+const contactRoutes = require("./contactRoutes");
+router.use("/ContactModel", contactRoutes);
+
 
 // Test route
 router.get("/", (req, res) => {
