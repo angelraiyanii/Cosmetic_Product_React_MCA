@@ -415,7 +415,7 @@ export class Cart extends Component {
                               className="btn-view"
                               title="View Product"
                             >
-                              <FaEye  />
+                              <FaEye/>
                             </Link>
                             <button
                               className="btn-remove"
