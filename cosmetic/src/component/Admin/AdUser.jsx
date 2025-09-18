@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import axios from "axios";
-import u1 from "../images/user1.png";
+import u1 from "../images/pro1.jpeg";
 import { Link } from "react-router-dom";
 
 export class AdUser extends Component {

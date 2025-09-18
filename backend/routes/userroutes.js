@@ -3,7 +3,8 @@ const multer = require("multer");
 const path = require("path");
 const jwt = require("jsonwebtoken");
 const nodemailer = require("nodemailer");
-const UserSchema = require("../models/Usermodel");
+const mongoose = require("mongoose");  
+const User  = require("../models/Usermodel");
 const router = express.Router();
 const bcrypt = require("bcrypt");
 
@@ -20,7 +21,7 @@ const transporter = nodemailer.createTransport({
 
 // Multer Storage Configuration
 const storage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, "backend/public/images/profile_pictures"),
+  destination: (req, file, cb) => cb(null, "public/images/profile_pictures"),
   filename: (req, file, cb) => cb(null, Date.now() + path.extname(file.originalname)),
 });
 const upload = multer({ storage });
@@ -32,7 +33,7 @@ router.post("/add-Usermodel", upload.single("profilePic"), async (req, res) => {
 
     const verificationToken = jwt.sign({ email }, process.env.JWT_SECRET, { expiresIn: "1d" });
 
-    const newUser = new UserSchema({
+    const newUser = new User ({
       fullname,
       email,
       mobile,
@@ -91,7 +92,7 @@ router.put("/:id", upload.single("profilePic"), async (req, res) => {
     if (password) updateData.password = password; 
     if (req.file) updateData.profilePic = req.file.filename;
 
-    const updatedUser = await UserSchema.findByIdAndUpdate(req.params.id, updateData, { new: true });
+    const updatedUser = await User .findByIdAndUpdate(req.params.id, updateData, { new: true });
 
     if (!updatedUser) {
       return res.status(404).json({ message: "User not found" });
@@ -111,7 +112,7 @@ router.get("/verify-email/:token", async (req, res) => {
   try {
     const { token } = req.params;
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const user = await UserSchema.findOne({ email: decoded.email });
+    const user = await User .findOne({ email: decoded.email });
 
     if (!user) {
       return res.redirect("http://localhost:5173/Usermodel?status=error&message=Invalid or expired token.");
@@ -130,7 +131,7 @@ router.get("/verify-email/:token", async (req, res) => {
 // Retrieve all Users
 router.get("/all-Usermodel", async (req, res) => {
   try {
-    const allUsermodel = await UserSchema.find();
+    const allUsermodel = await User .find();
     res.status(200).json({ Usermodel: allUsermodel });
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -140,7 +141,7 @@ router.get("/all-Usermodel", async (req, res) => {
 // Delete User by ID
 router.delete("/:id", async (req, res) => {
   try {
-    const deletedUser = await UserSchema.findByIdAndDelete(req.params.id);
+    const deletedUser = await User .findByIdAndDelete(req.params.id);
     if (!deletedUser) {
       return res.status(404).json({ message: "User not found" });
     }
@@ -159,7 +160,7 @@ router.post("/Usermodel", async (req, res) => {
       return res.status(400).json({ status: "error", message: "Email and password are required!" });
     }
 
-    const user = await UserSchema.findOne({ email }); 
+    const user = await User .findOne({ email }); 
     if (!user) {
       return res.status(400).json({ status: "error", message: "Email is not registered!" });
     }
@@ -210,6 +211,60 @@ router.get("/user-details/:userId", async (req, res) => {
   } catch (error) {
     console.error("Error fetching user:", error.message);
     res.status(500).json({ success: false, error: "Failed to fetch user details" });
+  }
+});
+// Change Password Route
+router.put("/change-password/:userId", async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const { oldPassword, newPassword } = req.body;
+
+    // Validate input
+    if (!oldPassword || !newPassword) {
+      return res.status(400).json({ 
+        message: "Old password and new password are required" 
+      });
+    }
+
+    // Validate MongoDB ObjectId
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+      return res.status(400).json({ message: "Invalid user ID format" });
+    }
+
+    // Find user
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Check if old password matches (since you're not using bcrypt)
+    if (oldPassword !== user.password) {
+      return res.status(400).json({ 
+        message: "Old password is incorrect" 
+      });
+    }
+
+    // Check if new password is different from old password
+    if (oldPassword === newPassword) {
+      return res.status(400).json({ 
+        message: "New password must be different from old password" 
+      });
+    }
+
+    // Update password
+    user.password = newPassword;
+    await user.save();
+
+    res.status(200).json({ 
+      message: "Password updated successfully" 
+    });
+
+  } catch (error) {
+    console.error("Change password error:", error);
+    res.status(500).json({ 
+      message: "Server error while changing password",
+      error: error.message 
+    });
   }
 });
 module.exports = router;

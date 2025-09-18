@@ -1,585 +1,632 @@
-import React, { Component } from "react";
-import axios from "axios";
-import user1 from "./images/user1.png";
+import React, { useState, useEffect } from "react";
+import {
+  User,
+  Mail,
+  Phone,
+  MapPin,
+  Edit,
+  Camera,
+  Save,
+  X,
+  CheckCircle,
+  Lock,
+  Shield,
+  Calendar,
+  Eye,
+  EyeOff,
+  AlertCircle
+} from "lucide-react";
 
-export class Account extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      showProfileForm: false,
-      showPasswordForm: false,
-      fullName: "",
-      email: "",
-      phone: "",
-      gender: "",
-      address: "",
-      pinCode: "",
-      zip: "",
-      password: "",
-      oldPassword: "",
-      confirmPassword: "",
-      profileImage: null,
-      profileImagePreview: null,
-      errors: {},
-      userId: null,
-    };
-  }
+function Account() {
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editedUser, setEditedUser] = useState({});
+  const [profilePicPreview, setProfilePicPreview] = useState(null);
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [showPasswordForm, setShowPasswordForm] = useState(false);
+  const [oldPassword, setOldPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [formErrors, setFormErrors] = useState({});
+  const [showOldPassword, setShowOldPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [passwordErrors, setPasswordErrors] = useState({});
+  const [isUpdatingPassword, setIsUpdatingPassword] = useState(false);
 
-  // Fetch user data on component mount
-  componentDidMount() {
-    const userData =
-      localStorage.getItem("user") || localStorage.getItem("admin");
-    if (userData) {
-      const user = JSON.parse(userData);
-      this.setState({
-        userId: user.id,
-        fullName: user.fullname,
-        email: user.email,
-      });
-      this.fetchUserData(user.id);
-    }
-  }
+  useEffect(() => {
+    fetchUserData();
+  }, []);
 
-  // Fetch user data from backend
-  fetchUserData = async (userId) => {
+  const fetchUserData = async () => {
     try {
-      const token =
-        localStorage.getItem("usertoken") || localStorage.getItem("admintoken");
-      const response = await axios.get(
-        `http://localhost:5000/api/Login/all-Login`,
+      setLoading(true);
+      const token = localStorage.getItem("token");
+      const userId = JSON.parse(atob(token.split(".")[1])).userId;
+
+      const response = await fetch(
+        `http://localhost:5000/api/Usermodel/user-details/${userId}`,
         {
           headers: { Authorization: `Bearer ${token}` },
         }
       );
-      const user = response.data.Login.find((u) => u._id === userId);
-      if (user) {
-        this.setState({
-          fullName: user.fullname,
-          email: user.email,
-          phone: user.mobile,
-          gender: user.gender,
-          address: user.address,
-          pinCode: user.pincode,
-          profileImagePreview: user.profilePic
-            ? `http://localhost:5000/public/images/profile_pictures/${user.profilePic}`
-            : user1,
-        });
-      }
-    } catch (error) {
-      console.error("Error fetching user data:", error);
+
+      if (!response.ok) throw new Error("Failed to fetch user data");
+
+      const data = await response.json();
+      setUser(data.user);
+      setEditedUser(data.user);
+      setLoading(false);
+    } catch (err) {
+      setError(err.message);
+      setLoading(false);
     }
   };
 
-  // Validation for profile form
-  validateForm = () => {
-    const errors = {};
-    if (!this.state.fullName.trim()) errors.fullName = "Full Name is required";
-    if (!this.state.email.trim()) errors.email = "Email is required";
-    else if (!/\S+@\S+\.\S+/.test(this.state.email))
-      errors.email = "Invalid email format";
-    if (!this.state.phone.trim()) errors.phone = "Phone Number is required";
-    else if (!/^\d{10}$/.test(this.state.phone))
-      errors.phone = "Phone number must be 10 digits";
-    if (!this.state.gender) errors.gender = "Gender is required";
-    if (!this.state.address.trim()) errors.address = "Address is required";
-    if (!this.state.pinCode.trim()) errors.pinCode = "Pin Code is required";
-    else if (!/^\d{6}$/.test(this.state.pinCode))
-      errors.pinCode = "Pin Code must be 6 digits";
+  const handleEdit = () => setIsEditing(true);
 
-    this.setState({ errors });
-    return Object.keys(errors).length === 0;
+  const handleCancel = () => {
+    setIsEditing(false);
+    setEditedUser(user);
+    setProfilePicPreview(null);
+    setSelectedFile(null);
   };
 
-  // Validation for password form
-  validateFormP = () => {
-    const errors = {};
-    if (!this.state.oldPassword)
-      errors.oldPassword = "Old Password is required";
-    if (!this.state.password) errors.password = "New Password is required";
-    if (!this.state.confirmPassword)
-      errors.confirmPassword = "Confirm Password is required";
-    else if (this.state.password !== this.state.confirmPassword)
-      errors.confirmPassword = "Passwords do not match";
-
-    this.setState({ errors });
-    return Object.keys(errors).length === 0;
-  };
-
-  // Handle profile update
-  handleSubmitProfile = async (e) => {
-    e.preventDefault();
-    if (this.validateForm()) {
+  const handleSave = async () => {
+    try {
       const formData = new FormData();
-      formData.append("fullname", this.state.fullName);
-      formData.append("email", this.state.email);
-      formData.append("mobile", this.state.phone);
-      formData.append("gender", this.state.gender);
-      formData.append("address", this.state.address);
-      formData.append("pincode", this.state.pinCode);
-      if (this.state.profileImage)
-        formData.append("profilePic", this.state.profileImage);
-
-      try {
-        const token =
-          localStorage.getItem("usertoken") ||
-          localStorage.getItem("admintoken");
-        const response = await axios.put(
-          `http://localhost:5000/api/Login/${this.state.userId}`,
-          formData,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "Content-Type": "multipart/form-data",
-            },
-          }
-        );
-
-        // Update localStorage with new user data
-        const updatedUser = response.data.Login;
-        localStorage.setItem(
-          updatedUser.role,
-          JSON.stringify({
-            id: updatedUser._id,
-            fullname: updatedUser.fullname,
-            email: updatedUser.email,
-            role: updatedUser.role,
-          })
-        );
-
-        alert("Profile updated successfully!");
-        this.setState({ showProfileForm: false });
-        this.fetchUserData(this.state.userId); // Refresh displayed data
-      } catch (error) {
-        console.error("Error updating profile:", error);
-        alert("Failed to update profile.");
-      }
-    }
-  };
-
-  // Handle password change
-  handleSubmitPassword = async (e) => {
-    e.preventDefault();
-    if (this.validateFormP()) {
-      try {
-        const token =
-          localStorage.getItem("usertoken") ||
-          localStorage.getItem("admintoken");
-        const response = await axios.put(
-          `http://localhost:5000/api/Login/${this.state.userId}`,
-          {
-            password: this.state.password,
-            oldPassword: this.state.oldPassword,
-          },
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
-        );
-
-        alert("Password updated successfully!");
-        this.setState({
-          showPasswordForm: false,
-          password: "",
-          confirmPassword: "",
-          oldPassword: "",
-        });
-      } catch (error) {
-        console.error("Error updating password:", error);
-        if (
-          error.response &&
-          error.response.data &&
-          error.response.data.message
-        ) {
-          alert(error.response.data.message);
-        } else {
-          alert("Failed to update password.");
+      Object.keys(editedUser).forEach((key) => {
+        if (key !== "profilePic") {
+          formData.append(key, editedUser[key]);
         }
-      }
+      });
+
+      if (selectedFile) formData.append("profilePic", selectedFile);
+
+      const response = await fetch(
+        `http://localhost:5000/api/Usermodel/${user._id}`,
+        { method: "PUT", body: formData }
+      );
+
+      if (!response.ok) throw new Error("Failed to update user");
+
+      const data = await response.json();
+      setUser(data.Usermodel);
+      setIsEditing(false);
+      setProfilePicPreview(null);
+      setSelectedFile(null);
+    } catch (err) {
+      setError(err.message);
     }
   };
 
-  toggleExit = () => {
-    this.setState({ showProfileForm: false, showPasswordForm: false });
+  const validatePasswordForm = () => {
+    const errors = {};
+
+    if (!oldPassword.trim()) {
+      errors.oldPassword = "Old password is required";
+    }
+
+    if (!newPassword.trim()) {
+      errors.newPassword = "New password is required";
+    } 
+
+    if (!confirmPassword.trim()) {
+      errors.confirmPassword = "Please confirm your new password";
+    } else if (newPassword !== confirmPassword) {
+      errors.confirmPassword = "Passwords do not match";
+    }
+
+
+    setPasswordErrors(errors);
+    return Object.keys(errors).length === 0;
   };
 
-  render() {
+  const handlePasswordUpdate = async () => {
+    if (!validatePasswordForm()) {
+      return;
+    }
+
+    try {
+      setIsUpdatingPassword(true);
+      setPasswordErrors({});
+
+      const token = localStorage.getItem("token");
+      
+      const response = await fetch(
+        `http://localhost:5000/api/Usermodel/change-password/${user._id}`,
+        {
+          method: "PUT",
+          headers: { 
+            "Content-Type": "application/json",
+            ...(token && { "Authorization": `Bearer ${token}` })
+          },
+          body: JSON.stringify({ oldPassword, newPassword }),
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        console.log("Response status:", response.status);
+        console.log("Response data:", data);
+        
+        // Handle specific error for wrong old password
+        if (response.status === 400 && 
+            (data.message?.toLowerCase().includes("old password is incorrect") ||
+             data.message?.toLowerCase().includes("incorrect") ||
+             data.message?.toLowerCase().includes("wrong") ||
+             data.message?.toLowerCase().includes("match"))) {
+          setPasswordErrors({ oldPassword: "Your old password does not match with database records" });
+        } else if (response.status === 400 && 
+                   data.message?.toLowerCase().includes("different")) {
+          setPasswordErrors({ newPassword: "New password must be different from old password" });
+        } else if (response.status === 404) {
+          setPasswordErrors({ general: "User not found" });
+        } else {
+          setPasswordErrors({ general: data.message || "Failed to update password" });
+        }
+        return;
+      }
+
+      // Success
+      setShowPasswordForm(false);
+      setOldPassword("");
+      setNewPassword("");
+      setConfirmPassword("");
+      setPasswordErrors({});
+      
+      // Show success message (you can replace this with a better notification system)
+      alert("Password updated successfully!");
+    } catch (err) {
+      console.error("Password update error:", err);
+      setPasswordErrors({ general: "Network error: " + err.message });
+    } finally {
+      setIsUpdatingPassword(false);
+    }
+  };
+
+  const handlePasswordFormClose = () => {
+    setShowPasswordForm(false);
+    setOldPassword("");
+    setNewPassword("");
+    setConfirmPassword("");
+    setPasswordErrors({});
+  };
+
+  const handleInputChange = (field, value) =>
+    setEditedUser((prev) => ({ ...prev, [field]: value }));
+
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setSelectedFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => setProfilePicPreview(reader.result);
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const formatDate = (dateString) =>
+    new Date(dateString).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+
+  if (loading)
     return (
-      <div className="container mt-5">
-        <div className="row align-items shadow p-3 rounded">
-          <h3 className="text-center fw-bold" style={{ color: "#41566E" }}>
-            Profile Details
-          </h3>
+      <div className="min-vh-100 d-flex justify-content-center align-items-center bg-light">
+        <div className="spinner-border text-primary" style={{ width: '3rem', height: '3rem' }} role="status">
+          <span className="visually-hidden">Loading...</span>
+        </div>
+      </div>
+    );
 
-          <div className="row">
-            <div className="col-md-4 text-center mb-4">
-              <div className="profile-picture mb-3">
-                <img
-                  src={this.state.profileImagePreview || user1}
-                  alt="User Profile"
-                  className="img-fluid rounded-circle"
-                  style={{
-                    width: "260px",
-                    height: "275px",
-                    objectFit: "cover",
-                  }}
-                />
+  if (error)
+    return (
+      <div className="min-vh-100 d-flex justify-content-center align-items-center text-danger bg-light">
+        <div className="alert alert-danger" role="alert">
+          {error}
+        </div>
+      </div>
+    );
+
+  return (
+    <div className="min-vh-100 bg-light py-4">
+      <div className="container">
+        <div className="row justify-content-center">
+          <div className="col-lg-10">
+            <div className="card shadow border-0 rounded-3 overflow-hidden">
+              {/* Cover Section */}
+              <div className="profile-cover position-relative" style={{ height: '90px', background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' }}>
+                <div className="position-absolute top-0 start-0 m-3">
+                  <h5 className="text-white mb-0" style={{ fontSize: '40px' }}>  <User size={33} />  Account Details</h5>
+                </div>
+                <div className="position-absolute top-0 end-0 m-3">
+                  {!isEditing ? (
+                    <div className="d-flex gap-2">
+                      <button
+                        onClick={() => setShowPasswordForm(true)}
+                        className="btn btn-light d-flex align-items-center gap-2 shadow-sm"
+                      >
+                        <Lock size={16} />
+                        <span>Change Password</span>
+                      </button>
+                      <button
+                        onClick={handleEdit}
+                        className="btn btn-light d-flex align-items-center gap-2 shadow-sm"
+                      >
+                        <Edit size={16} />
+                        <span>Edit Profile</span>
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="d-flex gap-2">
+                      <button
+                        onClick={handleCancel}
+                        className="btn btn-light d-flex align-items-center gap-2 shadow-sm"
+                      >
+                        <X size={16} />
+                        <span>Cancel</span>
+                      </button>
+                      <button
+                        onClick={handleSave}
+                        className="btn btn-primary d-flex align-items-center gap-2 shadow-sm"
+                      >
+                        <Save size={16} />
+                        <span>Save Changes</span>
+                      </button>
+                    </div>
+                  )}
+                </div>
               </div>
-              <h4 className="user-name">{this.state.fullName || "User"}</h4>
-              <p className="text-muted fs-5">{this.state.email || "Email"}</p>
-              <button
-                className="btn btn-primary mb-3"
-                onClick={() =>
-                  this.setState({
-                    showProfileForm: true,
-                    showPasswordForm: false,
-                  })
-                }
-              >
-                Update Profile
-              </button>
-              <br />
-              <button
-                className="btn btn-secondary"
-                onClick={() =>
-                  this.setState({
-                    showPasswordForm: true,
-                    showProfileForm: false,
-                  })
-                }
-              >
-                Change Password
-              </button>
-            </div>
 
-            <div className="col-md-8">
-              {/* Update Profile Form */}
-              {this.state.showProfileForm && (
-                <fieldset className="border p-4 rounded mb-4">
-                  <h3
-                    className="w-auto text-start"
-                    style={{ color: "#41566E" }}
-                  >
-                    Update Profile
-                  </h3>
-                  <form onSubmit={this.handleSubmitProfile} className="mt-3">
-                    <div className="row">
-                      <div className="col-md-9 mb-3">
-                        <label htmlFor="profileImage" className="form-label">
-                          Profile Image
-                        </label>
-                        <input
-                          type="file"
-                          id="profileImage"
-                          className={`form-control ${
-                            this.state.errors.profileImage ? "is-invalid" : ""
-                          }`}
-                          accept="image/*"
-                          onChange={(e) =>
-                            this.setState({
-                              profileImage: e.target.files[0],
-                              profileImagePreview: e.target.files[0]
-                                ? URL.createObjectURL(e.target.files[0])
-                                : null,
-                            })
-                          }
-                        />
-                        <div className="invalid-feedback">
-                          {this.state.errors.profileImage}
-                        </div>
-                      </div>
-
-                      <div className="col-md-3 d-flex justify-content-center align-items-center">
-                        {this.state.profileImagePreview && (
+              {/* Profile Section */}
+              <div className="card-body pt-4">
+                <div className="d-flex flex-column align-items-center mt-n5 position-relative">
+                  <div className="position-relative mb-4">
+                    <div className="avatar-xxl">
+                      <div className="avatar-img rounded-circle border-4 border-white shadow-lg" style={{ width: '175px', height: '150px' }}>
+                        {profilePicPreview ||
+                          (user.profilePic && user.profilePic !== "null") ? (
                           <img
-                            src={this.state.profileImagePreview}
-                            alt="Profile Preview"
-                            className="img-thumbnail"
-                            style={{
-                              width: "100px",
-                              height: "100px",
-                              objectFit: "cover",
-                              border: "2px solid #ccc",
-                            }}
+                            src={
+                              profilePicPreview ||
+                              `http://localhost:5000/public/images/profile_pictures/${user.profilePic}`
+                            }
+                            alt="Profile"
+                            className="w-100 h-100 object-cover rounded-circle"
                           />
+                        ) : (
+                          <div className="w-100 h-100 rounded-circle bg-light d-flex align-items-center justify-content-center">
+                            <User className="text-muted" size={60} />
+                          </div>
                         )}
                       </div>
 
-                      <div className="col-md-6 mb-3">
-                        <label htmlFor="fullName" className="form-label">
-                          Full Name
+                      {isEditing && (
+                        <label className="btn btn-primary rounded-circle p-2 position-absolute bottom-0 end-0 shadow cursor-pointer">
+                          <Camera size={16} />
+                          <input
+                            type="file"
+                            className="d-none"
+                            accept="image/*"
+                            onChange={handleFileChange}
+                          />
                         </label>
-                        <input
-                          type="text"
-                          id="fullName"
-                          className={`form-control ${
-                            this.state.errors.fullName ? "is-invalid" : ""
-                          }`}
-                          value={this.state.fullName}
-                          onChange={(e) =>
-                            this.setState({ fullName: e.target.value })
-                          }
-                        />
-                        <div className="invalid-feedback">
-                          {this.state.errors.fullName}
-                        </div>
-                      </div>
-
-                      <div className="col-md-6 mb-3">
-                        <label htmlFor="gender" className="form-label">
-                          Gender
-                        </label>
-                        <select
-                          id="gender"
-                          className={`form-control ${
-                            this.state.errors.gender ? "is-invalid" : ""
-                          }`}
-                          value={this.state.gender}
-                          onChange={(e) =>
-                            this.setState({ gender: e.target.value })
-                          }
-                        >
-                          <option value="">Select Gender</option>
-                          <option value="male">Male</option>
-                          <option value="female">Female</option>
-                          <option value="other">Other</option>
-                        </select>
-                        <div className="invalid-feedback">
-                          {this.state.errors.gender}
-                        </div>
-                      </div>
-
-                      <div className="col-md-6 mb-3">
-                        <label htmlFor="email" className="form-label">
-                          Email
-                        </label>
-                        <input
-                          type="email"
-                          id="email"
-                          className={`form-control ${
-                            this.state.errors.email ? "is-invalid" : ""
-                          }`}
-                          value={this.state.email}
-                          onChange={(e) =>
-                            this.setState({ email: e.target.value })
-                          }
-                        />
-                        <div className="invalid-feedback">
-                          {this.state.errors.email}
-                        </div>
-                      </div>
-
-                      <div className="col-md-6 mb-3">
-                        <label htmlFor="phone" className="form-label">
-                          Phone Number
-                        </label>
-                        <input
-                          type="text"
-                          id="phone"
-                          className={`form-control ${
-                            this.state.errors.phone ? "is-invalid" : ""
-                          }`}
-                          value={this.state.phone}
-                          onChange={(e) =>
-                            this.setState({ phone: e.target.value })
-                          }
-                        />
-                        <div className="invalid-feedback">
-                          {this.state.errors.phone}
-                        </div>
-                      </div>
-
-                      <div className="col-md-12 mb-3">
-                        <label htmlFor="address" className="form-label">
-                          Address
-                        </label>
-                        <textarea
-                          id="address"
-                          className={`form-control ${
-                            this.state.errors.address ? "is-invalid" : ""
-                          }`}
-                          value={this.state.address}
-                          onChange={(e) =>
-                            this.setState({ address: e.target.value })
-                          }
-                        ></textarea>
-                        <div className="invalid-feedback">
-                          {this.state.errors.address}
-                        </div>
-                      </div>
-
-                      <div className="col-md-12 mb-3">
-                        <label htmlFor="pinCode" className="form-label">
-                          Pin Code
-                        </label>
-                        <input
-                          type="text"
-                          id="pinCode"
-                          className={`form-control ${
-                            this.state.errors.pinCode ? "is-invalid" : ""
-                          }`}
-                          value={this.state.pinCode}
-                          onChange={(e) =>
-                            this.setState({ pinCode: e.target.value })
-                          }
-                        />
-                        <div className="invalid-feedback">
-                          {this.state.errors.pinCode}
-                        </div>
-                      </div>
-
-                      <div className="col-md-12 text-center">
-                        <button type="submit" className="btn btn-success">
-                          Update Profile
-                        </button>
-                        <button
-                          type="button"
-                          className="btn btn-danger ms-2"
-                          onClick={this.toggleExit}
-                        >
-                          Cancel
-                        </button>
-                      </div>
-                    </div>
-                  </form>
-                </fieldset>
-              )}
-
-              {/* Change Password Form */}
-              {this.state.showPasswordForm && (
-                <fieldset className="border p-4 rounded mb-4">
-                  <h3
-                    className="w-auto text-start"
-                    style={{ color: "#41566E" }}
-                  >
-                    Change Password
-                  </h3>
-                  <form onSubmit={this.handleSubmitPassword}>
-                    <div className="row">
-                      <div className="col-md-6 mb-3">
-                        <label htmlFor="old-password" className="form-label">
-                          Old Password
-                        </label>
-                        <input
-                          type="password"
-                          id="old-password"
-                          className={`form-control ${
-                            this.state.errors.oldPassword ? "is-invalid" : ""
-                          }`}
-                          value={this.state.oldPassword}
-                          onChange={(e) =>
-                            this.setState({ oldPassword: e.target.value })
-                          }
-                        />
-                        <div className="invalid-feedback">
-                          {this.state.errors.oldPassword}
-                        </div>
-                      </div>
-
-                      <div className="col-md-6 mb-3">
-                        <label htmlFor="password" className="form-label">
-                          New Password
-                        </label>
-                        <input
-                          type="password"
-                          id="password"
-                          className={`form-control ${
-                            this.state.errors.password ? "is-invalid" : ""
-                          }`}
-                          value={this.state.password}
-                          onChange={(e) =>
-                            this.setState({ password: e.target.value })
-                          }
-                        />
-                        <div className="invalid-feedback">
-                          {this.state.errors.password}
-                        </div>
-                      </div>
-
-                      <div className="col-md-6 mb-3">
-                        <label htmlFor="confirmPassword" className="form-label">
-                          Confirm New Password
-                        </label>
-                        <input
-                          type="password"
-                          id="confirmPassword"
-                          className={`form-control ${
-                            this.state.errors.confirmPassword
-                              ? "is-invalid"
-                              : ""
-                          }`}
-                          value={this.state.confirmPassword}
-                          onChange={(e) =>
-                            this.setState({ confirmPassword: e.target.value })
-                          }
-                        />
-                        <div className="invalid-feedback">
-                          {this.state.errors.confirmPassword}
-                        </div>
-                      </div>
-                    </div>
-                    <button type="submit" className="btn btn-success mt-3">
-                      Update Password
-                    </button>
-                    <button
-                      type="button"
-                      className="btn btn-danger mt-3 ms-2"
-                      onClick={this.toggleExit}
-                    >
-                      Cancel
-                    </button>
-                  </form>
-                </fieldset>
-              )}
-
-              {/* Personal Information */}
-              {!this.state.showProfileForm && !this.state.showPasswordForm && (
-                <fieldset className="border p-4 rounded mb-4">
-                  <h4 className="text-start mb-3" style={{ color: "#41566E" }}>
-                    Personal Information
-                  </h4>
-                  <div className="row text-start fs-5">
-                    <div className="col-md-6 mb-3">
-                      <label className="fw-bold">Full Name</label>
-                      <p>{this.state.fullName || "N/A"}</p>
-                    </div>
-                    <div className="col-md-6 mb-3">
-                      <label className="fw-bold">Gender</label>
-                      <p>{this.state.gender || "N/A"}</p>
+                      )}
                     </div>
                   </div>
-                  <div className="row text-start fs-5">
-                    <div className="col-md-6 mb-3">
-                      <label className="fw-bold">Email Address</label>
-                      <p>{this.state.email || "N/A"}</p>
-                    </div>
-                    <div className="col-md-6 mb-3">
-                      <label className="fw-bold">Phone Number</label>
-                      <p>{this.state.phone || "N/A"}</p>
+
+                  <h2 className="mb-1">{user.fullname}</h2>
+                  <p className="text-muted mb-4">{user.email}</p>
+                </div>
+
+                <div className="row g-4">
+                  {/* Personal Information */}
+                  <div className="col-md-6">
+                    <div className="card h-100 border-0 shadow-sm">
+                      <div className="card-header bg-transparent py-3 border-0">
+                        <h5 className="mb-0">Personal Information</h5>
+                      </div>
+                      <div className="card-body">
+                        <Field
+                          label="Full Name"
+                          icon={<User size={18} />}
+                          value={editedUser.fullname}
+                          editing={isEditing}
+                          onChange={(v) => handleInputChange("fullname", v)}
+                        />
+                        <Field
+                          label="Email Address"
+                          icon={<Mail size={18} />}
+                          value={editedUser.email}
+                          editing={isEditing}
+                          onChange={(v) => handleInputChange("email", v)}
+                        />
+                        <Field
+                          label="Phone Number"
+                          icon={<Phone size={18} />}
+                          value={editedUser.mobile}
+                          editing={isEditing}
+                          onChange={(v) => handleInputChange("mobile", v)}
+                        />
+                        <Field
+                          label="Gender"
+                          icon={<User size={18} />}
+                          value={editedUser.gender}
+                          editing={isEditing}
+                          type="select"
+                          onChange={(v) => handleInputChange("gender", v)}
+                        />
+                      </div>
                     </div>
                   </div>
-                  <h4
-                    className="text-start mt-4 mb-3"
-                    style={{ color: "#41566E" }}
-                  >
-                    Address Information
-                  </h4>
-                  <div className="row text-start fs-5">
-                    <div className="col-md-6 mb-3">
-                      <label className="fw-bold">Address</label>
-                      <p>{this.state.address || "N/A"}</p>
-                    </div>
-                    <div className="col-md-6 mb-3">
-                      <label className="fw-bold">Pin Code</label>
-                      <p>{this.state.pinCode || "N/A"}</p>
+
+                  {/* Address Information */}
+                  <div className="col-md-6">
+                    <div className="card h-100 border-0 shadow-sm">
+                      <div className="card-header bg-transparent py-3 border-0">
+                        <h5 className="mb-0">Address Information</h5>
+                      </div>
+                      <div className="card-body">
+                        <Field
+                          label="Pincode"
+                          icon={<MapPin size={18} />}
+                          value={editedUser.pincode}
+                          editing={isEditing}
+                          onChange={(v) => handleInputChange("pincode", v)}
+                        />
+                        <Field
+                          label="Address"
+                          icon={<MapPin size={18} />}
+                          value={editedUser.address}
+                          editing={isEditing}
+                          type="textarea"
+                          onChange={(v) => handleInputChange("address", v)}
+                        />
+                      </div>
                     </div>
                   </div>
-                </fieldset>
-              )}
+                </div>
+
+                {/* Account Status Cards */}
+                <div className="row g-4 mt-2">
+                  <div className="col-md-4">
+                    <div className="card bg-success bg-opacity-10 border-0 h-100">
+                      <div className="card-body d-flex align-items-center">
+                        <div className="flex-grow-1">
+                          <h6 className="card-title text-muted">Status</h6>
+                          <p className="card-text fw-bold text-success">{user.status}</p>
+                        </div>
+                        <div className="flex-shrink-0">
+                          <CheckCircle size={24} className="text-success" />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="col-md-4">
+                    <div className="card bg-primary bg-opacity-10 border-0 h-100">
+                      <div className="card-body d-flex align-items-center">
+                        <div className="flex-grow-1">
+                          <h6 className="card-title text-muted">Role</h6>
+                          <p className="card-text fw-bold text-primary">{user.role}</p>
+                        </div>
+                        <div className="flex-shrink-0">
+                          <Shield size={24} className="text-primary" />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="col-md-4">
+                    <div className="card bg-info bg-opacity-10 border-0 h-100">
+                      <div className="card-body d-flex align-items-center">
+                        <div className="flex-grow-1">
+                          <h6 className="card-title text-muted">Member Since</h6>
+                          <p className="card-text fw-bold text-info">{formatDate(user.createdAt)}</p>
+                        </div>
+                        <div className="flex-shrink-0">
+                          <Calendar size={24} className="text-info" />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </div>
-    );
-  }
+
+      {/* Password Form Modal */}
+      {showPasswordForm && (
+        <div className="modal fade show d-block" tabIndex="-1" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
+          <div className="modal-dialog modal-dialog-centered">
+            <div className="modal-content">
+              <div className="modal-header">
+                <h5 className="modal-title">Update Password</h5>
+                <button type="button" className="btn-close" onClick={handlePasswordFormClose}></button>
+              </div>
+              <div className="modal-body">
+                {/* General Error */}
+                {passwordErrors.general && (
+                  <div className="alert alert-danger d-flex align-items-center mb-3" role="alert">
+                    <AlertCircle size={18} className="me-2" />
+                    {passwordErrors.general}
+                  </div>
+                )}
+
+                {/* Old Password */}
+                <div className="mb-3">
+                  <label className="form-label">Old Password</label>
+                  <div className="input-group">
+                    <input
+                      type={showOldPassword ? "text" : "password"}
+                      placeholder="Enter old password"
+                      value={oldPassword}
+                      onChange={(e) => {
+                        setOldPassword(e.target.value);
+                        if (passwordErrors.oldPassword) {
+                          setPasswordErrors(prev => ({ ...prev, oldPassword: "" }));
+                        }
+                      }}
+                      className={`form-control ${passwordErrors.oldPassword ? 'is-invalid' : ''}`}
+                    />
+                    <button
+                      className="btn btn-outline-secondary"
+                      type="button"
+                      onClick={() => setShowOldPassword(!showOldPassword)}
+                    >
+                      {showOldPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                    </button>
+                  </div>
+                  {passwordErrors.oldPassword && (
+                    <div className="text-danger mt-1 d-flex align-items-center">
+                      <AlertCircle size={14} className="me-1" />
+                      <small>{passwordErrors.oldPassword}</small>
+                    </div>
+                  )}
+                </div>
+
+                {/* New Password */}
+                <div className="mb-3">
+                  <label className="form-label">New Password</label>
+                  <div className="input-group">
+                    <input
+                      type={showNewPassword ? "text" : "password"}
+                      placeholder="Enter new password"
+                      value={newPassword}
+                      onChange={(e) => {
+                        setNewPassword(e.target.value);
+                        if (passwordErrors.newPassword) {
+                          setPasswordErrors(prev => ({ ...prev, newPassword: "" }));
+                        }
+                      }}
+                      className={`form-control ${passwordErrors.newPassword ? 'is-invalid' : ''}`}
+                    />
+                    <button
+                      className="btn btn-outline-secondary"
+                      type="button"
+                      onClick={() => setShowNewPassword(!showNewPassword)}
+                    >
+                      {showNewPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                    </button>
+                  </div>
+                  {passwordErrors.newPassword && (
+                    <div className="text-danger mt-1 d-flex align-items-center">
+                      <AlertCircle size={14} className="me-1" />
+                      <small>{passwordErrors.newPassword}</small>
+                    </div>
+                  )}
+                </div>
+
+                {/* Confirm Password */}
+                <div className="mb-3">
+                  <label className="form-label">Confirm New Password</label>
+                  <div className="input-group">
+                    <input
+                      type={showConfirmPassword ? "text" : "password"}
+                      placeholder="Confirm new password"
+                      value={confirmPassword}
+                      onChange={(e) => {
+                        setConfirmPassword(e.target.value);
+                        if (passwordErrors.confirmPassword) {
+                          setPasswordErrors(prev => ({ ...prev, confirmPassword: "" }));
+                        }
+                      }}
+                      className={`form-control ${passwordErrors.confirmPassword ? 'is-invalid' : ''}`}
+                    />
+                    <button
+                      className="btn btn-outline-secondary"
+                      type="button"
+                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    >
+                      {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                    </button>
+                  </div>
+                  {passwordErrors.confirmPassword && (
+                    <div className="text-danger mt-1 d-flex align-items-center">
+                      <AlertCircle size={14} className="me-1" />
+                      <small>{passwordErrors.confirmPassword}</small>
+                    </div>
+                  )}
+                </div>
+              </div>
+              <div className="modal-footer">
+                <button
+                  onClick={handlePasswordFormClose}
+                  className="btn btn-secondary"
+                  disabled={isUpdatingPassword}
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handlePasswordUpdate}
+                  className="btn btn-primary"
+                  disabled={isUpdatingPassword}
+                >
+                  {isUpdatingPassword ? (
+                    <>
+                      <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                      Updating...
+                    </>
+                  ) : (
+                    "Update Password"
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
 }
+
+// Field Component
+// Corrected spelling: functionality
+const Field = ({ label, icon, value, editing, onChange, type }) => (
+  <div className="mb-3">
+    <label className="form-label fw-semibold">{label}</label>
+    {editing ? (
+      type === "textarea" ? (
+        <textarea
+          value={value || ''}
+          onChange={(e) => onChange(e.target.value)}
+          className="form-control"
+          rows="3"
+        />
+      ) : type === "select" ? (
+        <select
+          value={value || ''}
+          onChange={(e) => onChange(e.target.value)}
+          className="form-select"
+        >
+          <option value="">Select Gender</option>
+          <option value="Male">Male</option>
+          <option value="Female">Female</option>
+          <option value="Other">Other</option>
+        </select>
+      ) : (
+        <div className="input-group">
+          <span className="input-group-text">{icon}</span>
+          <input
+            value={value || ''}
+            onChange={(e) => onChange(e.target.value)}
+            className="form-control"
+          />
+        </div>
+      )
+    ) : (
+      <div className="d-flex align-items-center p-3 bg-light rounded">
+        <span className="me-2 text-muted">{icon}</span>
+        <span>{value || 'Not provided'}</span>
+      </div>
+    )}
+  </div>
+);
 
 export default Account;

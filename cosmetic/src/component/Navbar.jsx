@@ -7,6 +7,7 @@ import "bootstrap/dist/js/bootstrap.bundle.min.js";
 function Navbar() {
   const [user, setUser] = useState(null);
   const [categories, setCategories] = useState([]);
+  const [cartCount, setCartCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
@@ -18,6 +19,7 @@ function Navbar() {
 
     // Fetch categories from the database
     fetchCategories();
+    fetchCartCount();
   }, []);
 
   const fetchCategories = async () => {
@@ -45,13 +47,29 @@ function Navbar() {
       setLoading(false);
     }
   };
+  const fetchCartCount = async () => {
+    try {
+      const savedUser = localStorage.getItem("user") || localStorage.getItem("admin");
+      if (!savedUser) return;
 
+      const user = JSON.parse(savedUser);
+      const userId = user.id;
+
+      const response = await axios.get(`http://localhost:5000/api/CartModel/${userId}`);
+
+      // Set count based on length of cart items
+      setCartCount(response.data.length);
+    } catch (error) {
+      console.error("Error fetching cart count:", error);
+    }
+  };
   const handleLogout = () => {
     localStorage.removeItem("usertoken");
     localStorage.removeItem("admintoken");
     localStorage.removeItem("user");
     localStorage.removeItem("admin");
     setUser(null);
+    setCartCount(0);
     navigate("/");
   };
 
@@ -387,9 +405,11 @@ function Navbar() {
               {/* Cart */}
               <Link to="/Cart" className="position-relative text-dark">
                 <i className="fas fa-shopping-cart fa-lg"></i>
-                <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
-                  3
-                </span>
+                {cartCount > 0 && (
+                  <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                    {cartCount}
+                  </span>
+                )}
               </Link>
 
               {/* User Dropdown */}

@@ -54,7 +54,7 @@ const Login = () => {
       localStorage.setItem("user", JSON.stringify(response.data.user));
 
       // navigate to dashboard/home
-      navigate("/dashboard");
+      navigate("/");
       window.location.reload();
 
     } catch (error) {
@@ -144,7 +144,7 @@ const Login = () => {
           {/* Register Link */}
           <p className="mt-3 text-center">
             Don’t have an account?{" "}
-            <Link to="/register" className="fw-bold text-decoration-none">
+            <Link to="/Userlogin" className="fw-bold text-decoration-none">
               Register
             </Link>
           </p>
