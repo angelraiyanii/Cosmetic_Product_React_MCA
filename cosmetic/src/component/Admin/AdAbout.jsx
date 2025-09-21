@@ -16,6 +16,8 @@ const AdAbout = () => {
     section1Text: "",
     section2Image: null,
     section2Text: "",
+    videoType: "url", // 'url' or 'file'
+    videoFile: null,
     videoUrl: "",
     mission: "",
     values: [],
@@ -36,6 +38,8 @@ const AdAbout = () => {
             section1Text: response.data.section1Text || "",
             section2Image: null,
             section2Text: response.data.section2Text || "",
+            videoType: response.data.videoType || "url",
+            videoFile: null,
             videoUrl: response.data.videoUrl || "",
             mission: response.data.mission || "",
             values: response.data.values || [],
@@ -70,6 +74,18 @@ const AdAbout = () => {
     setErrors({ ...errors, [name]: "" });
   };
 
+  // Handle video type change
+  const handleVideoTypeChange = (e) => {
+    const videoType = e.target.value;
+    setFormData({ 
+      ...formData, 
+      videoType,
+      videoFile: null,
+      videoUrl: videoType === "url" ? formData.videoUrl : ""
+    });
+    setErrors({ ...errors, videoFile: "", videoUrl: "" });
+  };
+
   // Handle value array changes
   const handleValueChange = (index, value) => {
     const newValues = [...formData.values];
@@ -95,6 +111,20 @@ const AdAbout = () => {
       setErrors({ ...errors, [field]: "" });
     } else {
       setErrors({ ...errors, [field]: "Only JPG, JPEG, and PNG allowed" });
+    }
+  };
+
+  // Handle video file upload
+  const handleVideoFileChange = (e) => {
+    const file = e.target.files[0];
+    const videoTypes = ["video/mp4", "video/avi", "video/mov", "video/wmv", "video/webm", "video/mkv"];
+    
+    if (file && videoTypes.includes(file.type)) {
+      const videoUrl = URL.createObjectURL(file);
+      setFormData({ ...formData, videoFile: { file, url: videoUrl } });
+      setErrors({ ...errors, videoFile: "" });
+    } else {
+      setErrors({ ...errors, videoFile: "Only MP4, AVI, MOV, WMV, WEBM, MKV files are allowed" });
     }
   };
 
@@ -134,8 +164,23 @@ const AdAbout = () => {
     if (!formData.mission.trim()) tempErrors.mission = "Mission statement is required.";
     if (formData.values.length === 0) tempErrors.values = "At least one value is required.";
     if (formData.values.some(v => !v.trim())) tempErrors.values = "All values must be filled.";
+    
+    // Video validation
+    if (formData.videoType === "url" && formData.videoUrl && !isValidUrl(formData.videoUrl)) {
+      tempErrors.videoUrl = "Please enter a valid URL";
+    }
+    
     setErrors(tempErrors);
     return Object.keys(tempErrors).length === 0;
+  };
+
+  const isValidUrl = (string) => {
+    try {
+      new URL(string);
+      return true;
+    } catch (_) {
+      return false;
+    }
   };
 
   // Handle Add
@@ -153,8 +198,15 @@ const AdAbout = () => {
     data.append("content", formData.content);
     data.append("section1Text", formData.section1Text);
     data.append("section2Text", formData.section2Text);
-    data.append("videoUrl", formData.videoUrl);
+    data.append("videoType", formData.videoType);
     data.append("mission", formData.mission);
+    
+    // Handle video based on type
+    if (formData.videoType === "file" && formData.videoFile?.file) {
+      data.append("videoFile", formData.videoFile.file);
+    } else if (formData.videoType === "url") {
+      data.append("videoUrl", formData.videoUrl);
+    }
     
     // Add values array
     data.append("values", JSON.stringify(formData.values));
@@ -180,6 +232,8 @@ const AdAbout = () => {
         section1Text: "",
         section2Image: null,
         section2Text: "",
+        videoType: "url",
+        videoFile: null,
         videoUrl: "",
         mission: "",
         values: [],
@@ -200,9 +254,16 @@ const AdAbout = () => {
     data.append("content", formData.content);
     data.append("section1Text", formData.section1Text);
     data.append("section2Text", formData.section2Text);
-    data.append("videoUrl", formData.videoUrl);
+    data.append("videoType", formData.videoType);
     data.append("mission", formData.mission);
     data.append("values", JSON.stringify(formData.values));
+    
+    // Handle video based on type
+    if (formData.videoType === "file" && formData.videoFile?.file) {
+      data.append("videoFile", formData.videoFile.file);
+    } else if (formData.videoType === "url") {
+      data.append("videoUrl", formData.videoUrl);
+    }
     
     // Add banner images with indexed field names if provided
     formData.banners.forEach((banner, index) => {
@@ -247,6 +308,8 @@ const AdAbout = () => {
         section1Text: "",
         section2Image: null,
         section2Text: "",
+        videoType: "url",
+        videoFile: null,
         videoUrl: "",
         mission: "",
         values: [],
@@ -365,19 +428,33 @@ const AdAbout = () => {
           </div>
         )}
 
-        {/* Video Section */}
-        {aboutData?.videoUrl && (
+        {/* Video Section - Updated to handle both file and URL */}
+        {(aboutData?.videoUrl || aboutData?.videoFile) && (
           <div className="container mt-5">
             <div className="row justify-content-center">
               <div className="col-lg-10">
                 <h3 className="text-center mb-4">Discover Our World</h3>
                 <div className="ratio ratio-16x9 video-container">
-                  <iframe 
-                    src={aboutData.videoUrl} 
-                    title="About our brand" 
-                    allowFullScreen
-                    frameBorder="0"
-                  ></iframe>
+                  {aboutData.videoType === 'file' && aboutData.videoFile ? (
+                    <video 
+                      controls 
+                      className="w-100"
+                      style={{ borderRadius: "10px" }}
+                    >
+                      <source 
+                        src={`http://localhost:5000/public/videos/about_videos/${aboutData.videoFile}`} 
+                        type="video/mp4" 
+                      />
+                      Your browser does not support the video tag.
+                    </video>
+                  ) : aboutData.videoUrl ? (
+                    <iframe 
+                      src={aboutData.videoUrl} 
+                      title="About our brand" 
+                      allowFullScreen
+                      frameBorder="0"
+                    ></iframe>
+                  ) : null}
                 </div>
               </div>
             </div>
@@ -534,16 +611,76 @@ const AdAbout = () => {
               {errors.values && <small className="text-danger">{errors.values}</small>}
             </div>
 
+            {/* Video Section - New */}
             <div className="mb-3">
-              <label className="form-label">Video URL</label>
-              <input
-                type="url"
-                name="videoUrl"
-                className="form-control"
-                value={formData.videoUrl}
-                onChange={handleInputChange}
-                placeholder="https://www.youtube.com/embed/..."
-              />
+              <label className="form-label">Video</label>
+              <div className="mb-2">
+                <div className="form-check form-check-inline">
+                  <input
+                    className="form-check-input"
+                    type="radio"
+                    name="videoType"
+                    id="videoTypeUrl"
+                    value="url"
+                    checked={formData.videoType === "url"}
+                    onChange={handleVideoTypeChange}
+                  />
+                  <label className="form-check-label" htmlFor="videoTypeUrl">
+                    Video URL
+                  </label>
+                </div>
+                <div className="form-check form-check-inline">
+                  <input
+                    className="form-check-input"
+                    type="radio"
+                    name="videoType"
+                    id="videoTypeFile"
+                    value="file"
+                    checked={formData.videoType === "file"}
+                    onChange={handleVideoTypeChange}
+                  />
+                  <label className="form-check-label" htmlFor="videoTypeFile">
+                    Upload Video File
+                  </label>
+                </div>
+              </div>
+
+              {formData.videoType === "url" ? (
+                <div>
+                  <input
+                    type="url"
+                    name="videoUrl"
+                    className="form-control"
+                    value={formData.videoUrl}
+                    onChange={handleInputChange}
+                    placeholder="https://www.youtube.com/embed/... or any video URL"
+                  />
+                  {errors.videoUrl && <small className="text-danger">{errors.videoUrl}</small>}
+                </div>
+              ) : (
+                <div>
+                  <input
+                    type="file"
+                    className="form-control"
+                    accept="video/mp4,video/avi,video/mov,video/wmv,video/webm,video/mkv"
+                    onChange={handleVideoFileChange}
+                  />
+                  <small className="form-text text-muted">
+                    Supported formats: MP4, AVI, MOV, WMV, WEBM, MKV (Max: 100MB)
+                  </small>
+                  {errors.videoFile && <small className="text-danger">{errors.videoFile}</small>}
+                  {formData.videoFile && (
+                    <div className="mt-2">
+                      <video
+                        src={formData.videoFile.url}
+                        controls
+                        className="img-fluid"
+                        style={{ maxHeight: "200px", borderRadius: "5px" }}
+                      />
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
 
             <div className="mb-3">
@@ -631,6 +768,8 @@ const AdAbout = () => {
                       section1Text: "",
                       section2Image: null,
                       section2Text: "",
+                      videoType: "url",
+                      videoFile: null,
                       videoUrl: "",
                       mission: "",
                       values: [],

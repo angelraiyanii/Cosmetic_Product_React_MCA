@@ -8,12 +8,18 @@ const router = express.Router();
 
 // Ensure upload directories exist
 const imageUploadDir = "public/images/about_images";
+const videoUploadDir = "public/videos/about_videos";
+
 if (!fs.existsSync(imageUploadDir)) {
   fs.mkdirSync(imageUploadDir, { recursive: true });
 }
 
+if (!fs.existsSync(videoUploadDir)) {
+  fs.mkdirSync(videoUploadDir, { recursive: true });
+}
+
 // Configure Multer for images
-const storage = multer.diskStorage({
+const imageStorage = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, imageUploadDir);
   },
@@ -22,8 +28,18 @@ const storage = multer.diskStorage({
   },
 });
 
-const upload = multer({
-  storage,
+// Configure Multer for videos
+const videoStorage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, videoUploadDir);
+  },
+  filename: (req, file, cb) => {
+    cb(null, Date.now() + path.extname(file.originalname));
+  },
+});
+
+const uploadImage = multer({
+  storage: imageStorage,
   fileFilter: (req, file, cb) => {
     const imageTypes = /jpeg|jpg|png/;
     const ext = path.extname(file.originalname).toLowerCase();
@@ -37,11 +53,72 @@ const upload = multer({
   },
 });
 
-// Dynamic multer fields for multiple banners
+const uploadVideo = multer({
+  storage: videoStorage,
+  fileFilter: (req, file, cb) => {
+    const videoTypes = /mp4|avi|mov|wmv|webm|mkv/;
+    const ext = path.extname(file.originalname).toLowerCase();
+    const mime = file.mimetype.toLowerCase();
+
+    if (videoTypes.test(ext) && mime.startsWith('video/')) {
+      cb(null, true);
+    } else {
+      cb(new Error("Only MP4, AVI, MOV, WMV, WEBM, MKV video files are allowed"));
+    }
+  },
+  limits: {
+    fileSize: 100 * 1024 * 1024, // 100MB limit
+  },
+});
+
+// Combined upload middleware
+const upload = multer({
+  storage: multer.diskStorage({
+    destination: (req, file, cb) => {
+      if (file.fieldname === 'videoFile') {
+        cb(null, videoUploadDir);
+      } else {
+        cb(null, imageUploadDir);
+      }
+    },
+    filename: (req, file, cb) => {
+      cb(null, Date.now() + path.extname(file.originalname));
+    },
+  }),
+  fileFilter: (req, file, cb) => {
+    if (file.fieldname === 'videoFile') {
+      const videoTypes = /mp4|avi|mov|wmv|webm|mkv/;
+      const ext = path.extname(file.originalname).toLowerCase();
+      const mime = file.mimetype.toLowerCase();
+      
+      if (videoTypes.test(ext) && mime.startsWith('video/')) {
+        cb(null, true);
+      } else {
+        cb(new Error("Only MP4, AVI, MOV, WMV, WEBM, MKV video files are allowed"));
+      }
+    } else {
+      const imageTypes = /jpeg|jpg|png/;
+      const ext = path.extname(file.originalname).toLowerCase();
+      const mime = file.mimetype.toLowerCase();
+
+      if (imageTypes.test(ext) && mime.startsWith('image/')) {
+        cb(null, true);
+      } else {
+        cb(new Error("Only JPG, JPEG, PNG images are allowed"));
+      }
+    }
+  },
+  limits: {
+    fileSize: 100 * 1024 * 1024, // 100MB limit
+  },
+});
+
+// Dynamic multer fields for multiple banners and video
 const createUploadFields = () => {
   const fields = [
     { name: "section1Image", maxCount: 1 },
-    { name: "section2Image", maxCount: 1 }
+    { name: "section2Image", maxCount: 1 },
+    { name: "videoFile", maxCount: 1 }
   ];
   
   // Add support for up to 10 banner images
@@ -99,8 +176,10 @@ router.post("/about", createUploadFields(), async (req, res) => {
       section1Text: data.section1Text,
       section2Image: req.files?.section2Image?.[0]?.filename || null,
       section2Text: data.section2Text,
-      videoUrl: data.videoUrl,
-      mission: data.mission, // Changed from missionStatement to mission
+      videoType: data.videoType || 'url',
+      videoFile: req.files?.videoFile?.[0]?.filename || null,
+      videoUrl: data.videoUrl || null,
+      mission: data.mission,
       values: values,
     });
 
@@ -139,17 +218,28 @@ router.put("/about/:id", createUploadFields(), async (req, res) => {
       }
     }
 
-    // Get existing data to preserve banners if no new ones uploaded
+    // Get existing data to preserve files if no new ones uploaded
     const existingAbout = await About.findById(req.params.id);
     
     const updateData = {
       content: data.content,
       section1Text: data.section1Text,
       section2Text: data.section2Text,
-      videoUrl: data.videoUrl,
-      mission: data.mission, // Changed from missionStatement to mission
+      videoType: data.videoType || 'url',
+      mission: data.mission,
       values: values,
     };
+
+    // Handle video updates based on type
+    if (data.videoType === 'file') {
+      if (req.files?.videoFile?.[0]) {
+        updateData.videoFile = req.files.videoFile[0].filename;
+        updateData.videoUrl = null; // Clear URL when uploading file
+      }
+    } else {
+      updateData.videoUrl = data.videoUrl || null;
+      updateData.videoFile = null; // Clear file when using URL
+    }
 
     // Only update banners if new ones were uploaded
     if (newBanners.length > 0) {
@@ -198,6 +288,10 @@ router.delete("/about/:id", async (req, res) => {
       
       if (about.section2Image) {
         filesToDelete.push(path.join(imageUploadDir, about.section2Image));
+      }
+      
+      if (about.videoFile) {
+        filesToDelete.push(path.join(videoUploadDir, about.videoFile));
       }
       
       // Delete files

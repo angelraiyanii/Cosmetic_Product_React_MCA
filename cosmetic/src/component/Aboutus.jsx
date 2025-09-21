@@ -3,7 +3,7 @@ import axios from 'axios';
 import defaultBanner from "./images/about1.jpeg";
 import section1Default from "./images/about2.jpeg";
 import section2Default from "./images/about3.jpeg";
-import { Link } from "react-router-dom"; 
+import { Link } from "react-router-dom";
 import "../App.css";
 
 const Aboutus = () => {
@@ -161,23 +161,34 @@ const Aboutus = () => {
         )}
 
         {/* Video Section */}
-        {aboutData?.videoUrl && (
+        {aboutData?.videoUrl || aboutData?.videoFile ? (
           <div className="container mt-5">
             <div className="row justify-content-center">
               <div className="col-lg-10">
                 <h3 className="text-center mb-4">Discover Our World</h3>
                 <div className="ratio ratio-16x9 video-container">
-                  <iframe
-                    src={aboutData.videoUrl}
-                    title="About our brand"
-                    allowFullScreen
-                    frameBorder="0"
-                  ></iframe>
+                  {aboutData.videoType === 'file' && aboutData.videoFile ? (
+                    <video controls className="w-100">
+                      <source
+                        src={`http://localhost:5000/public/videos/about_videos/${aboutData.videoFile}`}
+                        type="video/mp4"
+                      />
+                      Your browser does not support the video tag.
+                    </video>
+                  ) : (
+                    <iframe
+                      src={aboutData.videoUrl}
+                      title="About our brand"
+                      allowFullScreen
+                      frameBorder="0"
+                    ></iframe>
+                  )}
                 </div>
               </div>
             </div>
           </div>
-        )}
+        ) : null}
+        
 
         {/* Section 1 */}
         <div className="container mt-5">
