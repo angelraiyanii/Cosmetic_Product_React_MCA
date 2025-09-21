@@ -1,22 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { 
-  Search, 
-  Eye, 
-  Trash2, 
-  Send, 
-  X, 
-  Mail, 
-  Phone, 
-  User, 
-  Calendar,
-  MessageSquare,
-  Filter,
-  ChevronLeft,
-  ChevronRight,
-  Sparkles,
-  Heart,
-  Star
-} from "lucide-react";
+import axios from "axios";
+import "bootstrap/dist/css/bootstrap.min.css";
+import "bootstrap/dist/js/bootstrap.bundle.min.js";
 
 const AdContact = () => {
   const [inquiries, setInquiries] = useState([]);
@@ -24,85 +9,86 @@ const AdContact = () => {
   const [error, setError] = useState(null);
   const [selectedInquiry, setSelectedInquiry] = useState(null);
   const [showModal, setShowModal] = useState(false);
+  const [showDetails, setShowDetails] = useState({});
   const [reply, setReply] = useState("");
-  const [searchTerm, setSearchTerm] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage] = useState(6);
+  const [itemsPerPage] = useState(5);
   const [sendingReply, setSendingReply] = useState(false);
   const [statusFilter, setStatusFilter] = useState("all");
+  const [stats, setStats] = useState({
+    total: 0,
+    new: 0,
+    'in progress': 0,
+    resolved: 0
+  });
+  const [pagination, setPagination] = useState({
+    currentPage: 1,
+    totalPages: 1,
+    totalItems: 0,
+    hasNextPage: false,
+    hasPrevPage: false
+  });
 
-  // Mock data for demonstration
-  const mockInquiries = [
-    {
-      _id: "1",
-      name: "Emma Johnson",
-      email: "emma.johnson@email.com",
-      phone: "+1 (555) 123-4567",
-      message: "I'm interested in your new foundation collection. Could you please provide more details about shade matching and coverage options?",
-      status: "New",
-      createdAt: "2024-01-15T10:30:00Z",
-      subject: "Foundation Inquiry",
-      reply: ""
-    },
-    {
-      _id: "2",
-      name: "Sophia Martinez",
-      email: "sophia.m@email.com",
-      phone: "+1 (555) 987-6543",
-      message: "Hello! I have sensitive skin and would like to know which of your skincare products would be best for me. Any recommendations?",
-      status: "In Progress",
-      createdAt: "2024-01-14T14:20:00Z",
-      subject: "Skincare Consultation",
-      reply: "Thank you for your inquiry..."
-    },
-    {
-      _id: "3",
-      name: "Isabella Chen",
-      email: "bella.chen@email.com",
-      phone: "+1 (555) 456-7890",
-      message: "I purchased your lipstick set last week but haven't received it yet. Could you please check the status of my order #CS12345?",
-      status: "Resolved",
-      createdAt: "2024-01-13T09:15:00Z",
-      subject: "Order Status",
-      reply: "Your order has been shipped..."
-    },
-    {
-      _id: "4",
-      name: "Olivia Thompson",
-      email: "olivia.t@email.com",
-      phone: "+1 (555) 321-9876",
-      message: "I'm a makeup artist and interested in your professional makeup line. Do you offer bulk discounts for professionals?",
-      status: "New",
-      createdAt: "2024-01-12T16:45:00Z",
-      subject: "Professional Inquiry",
-      reply: ""
-    },
-    {
-      _id: "5",
-      name: "Ava Wilson",
-      email: "ava.wilson@email.com",
-      phone: "+1 (555) 654-3210",
-      message: "Love your brand! I'm planning my wedding and need makeup that will last all day. What products do you recommend?",
-      status: "In Progress",
-      createdAt: "2024-01-11T11:30:00Z",
-      subject: "Wedding Makeup",
-      reply: ""
-    }
-  ];
+  // Base URL for API calls - adjust according to your backend URL
+  const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api/ContactModel';
 
-  useEffect(() => {
-    // Simulate API call
-    setTimeout(() => {
-      setInquiries(mockInquiries);
+  // Fetch inquiries from MongoDB
+  const fetchInquiries = async (page = 1, search = "", status = "all") => {
+    try {
+      setLoading(true);
+      const response = await axios.get(`${API_BASE_URL}`, {
+        params: {
+          page,
+          limit: itemsPerPage,
+          search,
+          status,
+          sortBy: 'createdAt',
+          sortOrder: 'desc'
+        }
+      });
+
+      if (response.data.success) {
+        setInquiries(response.data.data);
+        setPagination(response.data.pagination);
+        setStats(response.data.stats);
+      } else {
+        setError(response.data.message || 'Failed to fetch inquiries');
+      }
+    } catch (err) {
+      console.error('Error fetching inquiries:', err);
+      setError(
+        err.response?.data?.message || 
+        'Failed to connect to server. Please check if your backend is running.'
+      );
+    } finally {
       setLoading(false);
-    }, 1000);
-  }, []);
-
-  const handlePageChange = (pageNumber) => {
-    setCurrentPage(pageNumber);
+    }
   };
 
-  const viewInquiryDetails = (inquiry) => {
+  // Initial load
+  useEffect(() => {
+    fetchInquiries(currentPage, searchQuery, statusFilter);
+  }, [currentPage, statusFilter]);
+
+  // Search with debounce
+  useEffect(() => {
+    const delayedSearch = setTimeout(() => {
+      setCurrentPage(1);
+      fetchInquiries(1, searchQuery, statusFilter);
+    }, 500);
+
+    return () => clearTimeout(delayedSearch);
+  }, [searchQuery]);
+
+  const toggleInquiryDetails = (inquiryId) => {
+    setShowDetails(prev => ({
+      ...prev,
+      [inquiryId]: !prev[inquiryId]
+    }));
+  };
+
+  const viewInquiryModal = (inquiry) => {
     setSelectedInquiry(inquiry);
     setShowModal(true);
     setReply(inquiry.reply || "");
@@ -118,29 +104,51 @@ const AdContact = () => {
 
     try {
       setSendingReply(true);
-      // Simulate API call
-      setTimeout(() => {
-        setInquiries(
-          inquiries.map((inquiry) =>
+      
+      const response = await axios.put(`${API_BASE_URL}/${selectedInquiry._id}`, {
+        reply: reply.trim(),
+        status: 'Resolved'
+      });
+
+      if (response.data.success) {
+        // Update the inquiry in the local state
+        setInquiries(prev => 
+          prev.map(inquiry => 
             inquiry._id === selectedInquiry._id 
-              ? { ...inquiry, reply: reply, status: "Resolved" }
+              ? { ...inquiry, reply: reply.trim(), status: 'Resolved' }
               : inquiry
           )
         );
-        alert(`Reply sent to ${selectedInquiry.email} successfully!`);
+
+        // Update stats
+        setStats(prev => ({
+          ...prev,
+          resolved: prev.resolved + 1,
+          new: selectedInquiry.status === 'New' ? prev.new - 1 : prev.new,
+          'in progress': selectedInquiry.status === 'In Progress' ? prev['in progress'] - 1 : prev['in progress']
+        }));
+
+        if (response.data.emailInfo?.emailSent) {
+          alert(`✅ Reply sent successfully to ${selectedInquiry.email}!`);
+        } else if (response.data.emailError) {
+          alert(`⚠️ Reply saved but email delivery failed: ${response.data.emailError.error}`);
+        }
+
         setShowModal(false);
-        setSendingReply(false);
-      }, 2000);
+        setReply("");
+      } else {
+        alert(`❌ Error: ${response.data.message}`);
+      }
     } catch (err) {
       console.error("Error sending reply:", err);
-      alert("Error sending reply. Please try again.");
+      alert(`❌ Error sending reply: ${err.response?.data?.message || err.message}`);
+    } finally {
       setSendingReply(false);
     }
   };
 
   const handleSearchChange = (e) => {
-    setSearchTerm(e.target.value);
-    setCurrentPage(1);
+    setSearchQuery(e.target.value);
   };
 
   const handleStatusFilter = (e) => {
@@ -148,31 +156,336 @@ const AdContact = () => {
     setCurrentPage(1);
   };
 
-  const filteredInquiries = inquiries.filter((inquiry) => {
-    const matchesSearch = !searchTerm || 
-      inquiry.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      inquiry.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      inquiry.subject?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      inquiry.message?.toLowerCase().includes(searchTerm.toLowerCase());
-    
-    const matchesStatus = statusFilter === "all" || inquiry.status === statusFilter;
-    
-    return matchesSearch && matchesStatus;
-  });
-
   const deleteInquiry = async (id) => {
-    if (window.confirm("Are you sure you want to delete this inquiry?")) {
-      setInquiries(inquiries.filter((inquiry) => inquiry._id !== id));
-      alert("Inquiry deleted successfully");
+    if (window.confirm("Are you sure you want to delete this inquiry? This action cannot be undone.")) {
+      try {
+        const response = await axios.delete(`${API_BASE_URL}/${id}`);
+        
+        if (response.data.success) {
+          // Refresh the data after deletion
+          await fetchInquiries(currentPage, searchQuery, statusFilter);
+          alert("✅ Inquiry deleted successfully");
+        } else {
+          alert(`❌ Error: ${response.data.message}`);
+        }
+      } catch (err) {
+        console.error("Error deleting inquiry:", err);
+        alert(`❌ Error deleting inquiry: ${err.response?.data?.message || err.message}`);
+      }
     }
   };
 
-  if (loading) {
+  const updateStatus = async (id, newStatus) => {
+    try {
+      const response = await axios.put(`${API_BASE_URL}/${id}`, {
+        status: newStatus
+      });
+
+      if (response.data.success) {
+        // Refresh data
+        await fetchInquiries(currentPage, searchQuery, statusFilter);
+        alert(`✅ Status updated to "${newStatus}"`);
+      } else {
+        alert(`❌ Error: ${response.data.message}`);
+      }
+    } catch (err) {
+      console.error("Error updating status:", err);
+      alert(`❌ Error updating status: ${err.response?.data?.message || err.message}`);
+    }
+  };
+
+  const getStatusBadgeClass = (status) => {
+    switch (status) {
+      case "New": return "bg-primary";
+      case "In Progress": return "bg-warning text-dark";
+      case "Resolved": return "bg-success";
+      default: return "bg-secondary";
+    }
+  };
+
+  const getStatusIcon = (status) => {
+    switch (status) {
+      case "New": return "fas fa-star";
+      case "In Progress": return "fas fa-clock";
+      case "Resolved": return "fas fa-check-circle";
+      default: return "fas fa-question-circle";
+    }
+  };
+
+  const formatDate = (dateString) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  };
+
+  const getSubject = (message) => {
+    // Extract first 50 characters as subject
+    return message.length > 50 ? message.substring(0, 50) + "..." : message;
+  };
+
+  // Inline Inquiry Details Component
+  const InquiryDetailsRow = ({ inquiry }) => (
+    <tr className="inquiry-details-row">
+      <td colSpan="6" className="p-0">
+        <div className="bg-light border-top">
+          <div className="container-fluid p-4">
+            <div className="row g-4">
+              {/* Customer Information */}
+              <div className="col-md-6">
+                <div className="card h-100 border-0 shadow-sm">
+                  <div className="card-header bg-info text-white border-0">
+                    <h6 className="mb-0">
+                      <i className="fas fa-user me-2"></i>
+                      Customer Information
+                    </h6>
+                  </div>
+                  <div className="card-body">
+                    <div className="info-item mb-3">
+                      <div className="d-flex align-items-center mb-2">
+                        <i className="fas fa-signature text-primary me-2"></i>
+                        <small className="text-muted">Customer Name</small>
+                      </div>
+                      <div className="fw-bold fs-5 text-primary">{inquiry.name}</div>
+                    </div>
+
+                    <div className="info-item mb-3">
+                      <div className="d-flex align-items-center mb-2">
+                        <i className="fas fa-envelope text-success me-2"></i>
+                        <small className="text-muted">Email Address</small>
+                      </div>
+                      <div className="fw-bold">{inquiry.email}</div>
+                    </div>
+
+                    <div className="info-item mb-3">
+                      <div className="d-flex align-items-center mb-2">
+                        <i className="fas fa-phone text-warning me-2"></i>
+                        <small className="text-muted">Phone Number</small>
+                      </div>
+                      <div className="fw-bold">{inquiry.phone || 'Not provided'}</div>
+                    </div>
+
+                    <div className="info-item">
+                      <div className="d-flex align-items-center mb-2">
+                        <i className="fas fa-eye text-info me-2"></i>
+                        <small className="text-muted">Message Seen</small>
+                      </div>
+                      <div className="fw-bold">
+                        {inquiry.seen ? (
+                          <span className="text-success">
+                            <i className="fas fa-check-circle me-1"></i>
+                            Yes {inquiry.seenAt && `(${formatDate(inquiry.seenAt)})`}
+                          </span>
+                        ) : (
+                          <span className="text-muted">
+                            <i className="fas fa-clock me-1"></i>
+                            Not yet
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Inquiry Details */}
+              <div className="col-md-6">
+                <div className="card h-100 border-0 shadow-sm">
+                  <div className="card-header bg-primary text-white border-0">
+                    <h6 className="mb-0">
+                      <i className="fas fa-info-circle me-2"></i>
+                      Inquiry Details
+                    </h6>
+                  </div>
+                  <div className="card-body">
+                    <div className="info-item mb-3">
+                      <div className="d-flex align-items-center mb-2">
+                        <i className="fas fa-calendar text-info me-2"></i>
+                        <small className="text-muted">Date Submitted</small>
+                      </div>
+                      <div className="fw-bold">{formatDate(inquiry.createdAt)}</div>
+                    </div>
+
+                    <div className="info-item mb-3">
+                      <div className="d-flex align-items-center mb-2">
+                        <i className="fas fa-toggle-on text-success me-2"></i>
+                        <small className="text-muted">Current Status</small>
+                      </div>
+                      <div className="d-flex align-items-center gap-2">
+                        <span className={`badge fs-6 px-3 py-2 ${getStatusBadgeClass(inquiry.status)}`}>
+                          <i className={`${getStatusIcon(inquiry.status)} me-1`}></i>
+                          {inquiry.status}
+                        </span>
+                        <div className="dropdown">
+                          <button className="btn btn-sm btn-outline-secondary dropdown-toggle" 
+                                  type="button" 
+                                  data-bs-toggle="dropdown">
+                            Change
+                          </button>
+                          <ul className="dropdown-menu">
+                            <li>
+                              <button className="dropdown-item" 
+                                      onClick={() => updateStatus(inquiry._id, 'New')}>
+                                <i className="fas fa-star me-2 text-primary"></i>New
+                              </button>
+                            </li>
+                            <li>
+                              <button className="dropdown-item" 
+                                      onClick={() => updateStatus(inquiry._id, 'In Progress')}>
+                                <i className="fas fa-clock me-2 text-warning"></i>In Progress
+                              </button>
+                            </li>
+                            <li>
+                              <button className="dropdown-item" 
+                                      onClick={() => updateStatus(inquiry._id, 'Resolved')}>
+                                <i className="fas fa-check-circle me-2 text-success"></i>Resolved
+                              </button>
+                            </li>
+                          </ul>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="info-item">
+                      <div className="d-flex align-items-center mb-2">
+                        <i className="fas fa-hashtag text-secondary me-2"></i>
+                        <small className="text-muted">Inquiry ID</small>
+                      </div>
+                      <div className="fw-bold font-monospace text-muted small">{inquiry._id}</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Message Section */}
+            <div className="row mt-4">
+              <div className="col-12">
+                <div className="card border-0 shadow-sm">
+                  <div className="card-header bg-secondary text-white border-0">
+                    <h6 className="mb-0">
+                      <i className="fas fa-comment me-2"></i>
+                      Customer Message
+                    </h6>
+                  </div>
+                  <div className="card-body">
+                    <p className="mb-0 lead">{inquiry.message}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Reply Section (if exists) */}
+            {inquiry.reply && (
+              <div className="row mt-4">
+                <div className="col-12">
+                  <div className="card border-0 shadow-sm">
+                    <div className="card-header bg-success text-white border-0">
+                      <h6 className="mb-0">
+                        <i className="fas fa-reply me-2"></i>
+                        Admin Reply
+                      </h6>
+                    </div>
+                    <div className="card-body">
+                      <p className="mb-0 lead">{inquiry.reply}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Action Buttons */}
+            <div className="row mt-4">
+              <div className="col-12">
+                <div className="d-flex gap-2 justify-content-end">
+                  <button
+                    className="btn btn-primary"
+                    onClick={() => viewInquiryModal(inquiry)}
+                  >
+                    <i className="fas fa-reply me-2"></i>
+                    {inquiry.reply ? 'View/Edit Reply' : 'Send Reply'}
+                  </button>
+                  <button
+                    className="btn btn-danger"
+                    onClick={() => deleteInquiry(inquiry._id)}
+                  >
+                    <i className="fas fa-trash me-2"></i>
+                    Delete
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </td>
+    </tr>
+  );
+
+  // Pagination Component
+  const Pagination = () => (
+    <nav aria-label="Contact inquiries pagination">
+      <ul className="pagination justify-content-center">
+        <li className={`page-item ${!pagination.hasPrevPage ? 'disabled' : ''}`}>
+          <button
+            className="page-link"
+            onClick={() => setCurrentPage(pagination.currentPage - 1)}
+            disabled={!pagination.hasPrevPage}
+          >
+            <i className="fas fa-chevron-left"></i> Previous
+          </button>
+        </li>
+        
+        {Array.from({ length: Math.min(pagination.totalPages, 5) }, (_, index) => {
+          let pageNumber;
+          if (pagination.totalPages <= 5) {
+            pageNumber = index + 1;
+          } else {
+            const start = Math.max(1, currentPage - 2);
+            pageNumber = start + index;
+          }
+          
+          if (pageNumber <= pagination.totalPages) {
+            return (
+              <li
+                key={pageNumber}
+                className={`page-item ${currentPage === pageNumber ? 'active' : ''}`}
+              >
+                <button
+                  className="page-link"
+                  onClick={() => setCurrentPage(pageNumber)}
+                >
+                  {pageNumber}
+                </button>
+              </li>
+            );
+          }
+          return null;
+        })}
+        
+        <li className={`page-item ${!pagination.hasNextPage ? 'disabled' : ''}`}>
+          <button
+            className="page-link"
+            onClick={() => setCurrentPage(pagination.currentPage + 1)}
+            disabled={!pagination.hasNextPage}
+          >
+            Next <i className="fas fa-chevron-right"></i>
+          </button>
+        </li>
+      </ul>
+    </nav>
+  );
+
+  if (loading && inquiries.length === 0) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-pink-50 to-rose-100 flex items-center justify-center">
+      <div className="container-fluid py-5">
         <div className="text-center">
-          <div className="animate-spin w-12 h-12 border-4 border-pink-500 border-t-transparent rounded-full mx-auto mb-4"></div>
-          <p className="text-pink-600 font-semibold">Loading beauty inquiries...</p>
+          <div className="spinner-border text-primary" role="status">
+            <span className="visually-hidden">Loading...</span>
+          </div>
+          <p className="mt-3">Loading contact inquiries...</p>
         </div>
       </div>
     );
@@ -180,372 +493,345 @@ const AdContact = () => {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-pink-50 to-rose-100 flex items-center justify-center">
-        <div className="bg-white rounded-2xl p-8 shadow-xl text-center max-w-md">
-          <div className="text-red-500 mb-4">
-            <X className="w-16 h-16 mx-auto" />
-          </div>
-          <h2 className="text-2xl font-bold text-gray-800 mb-2">Oops!</h2>
-          <p className="text-gray-600">{error}</p>
+      <div className="container-fluid py-5">
+        <div className="alert alert-danger text-center">
+          <i className="fas fa-exclamation-triangle me-2"></i>
+          {error}
+          <br />
+          <button 
+            className="btn btn-outline-danger mt-2" 
+            onClick={() => fetchInquiries(currentPage, searchQuery, statusFilter)}
+          >
+            <i className="fas fa-redo me-2"></i>
+            Try Again
+          </button>
         </div>
       </div>
     );
   }
 
-  // Pagination logic
-  const indexOfLastItem = currentPage * itemsPerPage;
-  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentItems = filteredInquiries.slice(indexOfFirstItem, indexOfLastItem);
-  const totalPages = Math.ceil(filteredInquiries.length / itemsPerPage);
-
-  const getStatusColor = (status) => {
-    switch (status) {
-      case "New": return "bg-gradient-to-r from-blue-500 to-blue-600 text-white";
-      case "In Progress": return "bg-gradient-to-r from-yellow-500 to-orange-500 text-white";
-      case "Resolved": return "bg-gradient-to-r from-green-500 to-green-600 text-white";
-      default: return "bg-gradient-to-r from-gray-500 to-gray-600 text-white";
-    }
-  };
-
-  const getStatusIcon = (status) => {
-    switch (status) {
-      case "New": return <Sparkles className="w-4 h-4" />;
-      case "In Progress": return <Heart className="w-4 h-4" />;
-      case "Resolved": return <Star className="w-4 h-4" />;
-      default: return <MessageSquare className="w-4 h-4" />;
-    }
-  };
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-pink-50 via-rose-50 to-purple-50">
+    <div className="container-fluid py-4">
       {/* Header */}
-      <div className="bg-gradient-to-r from-pink-600 via-rose-600 to-purple-600 shadow-xl">
-        <div className="max-w-7xl mx-auto px-6 py-8">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-4xl font-bold text-white mb-2 flex items-center">
-                <Sparkles className="w-10 h-10 mr-3 text-pink-200" />
-                Beauty Inquiries
-              </h1>
-              <p className="text-pink-100 text-lg">Manage customer beauty consultations and inquiries</p>
+      <div className="row mb-4">
+        <div className="col-12">
+          <div className="d-flex justify-content-between align-items-center">
+            <h1 className="h3 mb-0">
+              <i className="fas fa-envelope-open-text me-2 text-primary"></i>
+              Contact Inquiries Management
+            </h1>
+            <button
+              className="btn btn-outline-primary"
+              onClick={() => fetchInquiries(currentPage, searchQuery, statusFilter)}
+              disabled={loading}
+            >
+              <i className="fas fa-sync-alt me-2"></i>
+              Refresh
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Stats Cards */}
+      <div className="row mb-4">
+        <div className="col-md-3">
+          <div className="card text-white" style={{background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'}}>
+            <div className="card-body">
+              <div className="d-flex justify-content-between">
+                <div>
+                  <h4 className="mb-0">{stats.total || 0}</h4>
+                  <p className="mb-0">Total Inquiries</p>
+                </div>
+                <div className="align-self-center">
+                  <i className="fas fa-envelope fa-2x opacity-75"></i>
+                </div>
+              </div>
             </div>
-            <div className="text-right">
-              <div className="text-3xl font-bold text-white">{inquiries.length}</div>
-              <div className="text-pink-200">Total Inquiries</div>
+          </div>
+        </div>
+        <div className="col-md-3">
+          <div className="card bg-primary text-white">
+            <div className="card-body">
+              <div className="d-flex justify-content-between">
+                <div>
+                  <h4 className="mb-0">{stats.new || 0}</h4>
+                  <p className="mb-0">New</p>
+                </div>
+                <div className="align-self-center">
+                  <i className="fas fa-star fa-2x opacity-75"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div className="col-md-3">
+          <div className="card bg-warning text-dark">
+            <div className="card-body">
+              <div className="d-flex justify-content-between">
+                <div>
+                  <h4 className="mb-0">{stats['in progress'] || 0}</h4>
+                  <p className="mb-0">In Progress</p>
+                </div>
+                <div className="align-self-center">
+                  <i className="fas fa-clock fa-2x opacity-75"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div className="col-md-3">
+          <div className="card bg-success text-white">
+            <div className="card-body">
+              <div className="d-flex justify-content-between">
+                <div>
+                  <h4 className="mb-0">{stats.resolved || 0}</h4>
+                  <p className="mb-0">Resolved</p>
+                </div>
+                <div className="align-self-center">
+                  <i className="fas fa-check-circle fa-2x opacity-75"></i>
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-6 py-8">
-        {/* Filters and Search */}
-        <div className="bg-white rounded-2xl shadow-lg p-6 mb-8">
-          <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
-            <div className="flex-1 max-w-md">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-                <input
-                  type="text"
-                  className="w-full pl-10 pr-4 py-3 border-2 border-pink-200 rounded-xl focus:border-pink-500 focus:outline-none transition-colors"
-                  placeholder="Search by name, email, or subject..."
-                  value={searchTerm}
-                  onChange={handleSearchChange}
-                />
+      {/* Search and Filter */}
+      <div className="row mb-4">
+        <div className="col-md-8">
+          <div className="input-group">
+            <span className="input-group-text">
+              <i className="fas fa-search"></i>
+            </span>
+            <input
+              type="text"
+              className="form-control"
+              placeholder="Search by name, email, or message content..."
+              value={searchQuery}
+              onChange={handleSearchChange}
+            />
+          </div>
+        </div>
+        <div className="col-md-4">
+          <select
+            className="form-select"
+            value={statusFilter}
+            onChange={handleStatusFilter}
+          >
+            <option value="all">All Status</option>
+            <option value="New">New</option>
+            <option value="In Progress">In Progress</option>
+            <option value="Resolved">Resolved</option>
+          </select>
+        </div>
+      </div>
+
+      {/* Results Info */}
+      <div className="row mb-3">
+        <div className="col-12">
+          <p className="text-muted mb-0">
+            Showing {inquiries.length} of {pagination.totalItems || 0} inquiries
+            {searchQuery && ` matching "${searchQuery}"`}
+            {statusFilter !== 'all' && ` with status "${statusFilter}"`}
+          </p>
+        </div>
+      </div>
+
+      {/* Inquiries Table */}
+      <div className="row">
+        <div className="col-12">
+          <div className="card">
+            <div className="card-body p-0">
+              <div className="table-responsive">
+                <table className="table table-hover mb-0">
+                  <thead className="table-dark">
+                    <tr>
+                      <th>Customer</th>
+                      <th>Subject</th>
+                      <th>Status</th>
+                      <th>Date</th>
+                      <th>Seen</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {inquiries.length > 0 ? (
+                      inquiries.map((inquiry) => (
+                        <React.Fragment key={inquiry._id}>
+                          <tr className="align-middle">
+                            <td>
+                              <div>
+                                <div className="fw-bold">{inquiry.name}</div>
+                                <small className="text-muted">{inquiry.email}</small>
+                              </div>
+                            </td>
+                            <td>
+                              <span className="text-truncate d-inline-block" style={{maxWidth: '200px'}}>
+                                {getSubject(inquiry.message)}
+                              </span>
+                            </td>
+                            <td>
+                              <span className={`badge ${getStatusBadgeClass(inquiry.status)}`}>
+                                <i className={`${getStatusIcon(inquiry.status)} me-1`}></i>
+                                {inquiry.status}
+                              </span>
+                            </td>
+                            <td>
+                              <small>{formatDate(inquiry.createdAt)}</small>
+                            </td>
+                            <td>
+                              {inquiry.seen ? (
+                                <i className="fas fa-check-circle text-success" title="Message seen"></i>
+                              ) : (
+                                <i className="fas fa-clock text-muted" title="Not seen yet"></i>
+                              )}
+                            </td>
+                            <td>
+                              <div className="btn-group" role="group">
+                                <button
+                                  className="btn btn-sm btn-outline-info"
+                                  onClick={() => toggleInquiryDetails(inquiry._id)}
+                                  title="View Details"
+                                >
+                                  <i className={`fas ${showDetails[inquiry._id] ? 'fa-eye-slash' : 'fa-eye'}`}></i>
+                                </button>
+                                <button
+                                  className="btn btn-sm btn-outline-primary"
+                                  onClick={() => viewInquiryModal(inquiry)}
+                                  title="Reply"
+                                >
+                                  <i className="fas fa-reply"></i>
+                                </button>
+                                <button
+                                  className="btn btn-sm btn-outline-danger"
+                                  onClick={() => deleteInquiry(inquiry._id)}
+                                  title="Delete"
+                                >
+                                  <i className="fas fa-trash"></i>
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                          {showDetails[inquiry._id] && <InquiryDetailsRow inquiry={inquiry} />}
+                        </React.Fragment>
+                      ))
+                    ) : (
+                      <tr>
+                        <td colSpan="6" className="text-center py-5">
+                          <div className="text-muted">
+                            <i className="fas fa-inbox fa-3x mb-3 d-block"></i>
+                            <h5>No inquiries found</h5>
+                            <p>
+                              {searchQuery || statusFilter !== 'all' 
+                                ? 'Try adjusting your search or filter criteria.' 
+                                : 'No contact inquiries have been submitted yet.'}
+                            </p>
+                          </div>
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
               </div>
-            </div>
-            
-            <div className="flex items-center space-x-3">
-              <Filter className="text-gray-500 w-5 h-5" />
-              <select
-                className="px-4 py-3 border-2 border-pink-200 rounded-xl focus:border-pink-500 focus:outline-none bg-white"
-                value={statusFilter}
-                onChange={handleStatusFilter}
-              >
-                <option value="all">All Status</option>
-                <option value="New">New</option>
-                <option value="In Progress">In Progress</option>
-                <option value="Resolved">Resolved</option>
-              </select>
             </div>
           </div>
         </div>
+      </div>
 
-        {/* Stats Cards */}
-        <div className="grid md:grid-cols-4 gap-6 mb-8">
-          <div className="bg-white rounded-2xl p-6 shadow-lg border-l-4 border-blue-500">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-gray-600 text-sm">New Inquiries</p>
-                <p className="text-2xl font-bold text-blue-600">
-                  {inquiries.filter(i => i.status === "New").length}
-                </p>
-              </div>
-              <Sparkles className="w-8 h-8 text-blue-500" />
-            </div>
-          </div>
-          
-          <div className="bg-white rounded-2xl p-6 shadow-lg border-l-4 border-yellow-500">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-gray-600 text-sm">In Progress</p>
-                <p className="text-2xl font-bold text-yellow-600">
-                  {inquiries.filter(i => i.status === "In Progress").length}
-                </p>
-              </div>
-              <Heart className="w-8 h-8 text-yellow-500" />
-            </div>
-          </div>
-          
-          <div className="bg-white rounded-2xl p-6 shadow-lg border-l-4 border-green-500">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-gray-600 text-sm">Resolved</p>
-                <p className="text-2xl font-bold text-green-600">
-                  {inquiries.filter(i => i.status === "Resolved").length}
-                </p>
-              </div>
-              <Star className="w-8 h-8 text-green-500" />
-            </div>
-          </div>
-          
-          <div className="bg-white rounded-2xl p-6 shadow-lg border-l-4 border-purple-500">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-gray-600 text-sm">Total</p>
-                <p className="text-2xl font-bold text-purple-600">{inquiries.length}</p>
-              </div>
-              <MessageSquare className="w-8 h-8 text-purple-500" />
-            </div>
+      {/* Pagination */}
+      {pagination.totalPages > 1 && (
+        <div className="row mt-4">
+          <div className="col-12">
+            <Pagination />
           </div>
         </div>
+      )}
 
-        {/* Inquiries Grid */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-          {currentItems.length > 0 ? (
-            currentItems.map((inquiry) => (
-              <div key={inquiry._id} className="bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300">
-                <div className="p-6">
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="flex items-center space-x-3">
-                      <div className="w-12 h-12 bg-gradient-to-br from-pink-400 to-purple-500 rounded-full flex items-center justify-center text-white font-bold text-lg">
-                        {inquiry.name?.charAt(0) || "?"}
-                      </div>
-                      <div>
-                        <h3 className="font-semibold text-gray-800">{inquiry.name || "Anonymous"}</h3>
-                        <p className="text-sm text-gray-500">{inquiry.subject || "General Inquiry"}</p>
-                      </div>
+      {/* Reply Modal */}
+      {showModal && selectedInquiry && (
+        <div className="modal show d-block" tabIndex="-1" style={{backgroundColor: 'rgba(0,0,0,0.5)'}}>
+          <div className="modal-dialog modal-lg">
+            <div className="modal-content">
+              <div className="modal-header">
+                <h5 className="modal-title">
+                  <i className="fas fa-reply me-2"></i>
+                  Reply to {selectedInquiry.name}
+                </h5>
+                <button
+                  type="button"
+                  className="btn-close"
+                  onClick={() => setShowModal(false)}
+                ></button>
+              </div>
+              <div className="modal-body">
+                {/* Customer Info */}
+                <div className="alert alert-info">
+                  <div className="row">
+                    <div className="col-md-6">
+                      <strong>Customer:</strong> {selectedInquiry.name}<br />
+                      <strong>Email:</strong> {selectedInquiry.email}
                     </div>
-                    <div className={`px-3 py-1 rounded-full text-xs font-semibold flex items-center space-x-1 ${getStatusColor(inquiry.status)}`}>
-                      {getStatusIcon(inquiry.status)}
-                      <span>{inquiry.status || "New"}</span>
-                    </div>
-                  </div>
-
-                  <div className="space-y-2 mb-4">
-                    <div className="flex items-center text-gray-600 text-sm">
-                      <Mail className="w-4 h-4 mr-2" />
-                      <span className="truncate">{inquiry.email || "No email"}</span>
-                    </div>
-                    <div className="flex items-center text-gray-600 text-sm">
-                      <Phone className="w-4 h-4 mr-2" />
-                      <span>{inquiry.phone || "No phone"}</span>
-                    </div>
-                    <div className="flex items-center text-gray-600 text-sm">
-                      <Calendar className="w-4 h-4 mr-2" />
-                      <span>
-                        {inquiry.createdAt 
-                          ? new Date(inquiry.createdAt).toLocaleDateString()
-                          : "Unknown date"}
+                    <div className="col-md-6">
+                      <strong>Phone:</strong> {selectedInquiry.phone || 'Not provided'}<br />
+                      <strong>Status:</strong> 
+                      <span className={`badge ms-1 ${getStatusBadgeClass(selectedInquiry.status)}`}>
+                        {selectedInquiry.status}
                       </span>
                     </div>
                   </div>
+                </div>
 
-                  <p className="text-gray-700 text-sm mb-4 line-clamp-3">
-                    {inquiry.message || "No message provided"}
-                  </p>
-
-                  <div className="flex space-x-2">
-                    <button
-                      onClick={() => viewInquiryDetails(inquiry)}
-                      className="flex-1 bg-gradient-to-r from-pink-500 to-rose-500 text-white px-4 py-2 rounded-lg font-semibold hover:from-pink-600 hover:to-rose-600 transition-colors flex items-center justify-center space-x-2"
-                    >
-                      <Eye className="w-4 h-4" />
-                      <span>View</span>
-                    </button>
-                    <button
-                      onClick={() => deleteInquiry(inquiry._id)}
-                      className="px-4 py-2 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 transition-colors"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
+                {/* Original Message */}
+                <div className="mb-3">
+                  <label className="form-label fw-bold">Original Message:</label>
+                  <div className="p-3 bg-light rounded">
+                    {selectedInquiry.message}
                   </div>
                 </div>
-              </div>
-            ))
-          ) : (
-            <div className="col-span-full text-center py-12">
-              <MessageSquare className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-              <h3 className="text-xl font-semibold text-gray-600 mb-2">No Inquiries Found</h3>
-              <p className="text-gray-500">
-                {searchTerm || statusFilter !== "all" 
-                  ? "Try adjusting your search or filter criteria."
-                  : "No beauty inquiries have been submitted yet."}
-              </p>
-            </div>
-          )}
-        </div>
 
-        {/* Pagination */}
-        {totalPages > 1 && (
-          <div className="bg-white rounded-2xl shadow-lg p-6">
-            <div className="flex items-center justify-between">
-              <div className="text-gray-600">
-                Showing {indexOfFirstItem + 1} to {Math.min(indexOfLastItem, filteredInquiries.length)} of {filteredInquiries.length} inquiries
+                {/* Reply Text Area */}
+                <div className="mb-3">
+                  <label htmlFor="replyText" className="form-label fw-bold">
+                    Your Reply:
+                  </label>
+                  <textarea
+                    id="replyText"
+                    className="form-control"
+                    rows="6"
+                    placeholder="Type your reply here..."
+                    value={reply}
+                    onChange={handleReplyChange}
+                  ></textarea>
+                </div>
+
+                <div className="alert alert-warning">
+                  <i className="fas fa-info-circle me-2"></i>
+                  This reply will be sent to <strong>{selectedInquiry.email}</strong> and the inquiry status will be marked as "Resolved".
+                </div>
               </div>
-              <div className="flex items-center space-x-2">
+              <div className="modal-footer">
                 <button
-                  onClick={() => handlePageChange(currentPage - 1)}
-                  disabled={currentPage === 1}
-                  className="px-4 py-2 bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
-                >
-                  <ChevronLeft className="w-4 h-4" />
-                  <span>Previous</span>
-                </button>
-                
-                {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-                  <button
-                    key={page}
-                    onClick={() => handlePageChange(page)}
-                    className={`px-4 py-2 rounded-lg font-semibold transition-colors ${
-                      currentPage === page
-                        ? "bg-gradient-to-r from-pink-500 to-rose-500 text-white"
-                        : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                    }`}
-                  >
-                    {page}
-                  </button>
-                ))}
-                
-                <button
-                  onClick={() => handlePageChange(currentPage + 1)}
-                  disabled={currentPage === totalPages}
-                  className="px-4 py-2 bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
-                >
-                  <span>Next</span>
-                  <ChevronRight className="w-4 h-4" />
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
-      </div>
-
-      {/* Modal */}
-      {showModal && selectedInquiry && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="bg-gradient-to-r from-pink-600 to-purple-600 p-6 rounded-t-3xl text-white">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-3">
-                  <div className="w-12 h-12 bg-white bg-opacity-20 rounded-full flex items-center justify-center font-bold text-lg">
-                    {selectedInquiry.name?.charAt(0) || "?"}
-                  </div>
-                  <div>
-                    <h2 className="text-2xl font-bold">{selectedInquiry.name || "Anonymous"}</h2>
-                    <p className="text-pink-100">{selectedInquiry.subject || "General Inquiry"}</p>
-                  </div>
-                </div>
-                <button
-                  onClick={() => setShowModal(false)}
-                  className="p-2 bg-white bg-opacity-20 rounded-full hover:bg-opacity-30 transition-colors"
-                >
-                  <X className="w-6 h-6" />
-                </button>
-              </div>
-            </div>
-
-            <div className="p-6 space-y-6">
-              <div className="grid md:grid-cols-2 gap-6">
-                <div className="space-y-4">
-                  <div className="flex items-center space-x-3 p-3 bg-gray-50 rounded-xl">
-                    <Mail className="w-5 h-5 text-gray-500" />
-                    <span className="text-gray-700">{selectedInquiry.email || "No email"}</span>
-                  </div>
-                  
-                  <div className="flex items-center space-x-3 p-3 bg-gray-50 rounded-xl">
-                    <Phone className="w-5 h-5 text-gray-500" />
-                    <span className="text-gray-700">{selectedInquiry.phone || "No phone"}</span>
-                  </div>
-                </div>
-                
-                <div className="space-y-4">
-                  <div className="flex items-center space-x-3 p-3 bg-gray-50 rounded-xl">
-                    <Calendar className="w-5 h-5 text-gray-500" />
-                    <span className="text-gray-700">
-                      {selectedInquiry.createdAt 
-                        ? new Date(selectedInquiry.createdAt).toLocaleString()
-                        : "Unknown date"}
-                    </span>
-                  </div>
-                  
-                  <div className={`p-3 rounded-xl flex items-center space-x-2 ${getStatusColor(selectedInquiry.status)}`}>
-                    {getStatusIcon(selectedInquiry.status)}
-                    <span className="font-semibold">{selectedInquiry.status || "New"}</span>
-                  </div>
-                </div>
-              </div>
-
-              <div>
-                <h3 className="font-semibold text-gray-800 mb-3 flex items-center space-x-2">
-                  <MessageSquare className="w-5 h-5" />
-                  <span>Customer Message</span>
-                </h3>
-                <div className="p-4 bg-gradient-to-br from-pink-50 to-purple-50 rounded-xl">
-                  <p className="text-gray-700 leading-relaxed">
-                    {selectedInquiry.message || "No message provided"}
-                  </p>
-                </div>
-              </div>
-
-              <div>
-                <label className="font-semibold text-gray-800 mb-3 flex items-center space-x-2">
-                  <Send className="w-5 h-5" />
-                  <span>Your Reply</span>
-                </label>
-                <textarea
-                  className="w-full p-4 border-2 border-pink-200 rounded-xl focus:border-pink-500 focus:outline-none transition-colors resize-none"
-                  rows="5"
-                  value={reply}
-                  onChange={handleReplyChange}
-                  placeholder="Type your personalized beauty consultation response here..."
-                />
-                <p className="text-sm text-pink-600 mt-2 flex items-center space-x-1">
-                  <Mail className="w-4 h-4" />
-                  <span>This reply will be sent to {selectedInquiry.email}</span>
-                </p>
-              </div>
-
-              <div className="flex space-x-4 pt-4">
-                <button
-                  className="flex-1 px-6 py-3 bg-gray-200 text-gray-700 rounded-xl font-semibold hover:bg-gray-300 transition-colors"
+                  type="button"
+                  className="btn btn-secondary"
                   onClick={() => setShowModal(false)}
                 >
-                  Close
+                  Cancel
                 </button>
                 <button
-                  className="flex-1 bg-gradient-to-r from-pink-500 to-purple-500 text-white px-6 py-3 rounded-xl font-semibold hover:from-pink-600 hover:to-purple-600 transition-colors flex items-center justify-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                  type="button"
+                  className="btn btn-primary"
                   onClick={sendReply}
-                  disabled={!reply.trim() || sendingReply}
+                  disabled={sendingReply || !reply.trim()}
                 >
                   {sendingReply ? (
                     <>
-                      <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                      <span>Sending...</span>
+                      <span className="spinner-border spinner-border-sm me-2" role="status"></span>
+                      Sending Reply...
                     </>
                   ) : (
                     <>
-                      <Send className="w-5 h-5" />
-                      <span>Send Reply</span>
+                      <i className="fas fa-paper-plane me-2"></i>
+                      Send Reply
                     </>
                   )}
                 </button>
@@ -554,6 +840,128 @@ const AdContact = () => {
           </div>
         </div>
       )}
+
+      {/* Custom CSS */}
+      <style jsx>{`
+        .inquiry-details-row {
+          animation: fadeIn 0.3s ease-in-out;
+        }
+        
+        @keyframes fadeIn {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+
+        .card-header {
+          font-weight: 600;
+        }
+
+        .info-item {
+          transition: all 0.2s ease;
+        }
+
+        .info-item:hover {
+          transform: translateY(-1px);
+        }
+
+        .table-hover tbody tr:hover {
+          background-color: rgba(0, 123, 255, 0.05);
+        }
+
+        .btn-group .btn {
+          border-radius: 0.25rem !important;
+          margin-right: 2px;
+        }
+
+        .modal.show {
+          animation: modalFadeIn 0.3s ease-out;
+        }
+
+        @keyframes modalFadeIn {
+          from {
+            opacity: 0;
+            transform: translateY(-50px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+
+        .pagination .page-link {
+          border-radius: 0.25rem;
+          margin: 0 2px;
+          border: 1px solid #dee2e6;
+        }
+
+        .pagination .page-item.active .page-link {
+          background-color: #0d6efd;
+          border-color: #0d6efd;
+        }
+
+        .text-truncate {
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+
+        .badge {
+          font-size: 0.75em;
+          font-weight: 500;
+        }
+
+        .alert {
+          border: none;
+          border-radius: 0.5rem;
+        }
+
+        .card {
+          border: none;
+          border-radius: 0.5rem;
+          box-shadow: 0 0.125rem 0.25rem rgba(0,0,0,0.075);
+          transition: box-shadow 0.15s ease-in-out;
+        }
+
+        .card:hover {
+          box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.15);
+        }
+
+        .btn {
+          border-radius: 0.375rem;
+          font-weight: 500;
+        }
+
+        .form-control, .form-select {
+          border-radius: 0.375rem;
+          border: 1px solid #ced4da;
+        }
+
+        .form-control:focus, .form-select:focus {
+          border-color: #86b7fe;
+          box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+        }
+
+        .input-group-text {
+          background-color: #f8f9fa;
+          border-color: #ced4da;
+        }
+
+        .table th {
+          font-weight: 600;
+          text-transform: uppercase;
+          font-size: 0.875rem;
+          letter-spacing: 0.5px;
+        }
+
+        .spinner-border-sm {
+          width: 1rem;
+          height: 1rem;
+        }
+
+        .opacity-75 {
+          opacity: 0.75;
+        }
+      `}</style>
     </div>
   );
 };

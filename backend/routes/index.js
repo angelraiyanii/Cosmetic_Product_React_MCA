@@ -12,7 +12,7 @@ router.get('/', (req, res) => {
 
 
 // User 
-const Userroutes = require("./Userroutes");
+const Userroutes = require("./userroutes");
 router.use("/UserModel", Userroutes);
 //category
 const categoryRoutes = require("./categoryRoutes");
