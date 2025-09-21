@@ -587,7 +587,6 @@ function Account() {
 }
 
 // Field Component
-// Corrected spelling: functionality
 const Field = ({ label, icon, value, editing, onChange, type }) => (
   <div className="mb-3">
     <label className="form-label fw-semibold">{label}</label>

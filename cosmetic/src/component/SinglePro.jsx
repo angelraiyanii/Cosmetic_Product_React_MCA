@@ -632,7 +632,7 @@ class SingleProClass extends Component {
           }
         `}</style>
 
-        <Rating_Review />
+        {/* <Rating_Review /> */}
       </>
     );
   }

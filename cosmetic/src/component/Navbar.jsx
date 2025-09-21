@@ -1,15 +1,39 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
+import "../App.css";
 
 function Navbar() {
   const [user, setUser] = useState(null);
   const [categories, setCategories] = useState([]);
   const [cartCount, setCartCount] = useState(0);
+  const [wishlistCount, setWishlistCount] = useState(0); // Added wishlist count state
   const [loading, setLoading] = useState(true);
+  
+  // Search states
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState([]);
+  const [showSearchResults, setShowSearchResults] = useState(false);
+  const [searchLoading, setSearchLoading] = useState(false);
+  const [products, setProducts] = useState([]);
+  
   const navigate = useNavigate();
+  const searchRef = useRef(null);
+  const searchResultsRef = useRef(null);
+
+  // Static pages for search
+  const staticPages = [
+    { name: 'Home', path: '/', icon: 'fa-home', type: 'page' },
+    { name: 'About Us', path: '/Aboutus', icon: 'fa-info-circle', type: 'page' },
+    { name: 'Contact', path: '/Contactus', icon: 'fa-phone', type: 'page' },
+    { name: 'Products', path: '/Ct_product', icon: 'fa-shopping-bag', type: 'page' },
+    { name: 'Cart', path: '/Cart', icon: 'fa-shopping-cart', type: 'page' },
+    { name: 'Wishlist', path: '/Wishlist', icon: 'fa-heart', type: 'page' },
+    { name: 'Account', path: '/Account', icon: 'fa-user', type: 'page' },
+    { name: 'Order History', path: '/OrderHistory', icon: 'fa-history', type: 'page' },
+  ];
 
   useEffect(() => {
     const savedUser = localStorage.getItem("user") || localStorage.getItem("admin");
@@ -17,9 +41,25 @@ function Navbar() {
       setUser(JSON.parse(savedUser));
     }
 
-    // Fetch categories from the database
     fetchCategories();
     fetchCartCount();
+    fetchWishlistCount(); // Added wishlist count fetch
+    fetchProducts();
+  }, []);
+
+  // Close search results when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (searchRef.current && !searchRef.current.contains(event.target) &&
+          searchResultsRef.current && !searchResultsRef.current.contains(event.target)) {
+        setShowSearchResults(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
   }, []);
 
   const fetchCategories = async () => {
@@ -29,7 +69,6 @@ function Navbar() {
         "http://localhost:5000/api/CategoryModel/categories"
       );
 
-      // Filter only active categories
       const activeCategories = response.data.filter(
         (category) => category.categoryStatus === "Active"
       );
@@ -37,7 +76,6 @@ function Navbar() {
       setCategories(activeCategories);
     } catch (error) {
       console.error("Error fetching categories:", error);
-      // Fallback categories if API fails
       setCategories([
         { _id: "1", categoryName: "Skincare", categoryStatus: "Active" },
         { _id: "2", categoryName: "Makeup", categoryStatus: "Active" },
@@ -47,6 +85,17 @@ function Navbar() {
       setLoading(false);
     }
   };
+
+  const fetchProducts = async () => {
+    try {
+      const response = await axios.get("http://localhost:5000/api/ProductModel/products");
+      setProducts(response.data || []);
+    } catch (error) {
+      console.error("Error fetching products:", error);
+      setProducts([]);
+    }
+  };
+
   const fetchCartCount = async () => {
     try {
       const savedUser = localStorage.getItem("user") || localStorage.getItem("admin");
@@ -56,13 +105,192 @@ function Navbar() {
       const userId = user.id;
 
       const response = await axios.get(`http://localhost:5000/api/CartModel/${userId}`);
-
-      // Set count based on length of cart items
       setCartCount(response.data.length);
     } catch (error) {
       console.error("Error fetching cart count:", error);
     }
   };
+
+  // Added wishlist count fetch function
+  const fetchWishlistCount = async () => {
+    try {
+      const savedUser = localStorage.getItem("user") || localStorage.getItem("admin");
+      if (!savedUser) return;
+
+      const user = JSON.parse(savedUser);
+      const userId = user.id;
+
+      // Adjust the API endpoint according to your wishlist model
+      const response = await axios.get(`http://localhost:5000/api/WishlistModel/${userId}`);
+      setWishlistCount(response.data.length);
+    } catch (error) {
+      console.error("Error fetching wishlist count:", error);
+    }
+  };
+
+  // Enhanced search function
+  const performSearch = async (query) => {
+    if (!query.trim()) {
+      setSearchResults([]);
+      setShowSearchResults(false);
+      return;
+    }
+
+    setSearchLoading(true);
+    const results = [];
+    const queryLower = query.toLowerCase();
+
+    try {
+      // Search in categories
+      const matchingCategories = categories.filter(category =>
+        category.categoryName.toLowerCase().includes(queryLower)
+      );
+
+      matchingCategories.forEach(category => {
+        results.push({
+          id: `category-${category._id}`,
+          name: category.categoryName,
+          type: 'category',
+          icon: getCategoryIcon(category.categoryName),
+          color: getCategoryColor(category.categoryName),
+          action: () => handleCategoryClick(category.categoryName)
+        });
+      });
+
+      // Search in static pages
+      const matchingPages = staticPages.filter(page =>
+        page.name.toLowerCase().includes(queryLower)
+      );
+
+      matchingPages.forEach(page => {
+        results.push({
+          id: `page-${page.path}`,
+          name: page.name,
+          type: 'page',
+          icon: page.icon,
+          color: 'text-primary',
+          action: () => {
+            navigate(page.path);
+            setShowSearchResults(false);
+            setSearchQuery('');
+          }
+        });
+      });
+
+      // Search in products
+      const matchingProducts = products.filter(product => {
+        const searchFields = [
+          product.productName,
+          product.productDescription,
+          product.productPrice?.toString(),
+          product.productCategory,
+          product.productBrand
+        ].filter(Boolean);
+
+        return searchFields.some(field =>
+          field.toLowerCase().includes(queryLower)
+        );
+      }).slice(0, 8); // Limit to 8 products
+
+      matchingProducts.forEach(product => {
+        results.push({
+          id: `product-${product._id}`,
+          name: product.productName,
+          type: 'product',
+          icon: 'fa-box',
+          color: 'text-success',
+          price: product.productPrice,
+          category: product.productCategory,
+          image: product.productImage,
+          action: () => {
+            navigate(`/ProductDetails/${product._id}`);
+            setShowSearchResults(false);
+            setSearchQuery('');
+          }
+        });
+      });
+
+      // Add special searches
+      if (queryLower.includes('best seller') || queryLower.includes('bestseller')) {
+        results.push({
+          id: 'bestsellers',
+          name: 'Best Sellers',
+          type: 'special',
+          icon: 'fa-fire',
+          color: 'text-danger',
+          action: () => handleBestSellersClick()
+        });
+      }
+
+      if (queryLower.includes('new arrival') || queryLower.includes('latest')) {
+        results.push({
+          id: 'newarrivals',
+          name: 'New Arrivals',
+          type: 'special',
+          icon: 'fa-star',
+          color: 'text-warning',
+          action: () => handleNewArrivalsClick()
+        });
+      }
+
+      // Price-based searches
+      if (queryLower.includes('under') || queryLower.includes('below')) {
+        const priceMatch = query.match(/(\d+)/);
+        if (priceMatch) {
+          const price = priceMatch[1];
+          results.push({
+            id: `price-under-${price}`,
+            name: `Products under $${price}`,
+            type: 'price',
+            icon: 'fa-dollar-sign',
+            color: 'text-info',
+            action: () => {
+              navigate(`/Ct_product?maxPrice=${price}`);
+              setShowSearchResults(false);
+              setSearchQuery('');
+            }
+          });
+        }
+      }
+
+      setSearchResults(results);
+      setShowSearchResults(results.length > 0);
+
+    } catch (error) {
+      console.error("Search error:", error);
+    } finally {
+      setSearchLoading(false);
+    }
+  };
+
+  // Debounced search
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      performSearch(searchQuery);
+    }, 300);
+
+    return () => clearTimeout(timeoutId);
+  }, [searchQuery, categories, products]);
+
+  const handleSearchInputChange = (e) => {
+    setSearchQuery(e.target.value);
+  };
+
+  const handleSearchSubmit = (e) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      navigate(`/Ct_product?search=${encodeURIComponent(searchQuery)}`);
+      setShowSearchResults(false);
+      setSearchQuery('');
+    }
+  };
+
+  const clearSearch = () => {
+    setSearchQuery('');
+    setSearchResults([]);
+    setShowSearchResults(false);
+  };
+
   const handleLogout = () => {
     localStorage.removeItem("usertoken");
     localStorage.removeItem("admintoken");
@@ -70,14 +298,13 @@ function Navbar() {
     localStorage.removeItem("admin");
     setUser(null);
     setCartCount(0);
+    setWishlistCount(0); // Reset wishlist count on logout
     navigate("/");
   };
 
   const handleCategoryClick = (categoryName) => {
-    // Navigate to Ct_product page with the selected category
     navigate(`/Ct_product?category=${encodeURIComponent(categoryName)}`);
 
-    // Close the dropdown (optional)
     const dropdownElement = document.getElementById('productsDropdown');
     if (dropdownElement) {
       const bsDropdown = window.bootstrap.Dropdown.getInstance(dropdownElement);
@@ -88,10 +315,10 @@ function Navbar() {
   };
 
   const handleBestSellersClick = () => {
-    // Navigate to products page with best sellers sorting
     navigate("/Ct_product?sort=sales-desc");
+    setShowSearchResults(false);
+    setSearchQuery('');
 
-    // Close the dropdown
     const dropdownElement = document.getElementById('productsDropdown');
     if (dropdownElement) {
       const bsDropdown = window.bootstrap.Dropdown.getInstance(dropdownElement);
@@ -102,10 +329,10 @@ function Navbar() {
   };
 
   const handleNewArrivalsClick = () => {
-    // Navigate to products page with new arrivals sorting
     navigate("/Ct_product?sort=newest");
+    setShowSearchResults(false);
+    setSearchQuery('');
 
-    // Close the dropdown
     const dropdownElement = document.getElementById('productsDropdown');
     if (dropdownElement) {
       const bsDropdown = window.bootstrap.Dropdown.getInstance(dropdownElement);
@@ -117,7 +344,6 @@ function Navbar() {
 
   const isAdmin = user && user.role === "admin";
 
-  // Helper functions for category icons and colors
   const getCategoryIcon = (categoryName) => {
     switch (categoryName.toLowerCase()) {
       case 'skincare': return 'fa-spray-can';
@@ -152,6 +378,17 @@ function Navbar() {
     }
   };
 
+  const getResultTypeLabel = (type) => {
+    switch (type) {
+      case 'category': return 'Category';
+      case 'product': return 'Product';
+      case 'page': return 'Page';
+      case 'special': return 'Collection';
+      case 'price': return 'Price Filter';
+      default: return 'Result';
+    }
+  };
+
   return (
     <>
       {/* External CSS and JS */}
@@ -165,11 +402,12 @@ function Navbar() {
       />
       <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
 
-      {/* Special offers banner with theme colors */}
+      {/* Special offers banner */}
       <div className="offers-banner fade-in py-2 text-center" style={{
         background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
         color: 'white'
-      }}>        <span className="me-2">✨ Free shipping on orders over $50! Limited time offer ✨</span>
+      }}>
+        <span className="me-2">✨ Free shipping on orders over $50! Limited time offer ✨</span>
         <a href="#" className="text-decoration-none fw-bold" style={{ color: 'white' }}>
           Shop Now <i className="fas fa-arrow-right ms-1"></i>
         </a>
@@ -228,7 +466,6 @@ function Navbar() {
                     </li>
                   ) : (
                     <>
-                      {/* Main Categories */}
                       <li className="dropdown-header fw-bold">Categories</li>
                       {categories.map((category) => (
                         <li key={category._id}>
@@ -245,10 +482,8 @@ function Navbar() {
 
                       <li><hr className="dropdown-divider" /></li>
 
-                      {/* Special Collections */}
                       <li className="dropdown-header fw-bold">Special Collections</li>
 
-                      {/* Best Sellers */}
                       <li>
                         <button
                           className="dropdown-item d-flex align-items-center"
@@ -260,7 +495,6 @@ function Navbar() {
                         </button>
                       </li>
 
-                      {/* New Arrivals */}
                       <li>
                         <button
                           className="dropdown-item d-flex align-items-center"
@@ -272,7 +506,6 @@ function Navbar() {
                         </button>
                       </li>
 
-                      {/* Gift Sets */}
                       <li>
                         <button
                           className="dropdown-item d-flex align-items-center"
@@ -284,7 +517,6 @@ function Navbar() {
                         </button>
                       </li>
 
-                      {/* Luxury Collection */}
                       <li>
                         <button
                           className="dropdown-item d-flex align-items-center"
@@ -298,7 +530,6 @@ function Navbar() {
 
                       <li><hr className="dropdown-divider" /></li>
 
-                      {/* All Products */}
                       <li>
                         <Link className="dropdown-item d-flex align-items-center" to="/Ct_product">
                           <i className="fas fa-boxes me-2 text-primary"></i>
@@ -386,21 +617,160 @@ function Navbar() {
               )}
             </ul>
 
-            {/* Right side: search, cart, login/user */}
+            {/* Right side: search, wishlist, cart, login/user */}
             <div className="d-flex align-items-center gap-3">
-              {/* Search */}
-              <div className="search-container position-relative">
-                <input
-                  type="text"
-                  className="form-control rounded-pill px-4"
-                  placeholder="Search products..."
-                  style={{ maxWidth: "200px" }}
-                />
-                <i
-                  className="fas fa-search position-absolute"
-                  style={{ right: "15px", top: "50%", transform: "translateY(-50%)", color: "#888" }}
-                ></i>
+              {/* Enhanced Search */}
+              <div className="search-container position-relative" ref={searchRef}>
+                <form onSubmit={handleSearchSubmit} className="position-relative">
+                  <input
+                    type="text"
+                    className="form-control rounded-pill px-4 pe-5"
+                    placeholder="Search everything..."
+                    value={searchQuery}
+                    onChange={handleSearchInputChange}
+                    onFocus={() => searchQuery && setShowSearchResults(true)}
+                    style={{ minWidth: "250px" }}
+                  />
+                  
+                  {searchQuery && (
+                    <button
+                      type="button"
+                      className="btn btn-sm position-absolute"
+                      onClick={clearSearch}
+                      style={{ 
+                        right: "35px", 
+                        top: "50%", 
+                        transform: "translateY(-50%)",
+                        border: "none",
+                        background: "none",
+                        color: "#888",
+                        padding: "0"
+                      }}
+                    >
+                      <i className="fas fa-times"></i>
+                    </button>
+                  )}
+                  
+                  <button
+                    type="submit"
+                    className="btn btn-sm position-absolute"
+                    style={{ 
+                      right: "8px", 
+                      top: "50%", 
+                      transform: "translateY(-50%)",
+                      border: "none",
+                      background: "none",
+                      color: "#888"
+                    }}
+                  >
+                    {searchLoading ? (
+                      <div className="spinner-border spinner-border-sm" role="status">
+                        <span className="visually-hidden">Loading...</span>
+                      </div>
+                    ) : (
+                      <i className="fas fa-search"></i>
+                    )}
+                  </button>
+                </form>
+
+                {/* Search Results Dropdown */}
+                {showSearchResults && (
+                  <div 
+                    ref={searchResultsRef}
+                    className="search-results position-absolute bg-white border rounded shadow-lg"
+                    style={{
+                      top: "100%",
+                      left: "0",
+                      right: "0",
+                      zIndex: "1050",
+                      maxHeight: "400px",
+                      overflowY: "auto"
+                    }}
+                  >
+                    {searchResults.length > 0 ? (
+                      <>
+                        <div className="p-2 border-bottom bg-light">
+                          <small className="text-muted">
+                            Found {searchResults.length} result{searchResults.length !== 1 ? 's' : ''} for "{searchQuery}"
+                          </small>
+                        </div>
+                        
+                        {searchResults.map((result) => (
+                          <div
+                            key={result.id}
+                            className="search-result-item p-3 border-bottom d-flex align-items-center"
+                            onClick={result.action}
+                            style={{ cursor: 'pointer' }}
+                          >
+                            <i className={`fas ${result.icon} me-3 ${result.color}`}></i>
+                            
+                            <div className="flex-grow-1">
+                              <div className="d-flex align-items-center justify-content-between">
+                                <span className="fw-medium">{result.name}</span>
+                                <small className="badge bg-light text-dark">
+                                  {getResultTypeLabel(result.type)}
+                                </small>
+                              </div>
+                              
+                              {result.type === 'product' && (
+                                <div className="mt-1">
+                                  {result.price && (
+                                    <small className="text-success fw-bold me-2">
+                                      ${result.price}
+                                    </small>
+                                  )}
+                                  {result.category && (
+                                    <small className="text-muted">
+                                      in {result.category}
+                                    </small>
+                                  )}
+                                </div>
+                              )}
+                            </div>
+
+                            {result.type === 'product' && result.image && (
+                              <img
+                                src={result.image}
+                                alt={result.name}
+                                className="ms-2 rounded"
+                                style={{ width: "40px", height: "40px", objectFit: "cover" }}
+                                onError={(e) => {
+                                  e.target.style.display = 'none';
+                                }}
+                              />
+                            )}
+                          </div>
+                        ))}
+                        
+                        <div className="p-2 bg-light text-center">
+                          <button
+                            className="btn btn-link btn-sm text-decoration-none"
+                            onClick={handleSearchSubmit}
+                          >
+                            View all results for "{searchQuery}" <i className="fas fa-arrow-right ms-1"></i>
+                          </button>
+                        </div>
+                      </>
+                    ) : searchQuery && !searchLoading ? (
+                      <div className="p-4 text-center text-muted">
+                        <i className="fas fa-search fa-2x mb-2"></i>
+                        <div>No results found for "{searchQuery}"</div>
+                        <small>Try searching for categories, products, or pages</small>
+                      </div>
+                    ) : null}
+                  </div>
+                )}
               </div>
+
+              {/* Wishlist */}
+              <Link to="/Wishlist" className="position-relative text-dark">
+                <i className="fas fa-heart fa-lg"></i>
+                {wishlistCount > 0 && (
+                  <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                    {wishlistCount}
+                  </span>
+                )}
+              </Link>
 
               {/* Cart */}
               <Link to="/Cart" className="position-relative text-dark">
@@ -461,7 +831,6 @@ function Navbar() {
                         <Link className="dropdown-item" to="/Cart">
                           <i className="fas fa-shopping-cart me-2 text-primary"></i> Cart
                         </Link>
-
                       </li>
                       <li>
                         <Link className="dropdown-item" to="/OrderHistory">
@@ -484,34 +853,6 @@ function Navbar() {
           </div>
         </div>
       </nav>
-
-      {/* Custom CSS for additional colors */}
-      <style>
-        {`
-          .text-pink { color: #e83e8c; }
-          .text-purple { color: #6f42c1; }
-          .offers-banner {
-            background: linear-gradient(45deg, #e83e8c, #d63384);
-            font-size: 0.9rem;
-          }
-          .dropdown-header {
-            font-size: 0.85rem;
-            padding: 0.5rem 1rem;
-          }
-          .navbar-brand {
-            color: #e83e8c !important;
-          }
-          .nav-link {
-            color: #495057;
-          }
-          .nav-link:hover {
-            color: #e83e8c;
-          }
-          .dropdown-item:hover {
-            background-color: #f8d7da;
-          }
-        `}
-      </style>
     </>
   );
 }

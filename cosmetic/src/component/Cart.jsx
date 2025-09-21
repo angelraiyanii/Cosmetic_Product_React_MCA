@@ -306,7 +306,7 @@ export class Cart extends Component {
                     // Handle different product data structures
                     const product = item.productId && typeof item.productId === 'object'
                       ? item.productId
-                      : { productName: "Unknown Product", price: 0, category: "Beauty & Cosmetics" };
+                      : { name: "Unknown Product", price: 0, category: "Beauty & Cosmetics" };
 
                     return (
                       <div className="cart-item" key={item._id} style={{ animationDelay: `${index * 0.1}s` }}>
@@ -328,16 +328,9 @@ export class Cart extends Component {
                         <div className="item-details">
                           <div className="item-header">
                             <h4 className="item-name">
-                              {product.productName}
+                              {product.name}
                             </h4>
-                            <div className="item-rating">
-                              <div className="stars">
-                                {[1, 2, 3, 4, 5].map(star => (
-                                  <FaStar key={star} className={star <= 4 ? "star-filled" : "star-empty"} />
-                                ))}
-                              </div>
-                              <span className="rating-text">(4.0)</span>
-                            </div>
+
                           </div>
 
                           <p className="item-category">
@@ -354,7 +347,14 @@ export class Cart extends Component {
                               Vegan
                             </span>
                           </div>
-
+                          <div className="item-rating">
+                            <div className="stars">
+                              {[1, 2, 3, 4, 5].map(star => (
+                                <FaStar key={star} className={star <= 4 ? "star-filled" : "star-empty"} />
+                              ))}
+                            </div>
+                            <span className="rating-text">(4.0)</span>
+                          </div>
                           <div className="item-actions-mobile">
                             <div className="price-section">
                               <span className="current-price">
@@ -385,8 +385,9 @@ export class Cart extends Component {
                                 onClick={() => this.updateQuantity(item._id, item.quantity - 1)}
                                 disabled={processingItem === item._id || item.quantity <= 1}
                               >
-                                <FaMinus size={16}color="#ff6b9d" />
+                                <FaMinus />
                               </button>
+
                               <span className="quantity">
                                 {processingItem === item._id ? <FaSpinner className="processing-spinner" /> : item.quantity}
                               </span>
@@ -396,9 +397,10 @@ export class Cart extends Component {
                                 onClick={() => this.updateQuantity(item._id, item.quantity + 1)}
                                 disabled={processingItem === item._id}
                               >
-                               <FaPlus size={16}color="#ff6b9d" />
+                                <FaPlus />
                               </button>
                             </div>
+
                           </div>
 
                           <div className="action-buttons">
@@ -415,7 +417,7 @@ export class Cart extends Component {
                               className="btn-view"
                               title="View Product"
                             >
-                              <FaEye/>
+                              <FaEye />
                             </Link>
                             <button
                               className="btn-remove"
