@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";  
 import {
   User,
   Mail,
@@ -18,6 +19,7 @@ import {
 } from "lucide-react";
 
 function Account() {
+  const navigate = useNavigate();
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -35,15 +37,22 @@ function Account() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [passwordErrors, setPasswordErrors] = useState({});
   const [isUpdatingPassword, setIsUpdatingPassword] = useState(false);
+  const [isRedirecting, setIsRedirecting] = useState(false); // ✅ Add redirect state
 
   useEffect(() => {
-    fetchUserData();
-  }, []);
+    const token = localStorage.getItem("token");
+    if (!token) {
+      setIsRedirecting(true); // ✅ Set redirecting state
+      navigate("/login");
+      return;
+    }
 
-  const fetchUserData = async () => {
+    fetchUserData(token);
+  }, [navigate]);
+
+  const fetchUserData = async (token) => {
     try {
       setLoading(true);
-      const token = localStorage.getItem("token");
       const userId = JSON.parse(atob(token.split(".")[1])).userId;
 
       const response = await fetch(
@@ -52,6 +61,13 @@ function Account() {
           headers: { Authorization: `Bearer ${token}` },
         }
       );
+
+      if (response.status === 401) {
+        localStorage.removeItem("token");
+        setIsRedirecting(true); // ✅ Set redirecting state
+        navigate("/login");
+        return;
+      }
 
       if (!response.ok) throw new Error("Failed to fetch user data");
 
@@ -111,14 +127,13 @@ function Account() {
 
     if (!newPassword.trim()) {
       errors.newPassword = "New password is required";
-    } 
+    }
 
     if (!confirmPassword.trim()) {
       errors.confirmPassword = "Please confirm your new password";
     } else if (newPassword !== confirmPassword) {
       errors.confirmPassword = "Passwords do not match";
     }
-
 
     setPasswordErrors(errors);
     return Object.keys(errors).length === 0;
@@ -134,12 +149,12 @@ function Account() {
       setPasswordErrors({});
 
       const token = localStorage.getItem("token");
-      
+
       const response = await fetch(
         `http://localhost:5000/api/Usermodel/change-password/${user._id}`,
         {
           method: "PUT",
-          headers: { 
+          headers: {
             "Content-Type": "application/json",
             ...(token && { "Authorization": `Bearer ${token}` })
           },
@@ -152,16 +167,15 @@ function Account() {
       if (!response.ok) {
         console.log("Response status:", response.status);
         console.log("Response data:", data);
-        
-        // Handle specific error for wrong old password
-        if (response.status === 400 && 
-            (data.message?.toLowerCase().includes("old password is incorrect") ||
-             data.message?.toLowerCase().includes("incorrect") ||
-             data.message?.toLowerCase().includes("wrong") ||
-             data.message?.toLowerCase().includes("match"))) {
+
+        if (response.status === 400 &&
+          (data.message?.toLowerCase().includes("old password is incorrect") ||
+            data.message?.toLowerCase().includes("incorrect") ||
+            data.message?.toLowerCase().includes("wrong") ||
+            data.message?.toLowerCase().includes("match"))) {
           setPasswordErrors({ oldPassword: "Your old password does not match with database records" });
-        } else if (response.status === 400 && 
-                   data.message?.toLowerCase().includes("different")) {
+        } else if (response.status === 400 &&
+          data.message?.toLowerCase().includes("different")) {
           setPasswordErrors({ newPassword: "New password must be different from old password" });
         } else if (response.status === 404) {
           setPasswordErrors({ general: "User not found" });
@@ -171,14 +185,12 @@ function Account() {
         return;
       }
 
-      // Success
       setShowPasswordForm(false);
       setOldPassword("");
       setNewPassword("");
       setConfirmPassword("");
       setPasswordErrors({});
-      
-      // Show success message (you can replace this with a better notification system)
+
       alert("Password updated successfully!");
     } catch (err) {
       console.error("Password update error:", err);
@@ -215,6 +227,20 @@ function Account() {
       month: "long",
       day: "numeric",
     });
+
+  // ✅ Show redirecting message instead of account page
+  if (isRedirecting) {
+    return (
+      <div className="min-vh-100 d-flex justify-content-center align-items-center bg-light">
+        <div className="text-center">
+          <div className="spinner-border text-primary mb-3" style={{ width: '3rem', height: '3rem' }} role="status">
+            <span className="visually-hidden">Loading...</span>
+          </div>
+          <p className="text-muted">Redirecting to login...</p>
+        </div>
+      </div>
+    );
+  }
 
   if (loading)
     return (

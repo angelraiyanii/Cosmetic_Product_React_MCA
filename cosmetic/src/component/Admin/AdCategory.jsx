@@ -88,11 +88,13 @@ function AdCategory() {
         res = await axios.post(
           "http://localhost:5000/api/CategoryModel/add-category",
           data
+          
         );
       }
       alert(res.data.message);
       resetForm();
       fetchCategories();
+      window.location.reload();
     } catch (error) {
       console.error("Error:", error.response?.data || error.message);
       alert(error.response?.data?.error || "Operation failed");
@@ -107,6 +109,7 @@ function AdCategory() {
       categoryName: category.categoryName,
       categoryStatus: category.categoryStatus,
     });
+      window.location.reload();
     setImagePreview(
       category.categoryImage
         ? `http://localhost:5000/public/images/category_images/${category.categoryImage}`
@@ -124,6 +127,7 @@ function AdCategory() {
       );
       alert(res.data.message);
       fetchCategories();
+        window.location.reload();
     } catch (error) {
       console.error("Error deleting category:", error);
       alert("Delete failed");

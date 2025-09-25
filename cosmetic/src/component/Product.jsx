@@ -170,6 +170,7 @@ export class Product extends Component {
 
       console.log("Added to cart response:", response.data);
       alert("Product added to cart successfully!");
+      window.location.reload();
     } catch (error) {
       console.error(
         "Error adding to cart:",
