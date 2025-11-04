@@ -1,7 +1,6 @@
 import React, { Component } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
-import "../App.css";
 import {
   FaShoppingCart,
   FaHeart,
@@ -22,8 +21,374 @@ import {
   FaSpinner,
   FaEye
 } from "react-icons/fa";
-import placeholderImage from "../component/Images/pro1.jpeg"; // Add this import
-import "../App.css";
+
+const placeholderImage = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Crect fill='%23ddd' width='200' height='200'/%3E%3Ctext fill='%23999' x='50%25' y='50%25' text-anchor='middle' dy='.3em'%3ENo Image%3C/text%3E%3C/svg%3E";
+
+class CheckoutForm extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      email: "",
+      phone: "",
+      address: "",
+      city: "",
+      state: "",
+      zip: "",
+      country: "India",
+      errors: {},
+      isLoadingUser: true,
+    };
+  }
+
+  componentDidMount() {
+    this.fetchUserData();
+  }
+
+  fetchUserData = async () => {
+    try {
+      const userData = localStorage.getItem("user") || localStorage.getItem("admin");
+
+      if (!userData) {
+        this.setState({ isLoadingUser: false });
+        return;
+      }
+
+      const user = JSON.parse(userData);
+      const userId = user.id;
+
+      const response = await axios.get(
+        `http://localhost:5000/api/Login/user-details/${userId}`
+      );
+
+      const fetchedData = response.data;
+
+      this.setState({
+        email: fetchedData.email || "",
+        phone: fetchedData.phone || "",
+        address: fetchedData.address || "",
+        city: fetchedData.city || "",
+        state: fetchedData.state || "",
+        zip: fetchedData.zip || "",
+        country: fetchedData.country || "India",
+        isLoadingUser: false,
+      });
+    } catch (error) {
+      console.error("Error fetching user data:", error);
+      this.setState({ isLoadingUser: false });
+    }
+  };
+
+  handleChange = (e) => {
+    this.setState({
+      [e.target.name]: e.target.value,
+      errors: { ...this.state.errors, [e.target.name]: "" }
+    });
+  };
+
+  validateForm = () => {
+    let newErrors = {};
+
+    if (!this.state.email) {
+      newErrors.email = "Email is required";
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(this.state.email)) {
+      newErrors.email = "Invalid email format";
+    }
+
+    if (!this.state.phone) {
+      newErrors.phone = "Phone number is required";
+    } else if (!/^\d{10}$/.test(this.state.phone)) {
+      newErrors.phone = "Phone number must be 10 digits";
+    }
+
+    if (!this.state.address) newErrors.address = "Address is required";
+    if (!this.state.city) newErrors.city = "City is required";
+    if (!this.state.state) newErrors.state = "State is required";
+
+    if (!this.state.zip) {
+      newErrors.zip = "ZIP code is required";
+    } else if (!/^\d{6}$/.test(this.state.zip)) {
+      newErrors.zip = "ZIP code must be 6 digits";
+    }
+
+    this.setState({ errors: newErrors });
+    return Object.keys(newErrors).length === 0;
+  };
+
+  handleCheckout = async () => {
+    if (!this.validateForm()) {
+      return;
+    }
+
+    try {
+      const userData = localStorage.getItem("user") || localStorage.getItem("admin");
+
+      if (!userData) {
+        alert("Please login to place order");
+        window.location.href = "/login";
+        return;
+      }
+
+      const user = JSON.parse(userData);
+      const userId = user.id;
+
+      const orderData = {
+        userId,
+        email: this.state.email,
+        phone: this.state.phone,
+        address: this.state.address,
+        city: this.state.city,
+        state: this.state.state,
+        zip: this.state.zip,
+        country: this.state.country,
+        totalAmount: this.props.total,
+        discount: this.props.discount || 0,
+        subtotal: this.props.subtotal,
+        tax: this.props.tax,
+        shipping: this.props.shipping,
+      };
+
+      const response = await axios.post(
+        "http://localhost:5000/api/orders/create",
+        orderData
+      );
+
+      alert("Order placed successfully!");
+
+      // Clear cart
+      await axios.delete(`http://localhost:5000/api/CartModel/clear/${userId}`);
+
+      // Redirect to home or orders page
+      window.location.href = "/";
+
+    } catch (error) {
+      console.error("Error creating order:", error);
+      alert("Failed to place order: " + (error.response?.data?.error || error.message));
+    }
+  };
+
+  render() {
+    const { subtotal, discount, tax, shipping, total, onBack } = this.props;
+    const { errors, isLoadingUser } = this.state;
+
+    if (isLoadingUser) {
+      return (
+        <div className="cart-loading">
+          <div className="loading-content">
+            <FaSpinner className="loading-spinner" />
+            <h3>Loading checkout...</h3>
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <div className="checkout-container">
+        <div className="cart-header">
+          <div className="container">
+            <div className="header-content">
+              <button onClick={onBack} className="back-button">
+                <FaArrowLeft />
+              </button>
+              <div className="header-info">
+                <h1>
+                  <FaCreditCard className="cart-icon" />
+                  Checkout
+                </h1>
+                <p>Complete your order</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="container cart-content">
+          <div className="row">
+            <div className="col-lg-8">
+              <div className="checkout-form-section">
+                <div className="section-header">
+                  <h3>Shipping Information</h3>
+                  <p>Please provide your delivery details</p>
+                </div>
+
+                <div className="checkout-form">
+                  <div className="row">
+                    <div className="col-md-6 mb-3">
+                      <label className="form-label">Email Address *</label>
+                      <input
+                        type="email"
+                        className={`form-control ${errors.email ? "is-invalid" : ""}`}
+                        name="email"
+                        value={this.state.email}
+                        onChange={this.handleChange}
+                        placeholder="your.email@example.com"
+                      />
+                      {errors.email && (
+                        <div className="invalid-feedback">{errors.email}</div>
+                      )}
+                    </div>
+
+                    <div className="col-md-6 mb-3">
+                      <label className="form-label">Phone Number *</label>
+                      <input
+                        type="text"
+                        className={`form-control ${errors.phone ? "is-invalid" : ""}`}
+                        name="phone"
+                        value={this.state.phone}
+                        onChange={this.handleChange}
+                        placeholder="10-digit phone number"
+                        maxLength="10"
+                      />
+                      {errors.phone && (
+                        <div className="invalid-feedback">{errors.phone}</div>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="mb-3">
+                    <label className="form-label">Street Address *</label>
+                    <textarea
+                      className={`form-control ${errors.address ? "is-invalid" : ""}`}
+                      name="address"
+                      value={this.state.address}
+                      onChange={this.handleChange}
+                      placeholder="House number, street name, area"
+                      rows="3"
+                    />
+                    {errors.address && (
+                      <div className="invalid-feedback">{errors.address}</div>
+                    )}
+                  </div>
+
+                  <div className="row">
+                    <div className="col-md-6 mb-3">
+                      <label className="form-label">City *</label>
+                      <input
+                        type="text"
+                        className={`form-control ${errors.city ? "is-invalid" : ""}`}
+                        name="city"
+                        value={this.state.city}
+                        onChange={this.handleChange}
+                        placeholder="Enter city"
+                      />
+                      {errors.city && (
+                        <div className="invalid-feedback">{errors.city}</div>
+                      )}
+                    </div>
+
+                    <div className="col-md-6 mb-3">
+                      <label className="form-label">State *</label>
+                      <input
+                        type="text"
+                        className={`form-control ${errors.state ? "is-invalid" : ""}`}
+                        name="state"
+                        value={this.state.state}
+                        onChange={this.handleChange}
+                        placeholder="Enter state"
+                      />
+                      {errors.state && (
+                        <div className="invalid-feedback">{errors.state}</div>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="row">
+                    <div className="col-md-6 mb-3">
+                      <label className="form-label">ZIP Code *</label>
+                      <input
+                        type="text"
+                        className={`form-control ${errors.zip ? "is-invalid" : ""}`}
+                        name="zip"
+                        value={this.state.zip}
+                        onChange={this.handleChange}
+                        placeholder="6-digit ZIP code"
+                        maxLength="6"
+                      />
+                      {errors.zip && (
+                        <div className="invalid-feedback">{errors.zip}</div>
+                      )}
+                    </div>
+
+                    <div className="col-md-6 mb-3">
+                      <label className="form-label">Country</label>
+                      <input
+                        type="text"
+                        className="form-control"
+                        name="country"
+                        value={this.state.country}
+                        onChange={this.handleChange}
+                        placeholder="Country"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="col-lg-4">
+              <div className="order-summary-sticky">
+                <div className="order-summary">
+                  <h4>Order Summary</h4>
+
+                  <div className="summary-line">
+                    <span>Subtotal:</span>
+                    <span>${subtotal}</span>
+                  </div>
+
+                  <div className="summary-line">
+                    <span>Shipping:</span>
+                    <span className={shipping === 0 ? "free-text" : ""}>
+                      {shipping === 0 ? "FREE" : `$${shipping}`}
+                    </span>
+                  </div>
+
+                  <div className="summary-line">
+                    <span>Tax (estimated):</span>
+                    <span>${tax}</span>
+                  </div>
+
+                  {discount > 0 && (
+                    <div className="summary-line discount-line">
+                      <span>Discount:</span>
+                      <span>-${discount.toFixed(2)}</span>
+                    </div>
+                  )}
+
+                  <div className="summary-divider"></div>
+
+                  <div className="summary-total">
+                    <span>Total:</span>
+                    <span>${total}</span>
+                  </div>
+
+                  <button className="checkout-btn" onClick={this.handleCheckout}>
+                    <FaCheck className="me-2" />
+                    Place Order
+                    <span className="btn-amount">${total}</span>
+                  </button>
+
+                  <button className="btn-secondary-full" onClick={onBack}>
+                    <FaArrowLeft className="me-2" />
+                    Back to Cart
+                  </button>
+
+                  <div className="security-badges">
+                    <div className="security-badge">
+                      <FaShieldAlt />
+                      <span>Secure Payment</span>
+                    </div>
+                    <div className="security-badge">
+                      <FaTruck />
+                      <span>Fast Delivery</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+}
 
 export class Cart extends Component {
   constructor() {
@@ -32,7 +397,8 @@ export class Cart extends Component {
       cartItems: [],
       isLoading: true,
       error: null,
-      processingItem: null
+      processingItem: null,
+      showCheckout: false,
     };
   }
 
@@ -58,13 +424,10 @@ export class Cart extends Component {
         `http://localhost:5000/api/CartModel/${userId}`
       );
 
-      // Make sure we're getting the product data properly
       const cartItems = response.data.map(item => {
-        // Check if productId is populated or if we need to handle it differently
         if (item.productId && typeof item.productId === 'object') {
           return item;
         } else {
-          // If productId is just an ID string, we might need to fetch product details separately
           console.warn("Product data not fully populated for item:", item);
           return item;
         }
@@ -125,13 +488,11 @@ export class Cart extends Component {
       const user = JSON.parse(userData);
       const userId = user.id;
 
-      // Add to wishlist
       await axios.post("http://localhost:5000/api/WishlistModel/add", {
         userId,
         productId,
       });
 
-      // Remove from cart
       await axios.delete(`http://localhost:5000/api/CartModel/remove/${cartItemId}`);
 
       this.fetchCartItems();
@@ -147,7 +508,6 @@ export class Cart extends Component {
   calculateSubtotal = () => {
     return this.state.cartItems
       .reduce((total, item) => {
-        // Handle different possible structures of product data
         let price = 0;
         if (item.productId && typeof item.productId === 'object') {
           price = item.productId.price || 0;
@@ -159,12 +519,12 @@ export class Cart extends Component {
 
   calculateTax = () => {
     const subtotal = parseFloat(this.calculateSubtotal());
-    return (subtotal * 0.08).toFixed(2); // 8% tax
+    return (subtotal * 0.08).toFixed(2);
   };
 
   calculateShipping = () => {
     const subtotal = parseFloat(this.calculateSubtotal());
-    return subtotal >= 50 ? 0 : 5.99; // Free shipping over $50
+    return subtotal >= 50 ? 0 : 5.99;
   };
 
   calculateTotal = () => {
@@ -193,12 +553,21 @@ export class Cart extends Component {
     }
   };
 
+  proceedToCheckout = () => {
+    this.setState({ showCheckout: true });
+  };
+
+  handleBackToCart = () => {
+    this.setState({ showCheckout: false });
+  };
+
   render() {
     const {
       cartItems,
       isLoading,
       error,
-      processingItem
+      processingItem,
+      showCheckout
     } = this.state;
 
     if (isLoading) {
@@ -257,11 +626,23 @@ export class Cart extends Component {
       );
     }
 
+    // Show checkout form
+    if (showCheckout) {
+      return (
+        <CheckoutForm
+          subtotal={this.calculateSubtotal()}
+          tax={this.calculateTax()}
+          shipping={this.calculateShipping()}
+          total={this.calculateTotal()}
+          onBack={this.handleBackToCart}
+        />
+      );
+    }
+
     const subtotal = parseFloat(this.calculateSubtotal());
 
     return (
       <div className="cart-container">
-        {/* Header */}
         <div className="cart-header">
           <div className="container">
             <div className="header-content">
@@ -285,7 +666,6 @@ export class Cart extends Component {
 
         <div className="container cart-content">
           <div className="row">
-            {/* Cart Items */}
             <div className="col-lg-8">
               <div className="cart-items-section">
                 <div className="section-header">
@@ -303,7 +683,6 @@ export class Cart extends Component {
 
                 <div className="cart-items">
                   {cartItems.map((item, index) => {
-                    // Handle different product data structures
                     const product = item.productId && typeof item.productId === 'object'
                       ? item.productId
                       : { name: "Unknown Product", price: 0, category: "Beauty & Cosmetics" };
@@ -315,11 +694,11 @@ export class Cart extends Component {
                             src={
                               product.image
                                 ? `http://localhost:5000/public/images/product_images/${product.image}`
-                                : placeholder
+                                : placeholderImage
                             }
                             alt={product.name}
                             className="product-image"
-                            onError={(e) => (e.target.src = placeholder)}
+                            onError={(e) => (e.target.src = placeholderImage)}
                           />
                           {product.discount && (
                             <span className="discount-badge">-{product.discount}%</span>
@@ -330,7 +709,6 @@ export class Cart extends Component {
                             <h4 className="item-name">
                               {product.name}
                             </h4>
-
                           </div>
 
                           <p className="item-category">
@@ -400,7 +778,6 @@ export class Cart extends Component {
                                 <FaPlus />
                               </button>
                             </div>
-
                           </div>
 
                           <div className="action-buttons">
@@ -436,10 +813,8 @@ export class Cart extends Component {
               </div>
             </div>
 
-            {/* Order Summary */}
             <div className="col-lg-4">
               <div className="order-summary-sticky">
-                {/* Order Summary */}
                 <div className="order-summary">
                   <h4>Order Summary</h4>
                   <div className="summary-line">
@@ -462,9 +837,11 @@ export class Cart extends Component {
                     <span>${this.calculateTotal()}</span>
                   </div>
 
-                  <button className="checkout-btn">
-                    <FaCreditCard className="me-2" />
-                    Secure Checkout
+                  <button className="checkout-btn" onClick={this.proceedToCheckout}>
+                    <div className="btn-content">
+                      <FaCreditCard className="me-3" />
+                      <span>Proceed to Checkout</span>
+                    </div>
                     <span className="btn-amount">${this.calculateTotal()}</span>
                   </button>
 
@@ -491,8 +868,6 @@ export class Cart extends Component {
             </div>
           </div>
         </div>
-
-
       </div>
     );
   }
