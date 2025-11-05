@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
@@ -9,7 +9,7 @@ function Navbar() {
   const [user, setUser] = useState(null);
   const [categories, setCategories] = useState([]);
   const [cartCount, setCartCount] = useState(0);
-  const [wishlistCount, setWishlistCount] = useState(0); // Added wishlist count state
+  const [wishlistCount, setWishlistCount] = useState(0);
   const [loading, setLoading] = useState(true);
   
   // Search states
@@ -20,6 +20,7 @@ function Navbar() {
   const [products, setProducts] = useState([]);
   
   const navigate = useNavigate();
+  const location = useLocation(); // Add this to track current route
   const searchRef = useRef(null);
   const searchResultsRef = useRef(null);
 
@@ -35,6 +36,14 @@ function Navbar() {
     { name: 'Order History', path: '/OrderHistory', icon: 'fa-history', type: 'page' },
   ];
 
+  // Check if a nav link is active
+  const isActiveLink = (path) => {
+    if (path === '/') {
+      return location.pathname === '/';
+    }
+    return location.pathname.startsWith(path);
+  };
+
   useEffect(() => {
     const savedUser = localStorage.getItem("user") || localStorage.getItem("admin");
     if (savedUser) {
@@ -43,7 +52,7 @@ function Navbar() {
 
     fetchCategories();
     fetchCartCount();
-    fetchWishlistCount(); // Added wishlist count fetch
+    fetchWishlistCount();
     fetchProducts();
   }, []);
 
@@ -62,6 +71,7 @@ function Navbar() {
     };
   }, []);
 
+  // Rest of your existing functions remain the same...
   const fetchCategories = async () => {
     try {
       setLoading(true);
@@ -111,7 +121,6 @@ function Navbar() {
     }
   };
 
-  // Added wishlist count fetch function
   const fetchWishlistCount = async () => {
     try {
       const savedUser = localStorage.getItem("user") || localStorage.getItem("admin");
@@ -120,7 +129,6 @@ function Navbar() {
       const user = JSON.parse(savedUser);
       const userId = user.id;
 
-      // Adjust the API endpoint according to your wishlist model
       const response = await axios.get(`http://localhost:5000/api/WishlistModel/${userId}`);
       setWishlistCount(response.data.length);
     } catch (error) {
@@ -128,7 +136,6 @@ function Navbar() {
     }
   };
 
-  // Enhanced search function
   const performSearch = async (query) => {
     if (!query.trim()) {
       setSearchResults([]);
@@ -190,7 +197,7 @@ function Navbar() {
         return searchFields.some(field =>
           field.toLowerCase().includes(queryLower)
         );
-      }).slice(0, 8); // Limit to 8 products
+      }).slice(0, 8);
 
       matchingProducts.forEach(product => {
         results.push({
@@ -298,7 +305,7 @@ function Navbar() {
     localStorage.removeItem("admin");
     setUser(null);
     setCartCount(0);
-    setWishlistCount(0); // Reset wishlist count on logout
+    setWishlistCount(0);
     navigate("/");
   };
 
@@ -422,7 +429,7 @@ function Navbar() {
             <i className=" text-pink"></i>GlowCosmetics
           </Link>
 
-          {/* Toggle for mobile */}
+          {/* Beautiful Animated Burger Button */}
           <button
             className="navbar-toggler"
             type="button"
@@ -432,20 +439,25 @@ function Navbar() {
             aria-expanded="false"
             aria-label="Toggle navigation"
           >
-            <i className="fas fa-bars"></i>
+            <span className="burger-line"></span>
+            <span className="burger-line"></span>
+            <span className="burger-line"></span>
           </button>
 
           <div className="collapse navbar-collapse" id="navbarContent">
             <ul className="navbar-nav me-auto mb-2 mb-lg-0">
               <li className="nav-item">
-                <Link className="nav-link active" to="/">
+                <Link 
+                  className={`nav-link ${isActiveLink('/') ? 'active' : ''}`} 
+                  to="/"
+                >
                   <i className="fas fa-home me-1"></i>Home
                 </Link>
               </li>
 
               <li className="nav-item dropdown">
                 <a
-                  className="nav-link dropdown-toggle"
+                  className={`nav-link dropdown-toggle ${isActiveLink('/Ct_product') ? 'active' : ''}`}
                   href="#"
                   id="productsDropdown"
                   role="button"
@@ -542,13 +554,19 @@ function Navbar() {
               </li>
 
               <li className="nav-item">
-                <Link className="nav-link" to="/Aboutus">
+                <Link 
+                  className={`nav-link ${isActiveLink('/Aboutus') ? 'active' : ''}`} 
+                  to="/Aboutus"
+                >
                   <i className="fas fa-info-circle me-1"></i>About Us
                 </Link>
               </li>
 
               <li className="nav-item">
-                <Link className="nav-link" to="/Contactus">
+                <Link 
+                  className={`nav-link ${isActiveLink('/Contactus') ? 'active' : ''}`} 
+                  to="/Contactus"
+                >
                   <i className="fas fa-phone me-1"></i>Contact
                 </Link>
               </li>
@@ -557,7 +575,7 @@ function Navbar() {
               {isAdmin && (
                 <li className="nav-item dropdown">
                   <a
-                    className="nav-link dropdown-toggle"
+                    className={`nav-link dropdown-toggle ${location.pathname.startsWith('/Admin') ? 'active' : ''}`}
                     href="#"
                     id="adminDropdown"
                     role="button"
@@ -568,47 +586,74 @@ function Navbar() {
                   </a>
                   <ul className="dropdown-menu" aria-labelledby="adminDropdown">
                     <li>
-                      <Link className="dropdown-item" to="/Admin/AdCategory">
+                      <Link 
+                        className={`dropdown-item ${location.pathname === '/Admin/AdCategory' ? 'active' : ''}`} 
+                        to="/Admin/AdCategory"
+                      >
                         <i className="fas fa-list me-2 text-primary"></i> Category
                       </Link>
                     </li>
                     <li>
-                      <Link className="dropdown-item" to="/Admin/AdPro">
+                      <Link 
+                        className={`dropdown-item ${location.pathname === '/Admin/AdPro' ? 'active' : ''}`} 
+                        to="/Admin/AdPro"
+                      >
                         <i className="fas fa-box me-2 text-success"></i> Product
                       </Link>
                     </li>
                     <li>
-                      <Link className="dropdown-item" to="/Admin/AdUser">
+                      <Link 
+                        className={`dropdown-item ${location.pathname === '/Admin/AdUser' ? 'active' : ''}`} 
+                        to="/Admin/AdUser"
+                      >
                         <i className="fas fa-user me-2 text-info"></i> User
                       </Link>
                     </li>
                     <li>
-                      <Link className="dropdown-item" to="/Admin/AdOrder">
+                      <Link 
+                        className={`dropdown-item ${location.pathname === '/Admin/AdOrder' ? 'active' : ''}`} 
+                        to="/Admin/AdOrder"
+                      >
                         <i className="fas fa-shopping-bag me-2 text-warning"></i> Order
                       </Link>
                     </li>
                     <li>
-                      <Link className="dropdown-item" to="/Admin/AdOffers">
+                      <Link 
+                        className={`dropdown-item ${location.pathname === '/Admin/AdOffers' ? 'active' : ''}`} 
+                        to="/Admin/AdOffers"
+                      >
                         <i className="fas fa-tags me-2 text-primary"></i> Offers
                       </Link>
                     </li>
                     <li>
-                      <Link className="dropdown-item" to="/Admin/AdReviews">
+                      <Link 
+                        className={`dropdown-item ${location.pathname === '/Admin/AdReviews' ? 'active' : ''}`} 
+                        to="/Admin/AdReviews"
+                      >
                         <i className="fas fa-star me-2 text-success"></i> Reviews
                       </Link>
                     </li>
                     <li>
-                      <Link className="dropdown-item" to="/Admin/AdBanner">
+                      <Link 
+                        className={`dropdown-item ${location.pathname === '/Admin/AdBanner' ? 'active' : ''}`} 
+                        to="/Admin/AdBanner"
+                      >
                         <i className="fas fa-ad me-2 text-info"></i> Banners
                       </Link>
                     </li>
                     <li>
-                      <Link className="dropdown-item" to="/Admin/AdContact">
+                      <Link 
+                        className={`dropdown-item ${location.pathname === '/Admin/AdContact' ? 'active' : ''}`} 
+                        to="/Admin/AdContact"
+                      >
                         <i className="fas fa-phone me-2 text-danger"></i> Contact
                       </Link>
                     </li>
                     <li>
-                      <Link className="dropdown-item" to="/Admin/AdAbout">
+                      <Link 
+                        className={`dropdown-item ${location.pathname === '/Admin/AdAbout' ? 'active' : ''}`} 
+                        to="/Admin/AdAbout"
+                      >
                         <i className="fas fa-info-circle me-2 text-secondary"></i> About Us
                       </Link>
                     </li>
@@ -763,7 +808,10 @@ function Navbar() {
               </div>
 
               {/* Wishlist */}
-              <Link to="/Wishlist" className="position-relative text-dark">
+              <Link 
+                to="/Wishlist" 
+                className={`position-relative text-dark ${isActiveLink('/Wishlist') ? 'active' : ''}`}
+              >
                 <i className="fas fa-heart fa-lg"></i>
                 {wishlistCount > 0 && (
                   <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
@@ -773,7 +821,10 @@ function Navbar() {
               </Link>
 
               {/* Cart */}
-              <Link to="/Cart" className="position-relative text-dark">
+              <Link 
+                to="/Cart" 
+                className={`position-relative text-dark ${isActiveLink('/Cart') ? 'active' : ''}`}
+              >
                 <i className="fas fa-shopping-cart fa-lg"></i>
                 {cartCount > 0 && (
                   <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
@@ -818,22 +869,34 @@ function Navbar() {
                       <li className="dropdown-item-text">{user.email}</li>
                       <li><hr className="dropdown-divider" /></li>
                       <li>
-                        <Link className="dropdown-item" to="/Account">
+                        <Link 
+                          className={`dropdown-item ${isActiveLink('/Account') ? 'active' : ''}`} 
+                          to="/Account"
+                        >
                           <i className="fas fa-user me-2 text-info"></i> Account
                         </Link>
                       </li>
                       <li>
-                        <Link className="dropdown-item" to="/Wishlist">
+                        <Link 
+                          className={`dropdown-item ${isActiveLink('/Wishlist') ? 'active' : ''}`} 
+                          to="/Wishlist"
+                        >
                           <i className="fas fa-heart me-2 text-danger"></i> Wishlist
                         </Link>
                       </li>
                       <li>
-                        <Link className="dropdown-item" to="/Cart">
+                        <Link 
+                          className={`dropdown-item ${isActiveLink('/Cart') ? 'active' : ''}`} 
+                          to="/Cart"
+                        >
                           <i className="fas fa-shopping-cart me-2 text-primary"></i> Cart
                         </Link>
                       </li>
                       <li>
-                        <Link className="dropdown-item" to="/OrderHistory">
+                        <Link 
+                          className={`dropdown-item ${isActiveLink('/OrderHistory') ? 'active' : ''}`} 
+                          to="/OrderHistory"
+                        >
                           <i className="fas fa-history me-2 text-warning"></i> Order History
                         </Link>
                       </li>

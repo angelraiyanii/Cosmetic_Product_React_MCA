@@ -19,30 +19,41 @@ import {
   FaTimes,
   FaShoppingBag,
   FaSpinner,
-  FaEye
+  FaEye,
+  FaMapMarkerAlt,
+  FaEdit,
+  FaPlusCircle
 } from "react-icons/fa";
-
+import "../App.css";
 const placeholderImage = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Crect fill='%23ddd' width='200' height='200'/%3E%3Ctext fill='%23999' x='50%25' y='50%25' text-anchor='middle' dy='.3em'%3ENo Image%3C/text%3E%3C/svg%3E";
 
 class CheckoutForm extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      email: "",
+      addresses: [],
+      selectedAddressId: null,
+      userEmail: "",
+      userData: {},
       phone: "",
       address: "",
       city: "",
       state: "",
       zip: "",
       country: "India",
+      addressName: "",
       errors: {},
       isLoadingUser: true,
+      showAddressForm: false,
+      isEditing: false,
+      editingAddressId: null
     };
   }
 
   componentDidMount() {
     this.fetchUserData();
   }
+
 
   fetchUserData = async () => {
     try {
@@ -60,22 +71,80 @@ class CheckoutForm extends Component {
         `http://localhost:5000/api/Login/user-details/${userId}`
       );
 
-      const fetchedData = response.data;
+      const fetchedData = response.data.user;
+
+      // Debug: Log the fetched data to see what's available
+      console.log("Fetched user data:", fetchedData);
+
+      // Try to get email from multiple possible sources
+      const userEmail = fetchedData.email ||
+        fetchedData.Email ||
+        user.email ||
+        user.Email ||
+        "";
+
+      console.log("Extracted email:", userEmail);
+
+      // Initialize with user's main address as the first address
+      const userMainAddress = {
+        _id: "main",
+        name: "Primary",
+        email: userEmail,
+        phone: fetchedData.mobile || fetchedData.Mobile || fetchedData.phone || "",
+        address: fetchedData.address || fetchedData.Address || "",
+        city: this.extractCityFromAddress(fetchedData.address || fetchedData.Address || ""),
+        state: this.extractStateFromAddress(fetchedData.address || fetchedData.Address || ""),
+        zip: fetchedData.pincode || fetchedData.Pincode || fetchedData.zip || "",
+        country: "India",
+        isDefault: true
+      };
 
       this.setState({
-        email: fetchedData.email || "",
-        phone: fetchedData.phone || "",
-        address: fetchedData.address || "",
-        city: fetchedData.city || "",
-        state: fetchedData.state || "",
-        zip: fetchedData.zip || "",
-        country: fetchedData.country || "India",
+        userEmail: userEmail,
+        userData: fetchedData,
+        addresses: [userMainAddress],
+        selectedAddressId: "main",
+        phone: fetchedData.mobile || fetchedData.Mobile || fetchedData.phone || "",
+        address: fetchedData.address || fetchedData.Address || "",
+        city: this.extractCityFromAddress(fetchedData.address || fetchedData.Address || ""),
+        state: this.extractStateFromAddress(fetchedData.address || fetchedData.Address || ""),
+        zip: fetchedData.pincode || fetchedData.Pincode || fetchedData.zip || "",
         isLoadingUser: false,
       });
     } catch (error) {
       console.error("Error fetching user data:", error);
+      console.error("Error details:", error.response?.data);
       this.setState({ isLoadingUser: false });
+
+      // Fallback: Try to get email from localStorage
+      const userData = localStorage.getItem("user") || localStorage.getItem("admin");
+      if (userData) {
+        const user = JSON.parse(userData);
+        if (user.email || user.Email) {
+          this.setState({
+            userEmail: user.email || user.Email,
+            phone: user.mobile || user.Mobile || user.phone || ""
+          });
+        }
+      }
     }
+  };
+  // Helper functions to extract city and state from address
+  extractCityFromAddress = (address) => {
+    if (!address) return "";
+    // Simple extraction - you might want to improve this based on your address format
+    const parts = address.split(',');
+    return parts.length > 1 ? parts[parts.length - 2].trim() : "";
+  };
+
+  extractStateFromAddress = (address) => {
+    if (!address) return "";
+    const parts = address.split(',');
+    return parts.length > 1 ? parts[parts.length - 1].trim() : "";
+  };
+
+  handleAddressSelect = (addressId) => {
+    this.setState({ selectedAddressId: addressId });
   };
 
   handleChange = (e) => {
@@ -85,25 +154,70 @@ class CheckoutForm extends Component {
     });
   };
 
-  validateForm = () => {
-    let newErrors = {};
+  toggleAddressForm = () => {
+    this.setState({
+      showAddressForm: !this.state.showAddressForm,
+      isEditing: false,
+      editingAddressId: null,
+      addressName: "",
+      address: "",
+      city: "",
+      state: "",
+      zip: "",
+      phone: this.state.userData.mobile || ""
+    });
+  };
 
-    if (!this.state.email) {
-      newErrors.email = "Email is required";
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(this.state.email)) {
-      newErrors.email = "Invalid email format";
+  handleEditAddress = (address) => {
+    // Don't allow editing the primary address from user profile
+    if (address._id === "main") {
+      alert("Primary address can be updated in your profile settings");
+      return;
     }
 
+    this.setState({
+      showAddressForm: true,
+      isEditing: true,
+      editingAddressId: address._id,
+      addressName: address.name,
+      address: address.address,
+      city: address.city,
+      state: address.state,
+      zip: address.zip,
+      phone: address.phone
+    });
+  };
+
+  handleRemoveAddress = async (addressId) => {
+    if (addressId === "main") {
+      alert("Primary address cannot be removed");
+      return;
+    }
+
+    if (!window.confirm("Are you sure you want to remove this address?")) {
+      return;
+    }
+
+    // Remove from local state only (since we're not using separate address table)
+    const updatedAddresses = this.state.addresses.filter(addr => addr._id !== addressId);
+    this.setState({
+      addresses: updatedAddresses,
+      selectedAddressId: updatedAddresses.length > 0 ? updatedAddresses[0]._id : null
+    });
+  };
+
+  validateAddressForm = () => {
+    let newErrors = {};
+
+    if (!this.state.addressName) newErrors.addressName = "Address name is required";
     if (!this.state.phone) {
       newErrors.phone = "Phone number is required";
     } else if (!/^\d{10}$/.test(this.state.phone)) {
       newErrors.phone = "Phone number must be 10 digits";
     }
-
     if (!this.state.address) newErrors.address = "Address is required";
     if (!this.state.city) newErrors.city = "City is required";
     if (!this.state.state) newErrors.state = "State is required";
-
     if (!this.state.zip) {
       newErrors.zip = "ZIP code is required";
     } else if (!/^\d{6}$/.test(this.state.zip)) {
@@ -112,6 +226,59 @@ class CheckoutForm extends Component {
 
     this.setState({ errors: newErrors });
     return Object.keys(newErrors).length === 0;
+  };
+
+  handleSaveAddress = async () => {
+    if (!this.validateAddressForm()) {
+      return;
+    }
+
+    const newAddress = {
+      _id: this.state.isEditing ? this.state.editingAddressId : Date.now().toString(),
+      name: this.state.addressName,
+      email: this.state.userEmail, // Always use user's email
+      phone: this.state.phone,
+      address: this.state.address,
+      city: this.state.city,
+      state: this.state.state,
+      zip: this.state.zip,
+      country: "India",
+      isDefault: false
+    };
+
+    if (this.state.isEditing) {
+      // Update existing address in local state
+      const updatedAddresses = this.state.addresses.map(addr =>
+        addr._id === this.state.editingAddressId ? newAddress : addr
+      );
+      this.setState({ addresses: updatedAddresses });
+    } else {
+      // Add new address to local state
+      this.setState(prevState => ({
+        addresses: [...prevState.addresses, newAddress],
+        selectedAddressId: newAddress._id
+      }));
+    }
+
+    this.setState({
+      showAddressForm: false,
+      addressName: "",
+      address: "",
+      city: "",
+      state: "",
+      zip: "",
+      phone: this.state.userData.mobile || ""
+    });
+
+    alert(`Address ${this.state.isEditing ? 'updated' : 'added'} successfully!`);
+  };
+
+  validateForm = () => {
+    if (!this.state.selectedAddressId) {
+      alert("Please select a shipping address");
+      return false;
+    }
+    return true;
   };
 
   handleCheckout = async () => {
@@ -131,15 +298,19 @@ class CheckoutForm extends Component {
       const user = JSON.parse(userData);
       const userId = user.id;
 
+      const selectedAddress = this.state.addresses.find(
+        addr => addr._id === this.state.selectedAddressId
+      );
+
       const orderData = {
         userId,
-        email: this.state.email,
-        phone: this.state.phone,
-        address: this.state.address,
-        city: this.state.city,
-        state: this.state.state,
-        zip: this.state.zip,
-        country: this.state.country,
+        email: selectedAddress.email,
+        phone: selectedAddress.phone,
+        address: `${selectedAddress.name}: ${selectedAddress.address}, ${selectedAddress.city}, ${selectedAddress.state} - ${selectedAddress.zip}`,
+        city: selectedAddress.city,
+        state: selectedAddress.state,
+        zip: selectedAddress.zip,
+        country: selectedAddress.country,
         totalAmount: this.props.total,
         discount: this.props.discount || 0,
         subtotal: this.props.subtotal,
@@ -168,7 +339,16 @@ class CheckoutForm extends Component {
 
   render() {
     const { subtotal, discount, tax, shipping, total, onBack } = this.props;
-    const { errors, isLoadingUser } = this.state;
+    const {
+      errors,
+      isLoadingUser,
+      addresses,
+      selectedAddressId,
+      showAddressForm,
+      addressName,
+      isEditing,
+      userEmail
+    } = this.state;
 
     if (isLoadingUser) {
       return (
@@ -205,121 +385,229 @@ class CheckoutForm extends Component {
             <div className="col-lg-8">
               <div className="checkout-form-section">
                 <div className="section-header">
-                  <h3>Shipping Information</h3>
-                  <p>Please provide your delivery details</p>
+                  <h3>Shipping Address</h3>
+                  <p>Select or add a delivery address</p>
                 </div>
 
-                <div className="checkout-form">
-                  <div className="row">
-                    <div className="col-md-6 mb-3">
-                      <label className="form-label">Email Address *</label>
-                      <input
-                        type="email"
-                        className={`form-control ${errors.email ? "is-invalid" : ""}`}
-                        name="email"
-                        value={this.state.email}
-                        onChange={this.handleChange}
-                        placeholder="your.email@example.com"
-                      />
-                      {errors.email && (
-                        <div className="invalid-feedback">{errors.email}</div>
+                {/* Address Selection */}
+                <div className="address-selection">
+                  {addresses.map(address => (
+                    <div
+                      key={address._id}
+                      className={`address-card ${selectedAddressId === address._id ? 'selected' : ''}`}
+                      onClick={() => this.handleAddressSelect(address._id)}
+                    >
+                      <div className="address-header">
+                        <div className="address-name">
+                          <FaMapMarkerAlt className="me-2" />
+                          <strong>{address.name}</strong>
+                          {address._id === "main" && (
+                            <span className="badge-primary">Primary</span>
+                          )}
+                        </div>
+                        <div className="address-actions">
+                          {address._id !== "main" && (
+                            <>
+                              <button
+                                className="btn-edit"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  this.handleEditAddress(address);
+                                }}
+                              >
+                                <FaEdit />
+                              </button>
+                              <button
+                                className="btn-remove"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  this.handleRemoveAddress(address._id);
+                                }}
+                              >
+                                <FaTimes />
+                              </button>
+                            </>
+                          )}
+                        </div>
+                      </div>
+                      <div className="address-details">
+                        <p><strong>Email:</strong> {address.email}</p>
+                        <p><strong>Phone:</strong> {address.phone}</p>
+                        <p><strong>Address:</strong> {address.address}</p>
+                        <p><strong>City:</strong> {address.city}, <strong>State:</strong> {address.state} - {address.zip}</p>
+                      </div>
+                      {selectedAddressId === address._id && (
+                        <div className="selected-indicator">
+                          <FaCheck className="me-2" />
+                          Selected
+                        </div>
                       )}
                     </div>
+                  ))}
 
-                    <div className="col-md-6 mb-3">
-                      <label className="form-label">Phone Number *</label>
-                      <input
-                        type="text"
-                        className={`form-control ${errors.phone ? "is-invalid" : ""}`}
-                        name="phone"
-                        value={this.state.phone}
-                        onChange={this.handleChange}
-                        placeholder="10-digit phone number"
-                        maxLength="10"
-                      />
-                      {errors.phone && (
-                        <div className="invalid-feedback">{errors.phone}</div>
-                      )}
-                    </div>
-                  </div>
-
-                  <div className="mb-3">
-                    <label className="form-label">Street Address *</label>
-                    <textarea
-                      className={`form-control ${errors.address ? "is-invalid" : ""}`}
-                      name="address"
-                      value={this.state.address}
-                      onChange={this.handleChange}
-                      placeholder="House number, street name, area"
-                      rows="3"
-                    />
-                    {errors.address && (
-                      <div className="invalid-feedback">{errors.address}</div>
-                    )}
-                  </div>
-
-                  <div className="row">
-                    <div className="col-md-6 mb-3">
-                      <label className="form-label">City *</label>
-                      <input
-                        type="text"
-                        className={`form-control ${errors.city ? "is-invalid" : ""}`}
-                        name="city"
-                        value={this.state.city}
-                        onChange={this.handleChange}
-                        placeholder="Enter city"
-                      />
-                      {errors.city && (
-                        <div className="invalid-feedback">{errors.city}</div>
-                      )}
-                    </div>
-
-                    <div className="col-md-6 mb-3">
-                      <label className="form-label">State *</label>
-                      <input
-                        type="text"
-                        className={`form-control ${errors.state ? "is-invalid" : ""}`}
-                        name="state"
-                        value={this.state.state}
-                        onChange={this.handleChange}
-                        placeholder="Enter state"
-                      />
-                      {errors.state && (
-                        <div className="invalid-feedback">{errors.state}</div>
-                      )}
-                    </div>
-                  </div>
-
-                  <div className="row">
-                    <div className="col-md-6 mb-3">
-                      <label className="form-label">ZIP Code *</label>
-                      <input
-                        type="text"
-                        className={`form-control ${errors.zip ? "is-invalid" : ""}`}
-                        name="zip"
-                        value={this.state.zip}
-                        onChange={this.handleChange}
-                        placeholder="6-digit ZIP code"
-                        maxLength="6"
-                      />
-                      {errors.zip && (
-                        <div className="invalid-feedback">{errors.zip}</div>
-                      )}
-                    </div>
-
-                    <div className="col-md-6 mb-3">
-                      <label className="form-label">Country</label>
-                      <input
-                        type="text"
-                        className="form-control"
-                        name="country"
-                        value={this.state.country}
-                        onChange={this.handleChange}
-                        placeholder="Country"
-                      />
-                    </div>
+                  {/* Add New Address Button */}
+                  <div
+                    className="add-address-card"
+                    onClick={this.toggleAddressForm}
+                  >
+                    <FaPlusCircle className="add-icon" />
+                    <span>Add New Address</span>
                   </div>
                 </div>
+
+                {/* Add/Edit Address Form */}
+                {showAddressForm && (
+                  <div className="address-form-section">
+                    <div className="section-header">
+                      <h4>{isEditing ? 'Edit Address' : 'Add New Address'}</h4>
+                    </div>
+
+                    <div className="address-form">
+                      <div className="row">
+                        <div className="col-md-6 mb-3">
+                          <label className="form-label">Address Name *</label>
+                          <input
+                            type="text"
+                            className={`form-control ${errors.addressName ? "is-invalid" : ""}`}
+                            name="addressName"
+                            value={addressName}
+                            onChange={this.handleChange}
+                            placeholder="e.g., Home, Work, Office"
+                          />
+                          {errors.addressName && (
+                            <div className="invalid-feedback">{errors.addressName}</div>
+                          )}
+                        </div>
+
+                        <div className="col-md-6 mb-3">
+                          <label className="form-label">Email Address</label>
+                          <input
+                            type="email"
+                            className="form-control"
+                            value={userEmail}
+                            readOnly
+                            disabled
+                            style={{ backgroundColor: '#f8f9fa', cursor: 'not-allowed' }}
+                          />
+                          <small className="text-muted">Email is taken from your profile</small>
+                        </div>
+                      </div>
+
+                      <div className="row">
+                        <div className="col-md-6 mb-3">
+                          <label className="form-label">Phone Number *</label>
+                          <input
+                            type="text"
+                            className={`form-control ${errors.phone ? "is-invalid" : ""}`}
+                            name="phone"
+                            value={this.state.phone}
+                            onChange={this.handleChange}
+                            placeholder="10-digit phone number"
+                            maxLength="10"
+                          />
+                          {errors.phone && (
+                            <div className="invalid-feedback">{errors.phone}</div>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="mb-3">
+                        <label className="form-label">Street Address *</label>
+                        <textarea
+                          className={`form-control ${errors.address ? "is-invalid" : ""}`}
+                          name="address"
+                          value={this.state.address}
+                          onChange={this.handleChange}
+                          placeholder="House number, street name, area"
+                          rows="3"
+                        />
+                        {errors.address && (
+                          <div className="invalid-feedback">{errors.address}</div>
+                        )}
+                      </div>
+
+                      <div className="row">
+                        <div className="col-md-6 mb-3">
+                          <label className="form-label">City *</label>
+                          <input
+                            type="text"
+                            className={`form-control ${errors.city ? "is-invalid" : ""}`}
+                            name="city"
+                            value={this.state.city}
+                            onChange={this.handleChange}
+                            placeholder="Enter city"
+                          />
+                          {errors.city && (
+                            <div className="invalid-feedback">{errors.city}</div>
+                          )}
+                        </div>
+
+                        <div className="col-md-6 mb-3">
+                          <label className="form-label">State *</label>
+                          <input
+                            type="text"
+                            className={`form-control ${errors.state ? "is-invalid" : ""}`}
+                            name="state"
+                            value={this.state.state}
+                            onChange={this.handleChange}
+                            placeholder="Enter state"
+                          />
+                          {errors.state && (
+                            <div className="invalid-feedback">{errors.state}</div>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="row">
+                        <div className="col-md-6 mb-3">
+                          <label className="form-label">ZIP Code *</label>
+                          <input
+                            type="text"
+                            className={`form-control ${errors.zip ? "is-invalid" : ""}`}
+                            name="zip"
+                            value={this.state.zip}
+                            onChange={this.handleChange}
+                            placeholder="6-digit ZIP code"
+                            maxLength="6"
+                          />
+                          {errors.zip && (
+                            <div className="invalid-feedback">{errors.zip}</div>
+                          )}
+                        </div>
+
+                        <div className="col-md-6 mb-3">
+                          <label className="form-label">Country</label>
+                          <input
+                            type="text"
+                            className="form-control"
+                            name="country"
+                            value="India"
+                            readOnly
+                            disabled
+                            style={{ backgroundColor: '#f8f9fa', cursor: 'not-allowed' }}
+                          />
+                        </div>
+                      </div>
+
+                      <div className="address-form-actions">
+                        <button
+                          className="btn-primary-custom"
+                          onClick={this.handleSaveAddress}
+                        >
+                          <FaCheck className="me-2" />
+                          {isEditing ? 'Update Address' : 'Save Address'}
+                        </button>
+                        <button
+                          className="btn-secondary-custom"
+                          onClick={this.toggleAddressForm}
+                        >
+                          <FaTimes className="me-2" />
+                          Cancel
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
 
@@ -385,6 +673,18 @@ class CheckoutForm extends Component {
             </div>
           </div>
         </div>
+
+        {/* Add CSS styles */}
+        <style jsx>{`
+          .badge-primary {
+            background: #007bff;
+            color: white;
+            padding: 0.25rem 0.5rem;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            margin-left: 0.5rem;
+          }
+        `}</style>
       </div>
     );
   }
