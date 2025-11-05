@@ -1,99 +1,95 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import axios from "axios";
-import { useNavigate, Link } from "react-router-dom";
-import bg from "./Images/bg.png";
+import { useNavigate } from "react-router-dom";
+import "bootstrap/dist/css/bootstrap.min.css";
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState("");
-  const [errors, setErrors] = useState("");
-  const [message, setMessage] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-
-  const validateEmail = (email) => {
-    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return re.test(email);
-  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setErrors("");
-    setMessage("");
 
-    if (!validateEmail(email)) {
-      setErrors("Please enter a valid email address");
+    if (!email) {
+      setError("Email is required");
       return;
     }
 
-    setIsLoading(true);
+    setError("");
+    setLoading(true);
 
     try {
-      const response = await axios.post(
-        "http://localhost:5000/api/OtpModel/send-otp",
-        { email },
-        { headers: { "Content-Type": "application/json" } }
-      );
+      // 📨 Send email to backend to generate OTP
+      const response = await axios.post("http://localhost:5000/api/OtpModel/send-otp", {
+        email,
+      });
 
-      setMessage("OTP has been sent to your email");
-      setTimeout(() => {
-        navigate("/OTPVerification", { state: { email } });
-      }, 1500);
+      alert(response.data.message || "OTP sent successfully!");
+      navigate("/otp-verification", { state: { email } }); // redirect to verify page
     } catch (err) {
-      console.error("OTP Send Error:", err);
-      setErrors(
-        err.response?.data?.error || "Failed to send OTP. Please try again."
-      );
+      setError(err.response?.data?.error || "Failed to send OTP. Try again.");
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
   };
 
   return (
     <div
       className="d-flex justify-content-center align-items-center"
-      style={{
-        backgroundImage: `url(${bg})`,
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-        height: "500px",
-      }}
+      style={{ minHeight: "100vh", background: "#f8f9fa" }}
     >
       <div
-        className="card shadow-lg p-4"
-        style={{ width: "350px", background: "rgba(197, 180, 143, 0.9)" }}
+        className="card p-4 shadow-lg"
+        style={{
+          width: "400px",
+          borderRadius: "20px",
+          background: "rgba(255,255,255,0.95)",
+        }}
       >
-        <h3 className="text-center mb-4">Forgot Password</h3>
+        <h3
+          className="text-center mb-4 fw-bold"
+          style={{
+            background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+            WebkitBackgroundClip: "text",
+            WebkitTextFillColor: "transparent",
+          }}
+        >
+          Forgot Password
+        </h3>
+
+        <p className="text-center text-muted mb-3">
+          Enter your registered email to receive an OTP.
+        </p>
+
         <form onSubmit={handleSubmit}>
           <div className="mb-3">
-            <label htmlFor="email" className="form-label fw-bold">
-              Enter your email
-            </label>
+            <label className="form-label fw-semibold">Email</label>
             <input
               type="email"
+              className={`form-control ${error ? "is-invalid" : ""}`}
+              placeholder="Enter your email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className={`form-control form-control-sm ${
-                errors ? "is-invalid" : ""
-              }`}
-              placeholder="Enter your registered email"
-              required
             />
-            {errors && <div className="invalid-feedback">{errors}</div>}
-            {message && <p className="text-success text-center">{message}</p>}
+            {error && <div className="invalid-feedback">{error}</div>}
           </div>
-          <button
-            type="submit"
-            disabled={isLoading}
-            className="btn btn-primary w-50 d-block mx-auto"
-          >
-            {isLoading ? "Sending..." : "Send OTP"}
-          </button>
-          <p className="text-center mt-3">
-            Remembered your password?{" "}
-            <Link to="/login" className="text-danger">
-              Login
-            </Link>
-          </p>
+
+          <div className="text-center">
+            <button
+              type="submit"
+              className="btn px-5 py-2 fw-semibold"
+              style={{
+                background: "linear-gradient(90deg, #f78fb3, #a29bfe)",
+                color: "#fff",
+                borderRadius: "30px",
+              }}
+              disabled={loading}
+            >
+              {loading ? "Sending..." : "Send OTP"}
+            </button>
+          </div>
         </form>
       </div>
     </div>

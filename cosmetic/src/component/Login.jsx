@@ -1,6 +1,7 @@
 import { useState } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
+import "@fortawesome/fontawesome-free/css/all.min.css"; // ✅ For eye icons
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 
@@ -14,6 +15,7 @@ const Login = () => {
 
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false); // 👁️ state for toggling password
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -49,14 +51,11 @@ const Login = () => {
       console.log("Login success:", response.data);
       alert("Login successful!");
 
-      // store token in localStorage
       localStorage.setItem("token", response.data.token);
       localStorage.setItem("user", JSON.stringify(response.data.user));
 
-      // navigate to dashboard/home
       navigate("/");
       window.location.reload();
-
     } catch (error) {
       console.error("Login Error:", error.response?.data || error.message);
       alert(error.response?.data?.message || "Invalid credentials");
@@ -84,8 +83,6 @@ const Login = () => {
             background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
             WebkitBackgroundClip: "text",
             WebkitTextFillColor: "transparent",
-            MozBackgroundClip: "text",
-            MozTextFillColor: "transparent",
           }}
         >
           <i className="fas fa-user-circle me-2" style={{ color: "#f78fb3" }}></i>
@@ -108,21 +105,41 @@ const Login = () => {
               <div className="invalid-feedback">{errors.email}</div>
             )}
           </div>
-
-          {/* Password */}
+          {/* Password with show/hide */}
           <div className="mb-3">
             <label className="form-label fw-semibold">Password</label>
-            <input
-              type="password"
-              name="password"
-              className={`form-control ${errors.password ? "is-invalid" : ""}`}
-              value={formData.password}
-              onChange={handleChange}
-              placeholder="Enter your password"
-            />
-            {errors.password && (
-              <div className="invalid-feedback">{errors.password}</div>
-            )}
+            <div className="input-group">
+              <input
+                type={showPassword ? "text" : "password"}
+                name="password"
+                className={`form-control ${errors.password ? "is-invalid" : ""}`}
+                value={formData.password}
+                onChange={handleChange}
+                placeholder="Enter your password"
+                style={{ borderRight: "none" }}
+              />
+              <span
+                className="input-group-text bg-white"
+                style={{ cursor: "pointer", borderLeft: "none" }}
+                onClick={() => setShowPassword(!showPassword)}
+              >
+                <i
+                  className={`fa-solid ${showPassword ? "fa-eye-slash" : "fa-eye"
+                    } text-muted`}
+                ></i>
+              </span>
+              {errors.password && (
+                <div className="invalid-feedback d-block">{errors.password}</div>
+              )}
+            </div>
+          </div>
+
+
+          {/* Forgot Password Link */}
+          <div className="text-end mb-3">
+            <Link to="/forgot-password" className="text-decoration-none text-primary">
+              Forgot Password?
+            </Link>
           </div>
 
           {/* Submit Button */}

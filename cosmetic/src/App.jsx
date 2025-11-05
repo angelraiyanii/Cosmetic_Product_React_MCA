@@ -16,6 +16,9 @@ import Cart from './component/Cart'
 import Contactus from './component/Contactus'
 import Aboutus from './component/Aboutus'
 import Account from './component/Account'
+import ForgotPassword from "./component/ForgotPassword";
+import OTPVerification from "./component/OTPVerification";
+import ResetPassword from "./component/ResetPassword";
 // Admin Called
 import AdCategory from './component/Admin/AdCategory'
 import AdPro from './component/Admin/AdPro'
@@ -61,6 +64,9 @@ function App() {
         <Route path='/Contactus' element={<Contactus />} />
         <Route path='/Aboutus' element={<Aboutus />} />
         <Route path='/Account' element={<Account />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/otp-verification" element={<OTPVerification />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
         
 
         <Route path='/Admin/AdAbout' element={<AdAbout />} />

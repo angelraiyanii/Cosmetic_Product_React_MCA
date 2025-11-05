@@ -39,6 +39,9 @@ router.use("/AboutModel", aboutRoutes);
 const contactRoutes = require("./contactRoutes");
 router.use("/ContactModel", contactRoutes);
 
+//Otp
+const otpRoutes = require("./otpRoutes");
+router.use("/OtpModel", otpRoutes);
 
 // Test route
 router.get("/", (req, res) => {

@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
-import bg from "./Images/bg.png";
+import "@fortawesome/fontawesome-free/css/all.min.css"; // ✅ Font Awesome
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
 
@@ -12,6 +12,9 @@ const ResetPassword = () => {
   const [message, setMessage] = useState("");
   const [email, setEmail] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
+
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -23,20 +26,10 @@ const ResetPassword = () => {
     }
   }, [location, navigate]);
 
-  const handlePasswordChange = (e) => {
-    setPassword(e.target.value);
-  };
-
-  const handleConfirmPasswordChange = (e) => {
-    setConfirmPassword(e.target.value);
-  };
-
   const validateForm = () => {
-    if (!password) {
-      return "Password is required.";
-    } else if (password !== confirmPassword) {
-      return "Passwords do not match.";
-    }
+    if (!password) return "Password is required.";
+    if (password.length < 6) return "Password must be at least 6 characters.";
+    if (password !== confirmPassword) return "Passwords do not match.";
     return "";
   };
 
@@ -48,17 +41,12 @@ const ResetPassword = () => {
     if (!error) {
       setIsLoading(true);
       try {
-        const response = await axios.post(
-          "http://localhost:5000/api/OtpModel/reset-password",
-          {
-            email,
-            newPassword: password,
-          }
-        );
+        await axios.post("http://localhost:5000/api/OtpModel/reset-password", {
+          email,
+          newPassword: password,
+        });
         setMessage("Password reset successfully!");
-        setTimeout(() => {
-          navigate("/login");
-        }, 2000);
+        setTimeout(() => navigate("/login"), 2000);
       } catch (err) {
         setErrors(
           err.response?.data?.error ||
@@ -72,69 +60,114 @@ const ResetPassword = () => {
 
   return (
     <div
-      className="d-flex justify-content-center align-items-center "
-      style={{
-        backgroundImage: `url(${bg})`,
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-        height: "500px",
-      }}
+      className="d-flex justify-content-center align-items-center"
+      style={{ padding: "40px", minHeight: "100vh", background: "#f3f4f6" }}
     >
       <div
-        className="card shadow-lg p-4"
-        style={{ width: "350px", background: "rgba(197, 180, 143, 0.9)" }}
+        className="card shadow-lg p-4 w-100"
+        style={{
+          maxWidth: "500px",
+          borderRadius: "20px",
+          background: "rgba(255,255,255,0.9)",
+        }}
       >
-        <h3 className="text-center mb-4">Reset Password</h3>
+        <h2
+          className="text-center mb-4 fw-bold"
+          style={{
+            background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+            WebkitBackgroundClip: "text",
+            WebkitTextFillColor: "transparent",
+            MozBackgroundClip: "text",
+            MozTextFillColor: "transparent",
+          }}
+        >
+          <i className="fas fa-key me-2" style={{ color: "#f78fb3" }}></i>
+          Reset Your Password
+        </h2>
+
+        <p className="text-center text-muted mb-3">
+          Enter a new password for <strong>{email}</strong>
+        </p>
+
         <form onSubmit={handleSubmit}>
-          <div className="mb-3">
-            <label htmlFor="password" className="form-label fw-bold">
-              New Password
-            </label>
+          {/* New Password Field */}
+          <div className="mb-3 position-relative">
             <input
-              type="password"
-              id="password"
-              name="password"
-              className={`form-control form-control-sm ${
+              type={showPassword ? "text" : "password"}
+              className={`form-control text-center ${
                 errors && password.length < 6 ? "is-invalid" : ""
               }`}
-              value={password}
-              onChange={handlePasswordChange}
               placeholder="Enter new password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
             />
+            <i
+              className={`fa-solid ${
+                showPassword ? "fa-eye-slash" : "fa-eye"
+              } position-absolute end-0 top-50 translate-middle-y me-3 text-muted`}
+              style={{ cursor: "pointer" }}
+              onClick={() => setShowPassword(!showPassword)}
+            ></i>
             {errors && password.length < 6 && (
-              <div className="invalid-feedback">
+              <div className="invalid-feedback text-center">
                 Password must be at least 6 characters.
               </div>
             )}
           </div>
-          <div className="mb-3">
-            <label htmlFor="confirmPassword" className="form-label fw-bold">
-              Confirm Password
-            </label>
+
+          {/* Confirm Password Field */}
+          <div className="mb-3 position-relative">
             <input
-              type="password"
-              id="confirmPassword"
-              name="confirmPassword"
-              className={`form-control form-control-sm ${
+              type={showConfirm ? "text" : "password"}
+              className={`form-control text-center ${
                 errors && password !== confirmPassword ? "is-invalid" : ""
               }`}
-              value={confirmPassword}
-              onChange={handleConfirmPasswordChange}
               placeholder="Confirm new password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
             />
+            <i
+              className={`fa-solid ${
+                showConfirm ? "fa-eye-slash" : "fa-eye"
+              } position-absolute end-0 top-50 translate-middle-y me-3 text-muted`}
+              style={{ cursor: "pointer" }}
+              onClick={() => setShowConfirm(!showConfirm)}
+            ></i>
             {errors && password !== confirmPassword && (
-              <div className="invalid-feedback">Passwords do not match.</div>
+              <div className="invalid-feedback text-center">
+                Passwords do not match.
+              </div>
             )}
           </div>
-          {message && <p className="text-success text-center">{message}</p>}
-          <button
-            type="submit"
-            className="btn btn-primary w-50 d-block mx-auto"
-            disabled={isLoading}
-          >
-            {isLoading ? "Updating..." : "Reset Password"}
-          </button>
+
+          {message && (
+            <p className="text-success text-center fw-semibold">{message}</p>
+          )}
+          {errors && !message && (
+            <p className="text-danger text-center fw-semibold">{errors}</p>
+          )}
+
+          <div className="text-center mt-3">
+            <button
+              type="submit"
+              className="btn px-5 py-2 fw-semibold"
+              style={{
+                background: "linear-gradient(90deg, #f78fb3, #a29bfe)",
+                color: "#fff",
+                borderRadius: "30px",
+              }}
+              disabled={isLoading}
+            >
+              {isLoading ? "Updating..." : "Reset Password"}
+            </button>
+          </div>
         </form>
+
+        <div className="text-center mt-3">
+          <Link to="/login" className="text-decoration-none">
+            Back to Login
+          </Link>
+        </div>
       </div>
     </div>
   );

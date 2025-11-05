@@ -1,142 +1,83 @@
-import { useState, useEffect } from "react";
-import "bootstrap/dist/css/bootstrap.min.css";
-import "bootstrap/dist/js/bootstrap.bundle.min.js";
-import bg from "./Images/bg.png";
-import { Link, useNavigate, useLocation } from "react-router-dom";
+import React, { useState } from "react";
 import axios from "axios";
+import { useNavigate, useLocation } from "react-router-dom";
+import "bootstrap/dist/css/bootstrap.min.css";
 
 const OTPVerification = () => {
-  const [otp, setOtp] = useState("");
-  const [errors, setErrors] = useState("");
-  const [message, setMessage] = useState("");
-  const [email, setEmail] = useState("");
-  const [isResending, setIsResending] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
+  const email = location.state?.email; // coming from ForgotPassword page
 
-  useEffect(() => {
-    if (location.state?.email) {
-      setEmail(location.state.email);
-    } else {
-      navigate("/forgot-password");
-    }
-  }, [location, navigate]);
-
-  const handleChange = (e) => {
-    // Only allow digits
-    const value = e.target.value.replace(/\D/g, '');
-    setOtp(value);
-  };
-
-  const validateOtp = (otp) => {
-    if (!otp) {
-      return "OTP is required.";
-    } else if (!/^[0-9]{6}$/.test(otp)) {
-      return "Invalid OTP format. Must be 6 digits.";
-    }
-    return "";
-  };
+  const [otp, setOtp] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const error = validateOtp(otp);
-    setErrors(error);
-
-    if (!error) {
-      try {
-        const response = await axios.post(
-          "http://localhost:5000/api/OtpModel/verify-otp",
-          {
-            email,
-            otp,
-          }
-        );
-        setMessage("OTP verified successfully!");
-        setTimeout(() => {
-          navigate("/ResetPassword", { state: { email } });
-        }, 1000);
-      } catch (err) {
-        setErrors(err.response?.data?.error || "OTP verification failed");
-      }
+    if (!otp) {
+      setError("Please enter OTP.");
+      return;
     }
-  };
 
-  const handleResendOTP = async () => {
-    setIsResending(true);
-    setErrors("");
-    setMessage("");
-    
+    setLoading(true);
+    setError("");
+
     try {
-      const response = await axios.post(
-        "http://localhost:5000/api/OtpModel/send-otp",
-        { email },
-        { headers: { "Content-Type": "application/json" } }
-      );
-      setMessage("New OTP has been sent to your email");
+      const response = await axios.post("http://localhost:5000/api/OtpModel/verify-otp", {
+        email,
+        otp,
+      });
+
+      alert(response.data.message);
+      navigate("/reset-password", { state: { email } });
     } catch (err) {
-      setErrors(err.response?.data?.error || "Failed to resend OTP. Please try again.");
+      setError(err.response?.data?.error || "Invalid or expired OTP");
     } finally {
-      setIsResending(false);
+      setLoading(false);
     }
   };
 
   return (
     <div
-      className="d-flex justify-content-center align-items-center "
-      style={{
-        backgroundImage: `url(${bg})`,
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-        height: "500px",
-      }}
+      className="d-flex justify-content-center align-items-center"
+      style={{ minHeight: "100vh", background: "#f8f9fa" }}
     >
-      <div
-        className="card shadow-lg p-4"
-        style={{ width: "350px", background: "rgba(197, 180, 143, 0.9)" }}
-      >
-        <h3 className="text-center mb-4">OTP Verification</h3>
-        {email && (
-          <p className="text-center mb-3">
-            We've sent a code to <strong>{email}</strong>
-          </p>
-        )}
+      <div className="card p-4 shadow-lg" style={{ width: "400px", borderRadius: "20px" }}>
+        <h3 className="text-center mb-4 fw-bold" style={{ color: "#764ba2" }}>
+          Verify OTP
+        </h3>
+
+        <p className="text-center text-muted mb-3">
+          Enter the OTP sent to <strong>{email}</strong>
+        </p>
+
         <form onSubmit={handleSubmit}>
           <div className="mb-3">
-            <label htmlFor="otp" className="form-label fw-bold">
-              Enter OTP
-            </label>
             <input
               type="text"
-              id="otp"
-              name="otp"
-              className={`form-control form-control-sm ${
-                errors ? "is-invalid" : ""
-              }`}
-              value={otp}
-              onChange={handleChange}
+              className={`form-control text-center ${error ? "is-invalid" : ""}`}
               placeholder="Enter 6-digit OTP"
-              maxLength="6"
+              value={otp}
+              onChange={(e) => setOtp(e.target.value)}
+              maxLength={6}
             />
-            {errors && <div className="invalid-feedback">{errors}</div>}
-            {message && <p className="text-success mt-2">{message}</p>}
+            {error && <div className="invalid-feedback text-center">{error}</div>}
           </div>
-          <button
-            type="submit"
-            className="btn btn-primary w-50 d-block mx-auto"
-          >
-            Verify OTP
-          </button>
-          <p className="text-center mt-3">
-            Didn't receive an OTP?{" "}
-            <button 
-              type="button"
-              className="text-danger btn btn-link p-0"
-              onClick={handleResendOTP}
-              disabled={isResending}
+
+          <div className="text-center">
+            <button
+              type="submit"
+              className="btn px-5 py-2 fw-semibold"
+              style={{
+                background: "linear-gradient(90deg, #f78fb3, #a29bfe)",
+                color: "#fff",
+                borderRadius: "30px",
+              }}
+              disabled={loading}
             >
-              {isResending ? "Sending..." : "Resend OTP"}
+              {loading ? "Verifying..." : "Verify OTP"}
             </button>
-          </p>
+          </div>
         </form>
       </div>
     </div>
