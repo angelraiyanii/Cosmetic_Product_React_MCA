@@ -12,6 +12,12 @@ function Navbar() {
   const [wishlistCount, setWishlistCount] = useState(0);
   const [loading, setLoading] = useState(true);
   
+  // Add these notification states
+  const [notificationCount, setNotificationCount] = useState(0);
+  const [showNotifications, setShowNotifications] = useState(false);
+  const [discountedProducts, setDiscountedProducts] = useState([]);
+  const [notificationsLoading, setNotificationsLoading] = useState(false);
+  
   // Search states
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState([]);
@@ -20,9 +26,10 @@ function Navbar() {
   const [products, setProducts] = useState([]);
   
   const navigate = useNavigate();
-  const location = useLocation(); // Add this to track current route
+  const location = useLocation();
   const searchRef = useRef(null);
   const searchResultsRef = useRef(null);
+  const notificationsRef = useRef(null); // Add this ref for notifications
 
   // Static pages for search
   const staticPages = [
@@ -54,8 +61,8 @@ function Navbar() {
     fetchCartCount();
     fetchWishlistCount();
     fetchProducts();
+    fetchDiscountedProducts(); // Add this line
   }, []);
-
   // Close search results when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -135,7 +142,71 @@ function Navbar() {
       console.error("Error fetching wishlist count:", error);
     }
   };
+  // Fetch discounted products for notifications
+   // Fetch discounted products for notifications
+  const fetchDiscountedProducts = async () => {
+    try {
+      setNotificationsLoading(true);
+      const response = await axios.get("http://localhost:5000/api/ProductModel/");
+      const allProducts = response.data || [];
+      
+      console.log("All products:", allProducts); // Debug log
+      
+      // Filter products with discount - adjust property names based on your actual data
+      const discounted = allProducts.filter(product => {
+        // Check different possible property names for discount
+        const hasDiscount = (product.discount > 0) || 
+                           (product.productDiscount > 0) || 
+                           (product.discountPercentage > 0);
+        
+        const isActive = product.status === "active" || 
+                        product.productStatus === "active" || 
+                        product.isActive === true;
+        
+        return hasDiscount && isActive;
+      }).slice(0, 10); // Limit to 10 products
+      
+      console.log("Discounted products:", discounted); // Debug log
+      
+      setDiscountedProducts(discounted);
+      setNotificationCount(discounted.length);
+    } catch (error) {
+      console.error("Error fetching discounted products:", error);
+      setDiscountedProducts([]);
+    } finally {
+      setNotificationsLoading(false);
+    }
+  };
 
+  // Toggle notifications dropdown
+  const toggleNotifications = () => {
+    setShowNotifications(!showNotifications);
+    setShowSearchResults(false);
+    
+    // Refresh discounted products when opening notifications
+    if (!showNotifications) {
+      fetchDiscountedProducts();
+    }
+  };
+
+  // Handle notification click - navigate to product
+  const handleNotificationClick = (productId) => {
+    navigate(`/SinglePro/${productId}`);
+    setShowNotifications(false);
+  };
+
+  // Clear all notifications
+  const clearNotifications = () => {
+    setNotificationCount(0);
+    setDiscountedProducts([]);
+    setShowNotifications(false);
+  };
+
+  // Navigate to all discounted products
+  const viewAllDiscountedProducts = () => {
+    navigate('/Ct_product?filter=discounted');
+    setShowNotifications(false);
+  };
   const performSearch = async (query) => {
     if (!query.trim()) {
       setSearchResults([]);
@@ -271,13 +342,18 @@ function Navbar() {
   };
 
   // Debounced search
-  useEffect(() => {
-    const timeoutId = setTimeout(() => {
-      performSearch(searchQuery);
-    }, 300);
+    useEffect(() => {
+    const savedUser = localStorage.getItem("user") || localStorage.getItem("admin");
+    if (savedUser) {
+      setUser(JSON.parse(savedUser));
+    }
 
-    return () => clearTimeout(timeoutId);
-  }, [searchQuery, categories, products]);
+    fetchCategories();
+    fetchCartCount();
+    fetchWishlistCount();
+    fetchProducts();
+    fetchDiscountedProducts(); // Add this line
+  }, []);
 
   const handleSearchInputChange = (e) => {
     setSearchQuery(e.target.value);
@@ -806,7 +882,6 @@ function Navbar() {
                   </div>
                 )}
               </div>
-
               {/* Wishlist */}
               <Link 
                 to="/Wishlist" 
@@ -820,6 +895,142 @@ function Navbar() {
                 )}
               </Link>
 
+              {/* Notifications Bell */}
+              <div className="position-relative" ref={notificationsRef}>
+                <button
+                  className={`btn btn-link position-relative text-dark p-0 ${showNotifications ? 'text-primary' : ''}`}
+                  onClick={toggleNotifications}
+                  style={{ border: 'none', background: 'none' }}
+                >
+                  <i className="fas fa-bell fa-lg"></i>
+                  {notificationCount > 0 && (
+                    <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                      {notificationCount}
+                    </span>
+                  )}
+                </button>
+
+                {/* Notifications Dropdown */}
+             {showNotifications && (
+  <div 
+    className="position-absolute bg-white border rounded shadow-lg"
+    style={{
+      top: "100%",
+      right: "0",
+      zIndex: "1050",
+      width: "350px",
+      maxHeight: "400px",
+      overflowY: "auto"
+    }}
+  >
+    <div className="p-3 border-bottom bg-light d-flex justify-content-between align-items-center">
+      <h6 className="mb-0 fw-bold">
+        <i className="fas fa-tag me-2 text-danger"></i>
+        Special Offers ({notificationCount})
+      </h6>
+      <div>
+        <button
+          className="btn btn-sm btn-outline-secondary me-2"
+          onClick={viewAllDiscountedProducts}
+        >
+          View All
+        </button>
+        <button
+          className="btn btn-sm btn-outline-danger"
+          onClick={clearNotifications}
+        >
+          Clear
+        </button>
+      </div>
+    </div>
+
+    {notificationsLoading ? (
+      <div className="p-4 text-center">
+        <div className="spinner-border spinner-border-sm text-primary me-2" role="status">
+          <span className="visually-hidden">Loading...</span>
+        </div>
+        Loading offers...
+      </div>
+    ) : discountedProducts.length > 0 ? (
+      <>
+        {discountedProducts.map((product) => {
+          // Get the correct property names
+          const productName = product.productName || product.name || 'Product';
+          const productPrice = product.productPrice || product.price || 0;
+          const discount = product.discount || product.productDiscount || product.discountPercentage || 0;
+          const productCategory = product.productCategory || product.category?.categoryName || product.category || 'Beauty';
+          const productImage = product.productImage || product.image;
+          
+          const discountedPrice = discount > 0 ? (productPrice - (productPrice * discount / 100)).toFixed(2) : productPrice;
+          
+          return (
+            <div
+              key={product._id}
+              className="notification-item p-3 border-bottom d-flex align-items-center"
+              onClick={() => handleNotificationClick(product._id)}
+              style={{ cursor: 'pointer' }}
+            >
+              <div className="flex-shrink-0 me-3">
+                <img
+                  src={productImage ? `http://localhost:5000/public/images/product_images/${productImage}` : 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNTAiIGhlaWdodD0iNTAiIHZpZXdCb3g9IjAgMCA1MCA1MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjUwIiBoZWlnaHQ9IjUwIiBmaWxsPSIjRjVGNUY1Ii8+CjxwYXRoIGQ9Ik0yNSAxNkMzMC41MjI4IDE2IDM1IDIwLjQ3NzIgMzUgMjZDMzUgMzEuNTIyOCAzMC41MjI4IDM2IDI1IDM2QzE5LjQ3NzIgMzYgMTUgMzEuNTIyOCAxNSAyNkMxNSAyMC40NzcyIDE5LjQ3NzIgMTYgMjUgMTZaIiBmaWxsPSIjQ0RDRENEIi8+Cjwvc3ZnPgo='}
+                  alt={productName}
+                  className="rounded"
+                  style={{ width: "50px", height: "50px", objectFit: "cover" }}
+                  onError={(e) => {
+                    e.target.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNTAiIGhlaWdodD0iNTAiIHZpZXdCb3g9IjAgMCA1MCA1MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjUwIiBoZWlnaHQ9IjUwIiBmaWxsPSIjRjVGNUY1Ii8+CjxwYXRoIGQ9Ik0yNSAxNkMzMC41MjI4IDE2IDM1IDIwLjQ3NzIgMzUgMjZDMzUgMzEuNTIyOCAzMC41MjI4IDM2IDI1IDM2QzE5LjQ3NzIgMzYgMTUgMzEuNTIyOCAxNSAyNkMxNSAyMC40NzcyIDE5LjQ3NzIgMTYgMjUgMTZaIiBmaWxsPSIjQ0RDRENEIi8+Cjwvc3ZnPgo=';
+                  }}
+                />
+              </div>
+              
+              <div className="flex-grow-1">
+                <div className="d-flex justify-content-between align-items-start mb-1">
+                  <span className="fw-medium text-dark">{productName}</span>
+                  <span className="badge bg-danger ms-2">
+                    -{discount}% OFF
+                  </span>
+                </div>
+                
+                <div className="d-flex align-items-center">
+                  <span className="fw-bold text-success me-2">
+                    ${discountedPrice}
+                  </span>
+                  <span className="text-muted text-decoration-line-through small">
+                    ${productPrice}
+                  </span>
+                </div>
+                
+                <small className="text-muted d-block">
+                  {productCategory}
+                </small>
+              </div>
+              
+              <div className="flex-shrink-0 ms-2">
+                <i className="fas fa-chevron-right text-muted"></i>
+              </div>
+            </div>
+          );
+        })}
+        
+        <div className="p-2 bg-light text-center">
+          <button
+            className="btn btn-link btn-sm text-decoration-none"
+            onClick={viewAllDiscountedProducts}
+          >
+            View all discounted products <i className="fas fa-arrow-right ms-1"></i>
+          </button>
+        </div>
+      </>
+    ) : (
+      <div className="p-4 text-center text-muted">
+        <i className="fas fa-bell-slash fa-2x mb-2"></i>
+        <div>No special offers right now</div>
+        <small>Check back later for discounts!</small>
+      </div>
+    )}
+  </div>
+)}
+              </div>
+
               {/* Cart */}
               <Link 
                 to="/Cart" 
@@ -832,7 +1043,6 @@ function Navbar() {
                   </span>
                 )}
               </Link>
-
               {/* User Dropdown */}
               <div className="dropdown">
                 <button

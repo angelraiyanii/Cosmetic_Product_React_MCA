@@ -2392,7 +2392,32 @@ body {
   }
 }
 /* -------------------------Navbar--------------------------------- */
-       .text-pink { color: #e83e8c; }
+/* Notification Styles */
+.notification-item {
+  transition: background-color 0.2s;
+}
+
+.notification-item:hover {
+  background-color: #f8f9fa;
+}
+
+/* Badge animation */
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.badge.bg-danger {
+  animation: pulse 2s infinite;
+}    
+.text-pink { color: #e83e8c; }
           .text-purple { color: #6f42c1; }
           .offers-banner {
             background: linear-gradient(45deg, #e83e8c, #d63384);
