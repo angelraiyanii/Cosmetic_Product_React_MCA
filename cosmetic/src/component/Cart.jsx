@@ -689,7 +689,6 @@ class CheckoutForm extends Component {
     );
   }
 }
-
 export class Cart extends Component {
   constructor() {
     super();
