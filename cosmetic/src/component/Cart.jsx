@@ -25,6 +25,7 @@ import {
   FaPlusCircle
 } from "react-icons/fa";
 import "../App.css";
+
 const placeholderImage = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Crect fill='%23ddd' width='200' height='200'/%3E%3Ctext fill='%23999' x='50%25' y='50%25' text-anchor='middle' dy='.3em'%3ENo Image%3C/text%3E%3C/svg%3E";
 
 class CheckoutForm extends Component {
@@ -52,8 +53,44 @@ class CheckoutForm extends Component {
 
   componentDidMount() {
     this.fetchUserData();
+    this.loadAddressesFromLocalStorage();
   }
 
+  // Load addresses from localStorage
+  loadAddressesFromLocalStorage = () => {
+    try {
+      const userData = localStorage.getItem("user") || localStorage.getItem("admin");
+      if (!userData) return;
+
+      const user = JSON.parse(userData);
+      const userId = user.id;
+      const storedAddresses = localStorage.getItem(`user_addresses_${userId}`);
+      
+      if (storedAddresses) {
+        const addresses = JSON.parse(storedAddresses);
+        this.setState({ 
+          addresses,
+          selectedAddressId: addresses.length > 0 ? addresses[0]._id : null
+        });
+      }
+    } catch (error) {
+      console.error("Error loading addresses from localStorage:", error);
+    }
+  };
+
+  // Save addresses to localStorage
+  saveAddressesToLocalStorage = (addresses) => {
+    try {
+      const userData = localStorage.getItem("user") || localStorage.getItem("admin");
+      if (!userData) return;
+
+      const user = JSON.parse(userData);
+      const userId = user.id;
+      localStorage.setItem(`user_addresses_${userId}`, JSON.stringify(addresses));
+    } catch (error) {
+      console.error("Error saving addresses to localStorage:", error);
+    }
+  };
 
   fetchUserData = async () => {
     try {
@@ -73,10 +110,8 @@ class CheckoutForm extends Component {
 
       const fetchedData = response.data.user;
 
-      // Debug: Log the fetched data to see what's available
       console.log("Fetched user data:", fetchedData);
 
-      // Try to get email from multiple possible sources
       const userEmail = fetchedData.email ||
         fetchedData.Email ||
         user.email ||
@@ -85,25 +120,42 @@ class CheckoutForm extends Component {
 
       console.log("Extracted email:", userEmail);
 
-      // Initialize with user's main address as the first address
-      const userMainAddress = {
-        _id: "main",
-        name: "Primary",
-        email: userEmail,
-        phone: fetchedData.mobile || fetchedData.Mobile || fetchedData.phone || "",
-        address: fetchedData.address || fetchedData.Address || "",
-        city: this.extractCityFromAddress(fetchedData.address || fetchedData.Address || ""),
-        state: this.extractStateFromAddress(fetchedData.address || fetchedData.Address || ""),
-        zip: fetchedData.pincode || fetchedData.Pincode || fetchedData.zip || "",
-        country: "India",
-        isDefault: true
-      };
+      // Check if we already have addresses in localStorage
+      const storedAddresses = localStorage.getItem(`user_addresses_${userId}`);
+      let addresses = [];
+      let selectedAddressId = null;
+
+      if (storedAddresses) {
+        // Use addresses from localStorage
+        addresses = JSON.parse(storedAddresses);
+        selectedAddressId = addresses.length > 0 ? addresses[0]._id : null;
+      } else {
+        // Create main address from user profile data (only if no stored addresses)
+        const userMainAddress = {
+          _id: "main",
+          name: "Primary",
+          email: userEmail,
+          phone: fetchedData.mobile || fetchedData.Mobile || fetchedData.phone || "",
+          address: fetchedData.address || fetchedData.Address || "",
+          city: this.extractCityFromAddress(fetchedData.address || fetchedData.Address || ""),
+          state: this.extractStateFromAddress(fetchedData.address || fetchedData.Address || ""),
+          zip: fetchedData.pincode || fetchedData.Pincode || fetchedData.zip || "",
+          country: "India",
+          isDefault: true
+        };
+
+        addresses = [userMainAddress];
+        selectedAddressId = "main";
+        
+        // Save to localStorage
+        this.saveAddressesToLocalStorage(addresses);
+      }
 
       this.setState({
         userEmail: userEmail,
         userData: fetchedData,
-        addresses: [userMainAddress],
-        selectedAddressId: "main",
+        addresses: addresses,
+        selectedAddressId: selectedAddressId,
         phone: fetchedData.mobile || fetchedData.Mobile || fetchedData.phone || "",
         address: fetchedData.address || fetchedData.Address || "",
         city: this.extractCityFromAddress(fetchedData.address || fetchedData.Address || ""),
@@ -129,10 +181,10 @@ class CheckoutForm extends Component {
       }
     }
   };
+
   // Helper functions to extract city and state from address
   extractCityFromAddress = (address) => {
     if (!address) return "";
-    // Simple extraction - you might want to improve this based on your address format
     const parts = address.split(',');
     return parts.length > 1 ? parts[parts.length - 2].trim() : "";
   };
@@ -198,12 +250,16 @@ class CheckoutForm extends Component {
       return;
     }
 
-    // Remove from local state only (since we're not using separate address table)
+    // Remove from local state and localStorage
     const updatedAddresses = this.state.addresses.filter(addr => addr._id !== addressId);
+    
     this.setState({
       addresses: updatedAddresses,
       selectedAddressId: updatedAddresses.length > 0 ? updatedAddresses[0]._id : null
     });
+
+    // Save to localStorage
+    this.saveAddressesToLocalStorage(updatedAddresses);
   };
 
   validateAddressForm = () => {
@@ -234,9 +290,9 @@ class CheckoutForm extends Component {
     }
 
     const newAddress = {
-      _id: this.state.isEditing ? this.state.editingAddressId : Date.now().toString(),
+      _id: this.state.isEditing ? this.state.editingAddressId : `addr_${Date.now()}`,
       name: this.state.addressName,
-      email: this.state.userEmail, // Always use user's email
+      email: this.state.userEmail,
       phone: this.state.phone,
       address: this.state.address,
       city: this.state.city,
@@ -246,21 +302,22 @@ class CheckoutForm extends Component {
       isDefault: false
     };
 
+    let updatedAddresses;
+
     if (this.state.isEditing) {
-      // Update existing address in local state
-      const updatedAddresses = this.state.addresses.map(addr =>
+      // Update existing address
+      updatedAddresses = this.state.addresses.map(addr =>
         addr._id === this.state.editingAddressId ? newAddress : addr
       );
-      this.setState({ addresses: updatedAddresses });
     } else {
-      // Add new address to local state
-      this.setState(prevState => ({
-        addresses: [...prevState.addresses, newAddress],
-        selectedAddressId: newAddress._id
-      }));
+      // Add new address
+      updatedAddresses = [...this.state.addresses, newAddress];
     }
 
+    // Update state
     this.setState({
+      addresses: updatedAddresses,
+      selectedAddressId: this.state.isEditing ? this.state.selectedAddressId : newAddress._id,
       showAddressForm: false,
       addressName: "",
       address: "",
@@ -269,6 +326,9 @@ class CheckoutForm extends Component {
       zip: "",
       phone: this.state.userData.mobile || ""
     });
+
+    // Save to localStorage
+    this.saveAddressesToLocalStorage(updatedAddresses);
 
     alert(`Address ${this.state.isEditing ? 'updated' : 'added'} successfully!`);
   };
@@ -689,6 +749,8 @@ class CheckoutForm extends Component {
     );
   }
 }
+
+// The Cart component remains exactly the same as in your original code
 export class Cart extends Component {
   constructor() {
     super();

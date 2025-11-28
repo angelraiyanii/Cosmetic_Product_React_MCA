@@ -169,7 +169,7 @@ class SingleProClass extends Component {
 
     // Opens default email client
      window.open(
-    `https://mail.google.com/mail/?view=cm&fs=1&to=&su=${subject}&body=${body}`,
+    `http://mail.google.com/mail/?view=cm&fs=1&to=&su=${subject}&body=${body}`,
     "_blank"
   );
   };

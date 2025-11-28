@@ -28,6 +28,22 @@ const Register = () => {
   // Handle input changes
   const handleChange = (e) => {
     const { name, value } = e.target;
+
+    // 🔢 Allow only 10 digits for mobile number
+    if (name === "mobile") {
+      if (/^\d{0,10}$/.test(value)) {
+        setFormData({ ...formData, [name]: value });
+      }
+      return;
+    }
+
+    // 📮 Allow only 6 digits for pincode
+    if (name === "pincode") {
+      if (/^\d{0,6}$/.test(value)) {
+        setFormData({ ...formData, [name]: value });
+      }
+      return;
+    }
     setFormData({ ...formData, [name]: value });
   };
 
@@ -177,11 +193,15 @@ const Register = () => {
               <input
                 type="tel"
                 name="mobile"
+                maxLength="10"
                 className={`form-control ${errors.mobile ? "is-invalid" : ""}`}
                 value={formData.mobile}
                 onChange={handleChange}
                 placeholder="Enter your mobile number"
               />
+
+              
+
               {errors.mobile && (
                 <div className="invalid-feedback">{errors.mobile}</div>
               )}
@@ -284,14 +304,15 @@ const Register = () => {
           {/* Pincode */}
           <div className="mb-3">
             <label className="form-label fw-semibold">Pincode</label>
-            <input
-              type="text"
-              name="pincode"
-              className={`form-control ${errors.pincode ? "is-invalid" : ""}`}
-              value={formData.pincode}
-              onChange={handleChange}
-              placeholder="Enter your pincode"
-            />
+           <input
+                type="text"
+                name="pincode"
+                maxLength="6"
+                className={`form-control ${errors.pincode ? "is-invalid" : ""}`}
+                value={formData.pincode}
+                onChange={handleChange}
+                placeholder="Enter your pincode"
+              />
             {errors.pincode && (
               <div className="invalid-feedback">{errors.pincode}</div>
             )}

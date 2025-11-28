@@ -7,10 +7,6 @@ router.get('/', (req, res) => {
 });
 // const express = require("express");
 // const router = express.Router();
-
-// Importing route files
-
-
 // User 
 const Userroutes = require("./userroutes");
 router.use("/UserModel", Userroutes);
