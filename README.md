@@ -1,5 +1,5 @@
 🚀 GlowCosmetics – Online Cosmetics Shopping Website
- ![Image Alt]([image_url](https://github.com/angelraiyanii/Cosmetic_Product_React_MCA/blob/aab31a29d442e11a5b776519f2b4edb819fb802f/GLowCosmetic_ScreenShort/Home.png))
+ ![Image Alt]([https://github.com/angelraiyanii/Cosmetic_Product_React_MCA/blob/aab31a29d442e11a5b776519f2b4edb819fb802f/GLowCosmetic_ScreenShort/Home.png)](https://github.com/angelraiyanii/Cosmetic_Product_React_MCA/blob/77436081e6eab3d2412cfe4a1cbe04db9f05bd11/Home.png)
 GlowCosmetics is a full-featured e-commerce web application designed for selling cosmetic and beauty products online. It offers a seamless shopping experience with dynamic UI, secure payment integration, and powerful admin controls.
 
 🛠️ Tech Stack
