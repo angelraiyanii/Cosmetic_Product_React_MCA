@@ -16,32 +16,32 @@ import {
 } from "react-icons/fa";
 
 const Checkout = () => {
-  // Add this function before the component state
-  const generateTempOrderId = () => {
-    const chars = '0123456789abcdef';
-    let result = '';
-    for (let i = 0; i < 24; i++) {
-      result += chars.charAt(Math.floor(Math.random() * chars.length));
-    }
-    return result;
-  };
-
   const [isProcessing, setIsProcessing] = useState(false);
   const [paymentSuccess, setPaymentSuccess] = useState(false);
-  const [orderId, setOrderId] = useState(generateTempOrderId()); // Add here
+  const [orderId, setOrderId] = useState("");
   const [orderData, setOrderData] = useState(null);
   const [cartItems, setCartItems] = useState([]);
+  const [errors, setErrors] = useState({});
+
+  // Razorpay configuration
+  const RAZORPAY_KEY = "rzp_test_yCgrsfXSuM7SxL"; // Your Razorpay test key
 
   useEffect(() => {
     const checkoutData = localStorage.getItem("checkoutData");
+
     if (checkoutData) {
       const data = JSON.parse(checkoutData);
       setOrderData(data.orderData);
       setCartItems(data.cartItems);
+
+      // Generate temporary order ID
+      const tempOrderId = generateTempOrderId();
+      setOrderId(tempOrderId);
     } else {
       window.location.href = "/cart";
     }
 
+    // Load Razorpay script
     const script = document.createElement("script");
     script.src = "https://checkout.razorpay.com/v1/checkout.js";
     script.async = true;
@@ -52,7 +52,14 @@ const Checkout = () => {
     };
   }, []);
 
-  const RAZORPAY_KEY = "rzp_test_YourTestKey"; // Razorpay test key
+  const generateTempOrderId = () => {
+    const chars = '0123456789abcdef';
+    let result = '';
+    for (let i = 0; i < 24; i++) {
+      result += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return result;
+  };
 
   const formatCurrency = (value) => {
     const num = typeof value === "number" ? value : parseFloat(value || 0);
@@ -60,12 +67,17 @@ const Checkout = () => {
     return num.toFixed(2);
   };
 
-const handlePayment = async () => {
-  if (!orderData || cartItems.length === 0) return;
-  setIsProcessing(true);
+  const handlePayment = async () => {
+    if (!orderData || cartItems.length === 0) {
+      setErrors({ payment: "Order data is missing" });
+      return;
+    }
+
+    setIsProcessing(true);
+    setErrors({});
 
     try {
-      // Create order payload
+      // Step 1: Create order in your backend
       const orderPayload = {
         userId: orderData.userId,
         products: cartItems.map((item) => ({
@@ -91,73 +103,120 @@ const handlePayment = async () => {
         totalAmount: parseFloat(orderData.total),
       };
 
-        const res = await axios.post(
-      "http://localhost:5000/api/orderModel/create",
-      orderPayload
-    );
-    const actualOrderId = order?._id || backendOrderId;
-    setOrderId(actualOrderId);
+      // Create order in your database
+      const orderResponse = await axios.post(
+        "http://localhost:5000/api/orderModel/create",
+        orderPayload
+      );
+
+      if (!orderResponse.data.success) {
+        throw new Error(orderResponse.data.message || "Failed to create order");
+      }
+
+      const actualOrderId = orderResponse.data.order._id;
       setOrderId(actualOrderId);
 
-      // Open Razorpay checkout
+      // Step 2: Create Razorpay order
+      const razorpayOrderResponse = await axios.post(
+        "http://localhost:5000/api/payment/create-order",
+        {
+          amount: Math.round(parseFloat(orderData.total) * 100), // Convert to paise
+          currency: "INR",
+          receipt: actualOrderId,
+        }
+      );
+
+      if (!razorpayOrderResponse.data.success) {
+        throw new Error("Failed to create payment order");
+      }
+
+      const razorpayOrder = razorpayOrderResponse.data.order;
+
+      // Step 3: Initialize Razorpay checkout
       const options = {
         key: RAZORPAY_KEY,
         amount: razorpayOrder.amount,
         currency: razorpayOrder.currency,
-        name: "GlowCosmetics",
-        description: `Order ${actualOrderId}`,
+        name: "💎 GlowCosmetic",
+        description: `Order Payment - ${actualOrderId}`,
         order_id: razorpayOrder.id,
-        prefill: {
-          name: orderData.addressName || "Customer",
-          email: orderData.email,
-          contact: orderData.phone,
-        },
-        theme: { color: "#667eea" },
-        modal: {
-          ondismiss: function () {
-            setIsProcessing(false);
-            alert("Payment cancelled");
-          },
-        },
-        handler: async function (response) {
+        handler: async (response) => {
           try {
-            const paymentRes = await axios.post(
-              "http://localhost:5000/api/orders/payment-success",
+            console.log('Razorpay payment response:', response);
+
+            // Verify payment on your server
+            const verificationResponse = await axios.post(
+              "http://localhost:5000/api/payment/verify-payment",
               {
-                orderId: actualOrderId, // Use the actual order ID
-                paymentId: response.razorpay_payment_id,
-                signature: response.razorpay_signature,
+                razorpay_order_id: response.razorpay_order_id,
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_signature: response.razorpay_signature,
+                receipt: actualOrderId,
               }
             );
 
-            if (paymentRes.data.success) {
+            if (verificationResponse.data.success) {
               setPaymentSuccess(true);
-              // Order ID is already set above
 
               // Clear checkout and cart data
               localStorage.removeItem("checkoutData");
               await axios.delete(
                 `http://localhost:5000/api/CartModel/clear/${orderData.userId}`
               );
+            } else {
+              throw new Error(verificationResponse.data.message || "Payment verification failed");
             }
-          } catch (err) {
-            console.error("Payment verification failed:", err);
-            alert("Payment verification failed. Contact support.");
+          } catch (error) {
+            console.error("Payment verification failed:", error);
+            setErrors({
+              payment: error.message || "Payment verification failed. Please contact support."
+            });
           } finally {
             setIsProcessing(false);
           }
         },
+        prefill: {
+          name: orderData.addressName || "Customer",
+          email: orderData.email,
+          contact: orderData.phone,
+        },
+        theme: {
+          color: "#3399cc",
+        },
+        modal: {
+          ondismiss: function () {
+            setIsProcessing(false);
+            console.log("Payment modal dismissed");
+          },
+        },
       };
 
       const rzp = new window.Razorpay(options);
-      rzp.on("payment.failed", function (response) {
-        alert("Payment failed: " + response.error.description);
+
+      // Handle payment failure
+      rzp.on('payment.failed', function (response) {
+        console.error("Payment failed:", response.error);
+        setErrors({
+          payment: `Payment failed: ${response.error.description}`
+        });
         setIsProcessing(false);
       });
+
       rzp.open();
-    } catch (err) {
-      console.error("Payment Error:", err);
-      alert("Payment failed: " + (err.response?.data?.message || err.message));
+
+    } catch (error) {
+      console.error("Payment Error:", error);
+      let errorMessage = "Something went wrong. Please try again.";
+
+      if (error.response) {
+        errorMessage = error.response.data.message || errorMessage;
+      } else if (error.request) {
+        errorMessage = "No response from server. Please check your connection.";
+      } else {
+        errorMessage = error.message;
+      }
+
+      setErrors({ payment: errorMessage });
       setIsProcessing(false);
     }
   };
@@ -295,7 +354,7 @@ const handlePayment = async () => {
                 fontWeight: "600",
                 cursor: "pointer",
               }}
-              onClick={() => (window.location.href = "/orders")}
+              onClick={() => (window.location.href = "/OrderHistory")}
             >
               View Orders
             </button>
@@ -304,6 +363,7 @@ const handlePayment = async () => {
       </div>
     );
   }
+
   return (
     <div style={{
       minHeight: '100vh',
@@ -428,11 +488,12 @@ const handlePayment = async () => {
                     fontWeight: 'bold',
                     fontFamily: 'monospace'
                   }}>
-                    #{orderId} {/* This will now show the generated ID */}
+                    #{orderId}
                   </h3>
                 </div>
               </div>
             </div>
+
             {/* Shipping Address */}
             <div style={{
               background: 'white',
@@ -690,6 +751,21 @@ const handlePayment = async () => {
                 </div>
               </div>
 
+              {/* Error Message */}
+              {errors.payment && (
+                <div style={{
+                  background: '#fee2e2',
+                  border: '1px solid #fecaca',
+                  color: '#dc2626',
+                  padding: '12px',
+                  borderRadius: '8px',
+                  marginBottom: '15px',
+                  textAlign: 'center'
+                }}>
+                  {errors.payment}
+                </div>
+              )}
+
               <button
                 onClick={handlePayment}
                 disabled={isProcessing}
@@ -732,7 +808,7 @@ const handlePayment = async () => {
                 ) : (
                   <>
                     <FaCreditCard />
-                    Proceed to Payment
+                    Pay with Razorpay
                   </>
                 )}
               </button>

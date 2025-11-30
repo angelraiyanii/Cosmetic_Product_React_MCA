@@ -11,20 +11,20 @@ function Navbar() {
   const [cartCount, setCartCount] = useState(0);
   const [wishlistCount, setWishlistCount] = useState(0);
   const [loading, setLoading] = useState(true);
-  
+
   // Add these notification states
   const [notificationCount, setNotificationCount] = useState(0);
   const [showNotifications, setShowNotifications] = useState(false);
   const [discountedProducts, setDiscountedProducts] = useState([]);
   const [notificationsLoading, setNotificationsLoading] = useState(false);
-  
+
   // Search states
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState([]);
   const [showSearchResults, setShowSearchResults] = useState(false);
   const [searchLoading, setSearchLoading] = useState(false);
   const [products, setProducts] = useState([]);
-  
+
   const navigate = useNavigate();
   const location = useLocation();
   const searchRef = useRef(null);
@@ -67,7 +67,7 @@ function Navbar() {
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (searchRef.current && !searchRef.current.contains(event.target) &&
-          searchResultsRef.current && !searchResultsRef.current.contains(event.target)) {
+        searchResultsRef.current && !searchResultsRef.current.contains(event.target)) {
         setShowSearchResults(false);
       }
     };
@@ -143,31 +143,31 @@ function Navbar() {
     }
   };
   // Fetch discounted products for notifications
-   // Fetch discounted products for notifications
+  // Fetch discounted products for notifications
   const fetchDiscountedProducts = async () => {
     try {
       setNotificationsLoading(true);
       const response = await axios.get("http://localhost:5000/api/ProductModel/");
       const allProducts = response.data || [];
-      
+
       console.log("All products:", allProducts); // Debug log
-      
+
       // Filter products with discount - adjust property names based on your actual data
       const discounted = allProducts.filter(product => {
         // Check different possible property names for discount
-        const hasDiscount = (product.discount > 0) || 
-                           (product.productDiscount > 0) || 
-                           (product.discountPercentage > 0);
-        
-        const isActive = product.status === "active" || 
-                        product.productStatus === "active" || 
-                        product.isActive === true;
-        
+        const hasDiscount = (product.discount > 0) ||
+          (product.productDiscount > 0) ||
+          (product.discountPercentage > 0);
+
+        const isActive = product.status === "active" ||
+          product.productStatus === "active" ||
+          product.isActive === true;
+
         return hasDiscount && isActive;
       }).slice(0, 10); // Limit to 10 products
-      
+
       console.log("Discounted products:", discounted); // Debug log
-      
+
       setDiscountedProducts(discounted);
       setNotificationCount(discounted.length);
     } catch (error) {
@@ -182,7 +182,7 @@ function Navbar() {
   const toggleNotifications = () => {
     setShowNotifications(!showNotifications);
     setShowSearchResults(false);
-    
+
     // Refresh discounted products when opening notifications
     if (!showNotifications) {
       fetchDiscountedProducts();
@@ -342,7 +342,7 @@ function Navbar() {
   };
 
   // Debounced search
-    useEffect(() => {
+  useEffect(() => {
     const savedUser = localStorage.getItem("user") || localStorage.getItem("admin");
     if (savedUser) {
       setUser(JSON.parse(savedUser));
@@ -379,6 +379,9 @@ function Navbar() {
     localStorage.removeItem("admintoken");
     localStorage.removeItem("user");
     localStorage.removeItem("admin");
+    localStorage.removeItem('userId');
+    localStorage.removeItem('userName');
+    localStorage.removeItem('userEmail');
     setUser(null);
     setCartCount(0);
     setWishlistCount(0);
@@ -523,8 +526,8 @@ function Navbar() {
           <div className="collapse navbar-collapse" id="navbarContent">
             <ul className="navbar-nav me-auto mb-2 mb-lg-0">
               <li className="nav-item">
-                <Link 
-                  className={`nav-link ${isActiveLink('/') ? 'active' : ''}`} 
+                <Link
+                  className={`nav-link ${isActiveLink('/') ? 'active' : ''}`}
                   to="/"
                 >
                   <i className="fas fa-home me-1"></i>Home
@@ -630,8 +633,8 @@ function Navbar() {
               </li>
 
               <li className="nav-item">
-                <Link 
-                  className={`nav-link ${isActiveLink('/Aboutus') ? 'active' : ''}`} 
+                <Link
+                  className={`nav-link ${isActiveLink('/Aboutus') ? 'active' : ''}`}
                   to="/Aboutus"
                 >
                   <i className="fas fa-info-circle me-1"></i>About Us
@@ -639,8 +642,8 @@ function Navbar() {
               </li>
 
               <li className="nav-item">
-                <Link 
-                  className={`nav-link ${isActiveLink('/Contactus') ? 'active' : ''}`} 
+                <Link
+                  className={`nav-link ${isActiveLink('/Contactus') ? 'active' : ''}`}
                   to="/Contactus"
                 >
                   <i className="fas fa-phone me-1"></i>Contact
@@ -662,72 +665,72 @@ function Navbar() {
                   </a>
                   <ul className="dropdown-menu" aria-labelledby="adminDropdown">
                     <li>
-                      <Link 
-                        className={`dropdown-item ${location.pathname === '/Admin/AdCategory' ? 'active' : ''}`} 
+                      <Link
+                        className={`dropdown-item ${location.pathname === '/Admin/AdCategory' ? 'active' : ''}`}
                         to="/Admin/AdCategory"
                       >
                         <i className="fas fa-list me-2 text-primary"></i> Category
                       </Link>
                     </li>
                     <li>
-                      <Link 
-                        className={`dropdown-item ${location.pathname === '/Admin/AdPro' ? 'active' : ''}`} 
+                      <Link
+                        className={`dropdown-item ${location.pathname === '/Admin/AdPro' ? 'active' : ''}`}
                         to="/Admin/AdPro"
                       >
                         <i className="fas fa-box me-2 text-success"></i> Product
                       </Link>
                     </li>
                     <li>
-                      <Link 
-                        className={`dropdown-item ${location.pathname === '/Admin/AdUser' ? 'active' : ''}`} 
+                      <Link
+                        className={`dropdown-item ${location.pathname === '/Admin/AdUser' ? 'active' : ''}`}
                         to="/Admin/AdUser"
                       >
                         <i className="fas fa-user me-2 text-info"></i> User
                       </Link>
                     </li>
                     <li>
-                      <Link 
-                        className={`dropdown-item ${location.pathname === '/Admin/AdOrder' ? 'active' : ''}`} 
+                      <Link
+                        className={`dropdown-item ${location.pathname === '/Admin/AdOrder' ? 'active' : ''}`}
                         to="/Admin/AdOrder"
                       >
                         <i className="fas fa-shopping-bag me-2 text-warning"></i> Order
                       </Link>
                     </li>
                     <li>
-                      <Link 
-                        className={`dropdown-item ${location.pathname === '/Admin/AdOffers' ? 'active' : ''}`} 
+                      <Link
+                        className={`dropdown-item ${location.pathname === '/Admin/AdOffers' ? 'active' : ''}`}
                         to="/Admin/AdOffers"
                       >
                         <i className="fas fa-tags me-2 text-primary"></i> Offers
                       </Link>
                     </li>
                     <li>
-                      <Link 
-                        className={`dropdown-item ${location.pathname === '/Admin/AdReviews' ? 'active' : ''}`} 
+                      <Link
+                        className={`dropdown-item ${location.pathname === '/Admin/AdReviews' ? 'active' : ''}`}
                         to="/Admin/AdReviews"
                       >
                         <i className="fas fa-star me-2 text-success"></i> Reviews
                       </Link>
                     </li>
                     <li>
-                      <Link 
-                        className={`dropdown-item ${location.pathname === '/Admin/AdBanner' ? 'active' : ''}`} 
+                      <Link
+                        className={`dropdown-item ${location.pathname === '/Admin/AdBanner' ? 'active' : ''}`}
                         to="/Admin/AdBanner"
                       >
                         <i className="fas fa-ad me-2 text-info"></i> Banners
                       </Link>
                     </li>
                     <li>
-                      <Link 
-                        className={`dropdown-item ${location.pathname === '/Admin/AdContact' ? 'active' : ''}`} 
+                      <Link
+                        className={`dropdown-item ${location.pathname === '/Admin/AdContact' ? 'active' : ''}`}
                         to="/Admin/AdContact"
                       >
                         <i className="fas fa-phone me-2 text-danger"></i> Contact
                       </Link>
                     </li>
                     <li>
-                      <Link 
-                        className={`dropdown-item ${location.pathname === '/Admin/AdAbout' ? 'active' : ''}`} 
+                      <Link
+                        className={`dropdown-item ${location.pathname === '/Admin/AdAbout' ? 'active' : ''}`}
                         to="/Admin/AdAbout"
                       >
                         <i className="fas fa-info-circle me-2 text-secondary"></i> About Us
@@ -752,15 +755,15 @@ function Navbar() {
                     onFocus={() => searchQuery && setShowSearchResults(true)}
                     style={{ minWidth: "250px" }}
                   />
-                  
+
                   {searchQuery && (
                     <button
                       type="button"
                       className="btn btn-sm position-absolute"
                       onClick={clearSearch}
-                      style={{ 
-                        right: "35px", 
-                        top: "50%", 
+                      style={{
+                        right: "35px",
+                        top: "50%",
                         transform: "translateY(-50%)",
                         border: "none",
                         background: "none",
@@ -771,13 +774,13 @@ function Navbar() {
                       <i className="fas fa-times"></i>
                     </button>
                   )}
-                  
+
                   <button
                     type="submit"
                     className="btn btn-sm position-absolute"
-                    style={{ 
-                      right: "8px", 
-                      top: "50%", 
+                    style={{
+                      right: "8px",
+                      top: "50%",
                       transform: "translateY(-50%)",
                       border: "none",
                       background: "none",
@@ -796,7 +799,7 @@ function Navbar() {
 
                 {/* Search Results Dropdown */}
                 {showSearchResults && (
-                  <div 
+                  <div
                     ref={searchResultsRef}
                     className="search-results position-absolute bg-white border rounded shadow-lg"
                     style={{
@@ -815,7 +818,7 @@ function Navbar() {
                             Found {searchResults.length} result{searchResults.length !== 1 ? 's' : ''} for "{searchQuery}"
                           </small>
                         </div>
-                        
+
                         {searchResults.map((result) => (
                           <div
                             key={result.id}
@@ -824,7 +827,7 @@ function Navbar() {
                             style={{ cursor: 'pointer' }}
                           >
                             <i className={`fas ${result.icon} me-3 ${result.color}`}></i>
-                            
+
                             <div className="flex-grow-1">
                               <div className="d-flex align-items-center justify-content-between">
                                 <span className="fw-medium">{result.name}</span>
@@ -832,7 +835,7 @@ function Navbar() {
                                   {getResultTypeLabel(result.type)}
                                 </small>
                               </div>
-                              
+
                               {result.type === 'product' && (
                                 <div className="mt-1">
                                   {result.price && (
@@ -862,7 +865,7 @@ function Navbar() {
                             )}
                           </div>
                         ))}
-                        
+
                         <div className="p-2 bg-light text-center">
                           <button
                             className="btn btn-link btn-sm text-decoration-none"
@@ -883,8 +886,8 @@ function Navbar() {
                 )}
               </div>
               {/* Wishlist */}
-              <Link 
-                to="/Wishlist" 
+              <Link
+                to="/Wishlist"
                 className={`position-relative text-dark ${isActiveLink('/Wishlist') ? 'active' : ''}`}
               >
                 <i className="fas fa-heart fa-lg"></i>
@@ -911,129 +914,129 @@ function Navbar() {
                 </button>
 
                 {/* Notifications Dropdown */}
-             {showNotifications && (
-  <div 
-    className="position-absolute bg-white border rounded shadow-lg"
-    style={{
-      top: "100%",
-      right: "0",
-      zIndex: "1050",
-      width: "350px",
-      maxHeight: "400px",
-      overflowY: "auto"
-    }}
-  >
-    <div className="p-3 border-bottom bg-light d-flex justify-content-between align-items-center">
-      <h6 className="mb-0 fw-bold">
-        <i className="fas fa-tag me-2 text-danger"></i>
-        Special Offers ({notificationCount})
-      </h6>
-      <div>
-        <button
-          className="btn btn-sm btn-outline-secondary me-2"
-          onClick={viewAllDiscountedProducts}
-        >
-          View All
-        </button>
-        <button
-          className="btn btn-sm btn-outline-danger"
-          onClick={clearNotifications}
-        >
-          Clear
-        </button>
-      </div>
-    </div>
+                {showNotifications && (
+                  <div
+                    className="position-absolute bg-white border rounded shadow-lg"
+                    style={{
+                      top: "100%",
+                      right: "0",
+                      zIndex: "1050",
+                      width: "350px",
+                      maxHeight: "400px",
+                      overflowY: "auto"
+                    }}
+                  >
+                    <div className="p-3 border-bottom bg-light d-flex justify-content-between align-items-center">
+                      <h6 className="mb-0 fw-bold">
+                        <i className="fas fa-tag me-2 text-danger"></i>
+                        Special Offers ({notificationCount})
+                      </h6>
+                      <div>
+                        <button
+                          className="btn btn-sm btn-outline-secondary me-2"
+                          onClick={viewAllDiscountedProducts}
+                        >
+                          View All
+                        </button>
+                        <button
+                          className="btn btn-sm btn-outline-danger"
+                          onClick={clearNotifications}
+                        >
+                          Clear
+                        </button>
+                      </div>
+                    </div>
 
-    {notificationsLoading ? (
-      <div className="p-4 text-center">
-        <div className="spinner-border spinner-border-sm text-primary me-2" role="status">
-          <span className="visually-hidden">Loading...</span>
-        </div>
-        Loading offers...
-      </div>
-    ) : discountedProducts.length > 0 ? (
-      <>
-        {discountedProducts.map((product) => {
-          // Get the correct property names
-          const productName = product.productName || product.name || 'Product';
-          const productPrice = product.productPrice || product.price || 0;
-          const discount = product.discount || product.productDiscount || product.discountPercentage || 0;
-          const productCategory = product.productCategory || product.category?.categoryName || product.category || 'Beauty';
-          const productImage = product.productImage || product.image;
-          
-          const discountedPrice = discount > 0 ? (productPrice - (productPrice * discount / 100)).toFixed(2) : productPrice;
-          
-          return (
-            <div
-              key={product._id}
-              className="notification-item p-3 border-bottom d-flex align-items-center"
-              onClick={() => handleNotificationClick(product._id)}
-              style={{ cursor: 'pointer' }}
-            >
-              <div className="flex-shrink-0 me-3">
-                <img
-                  src={productImage ? `http://localhost:5000/public/images/product_images/${productImage}` : 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNTAiIGhlaWdodD0iNTAiIHZpZXdCb3g9IjAgMCA1MCA1MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjUwIiBoZWlnaHQ9IjUwIiBmaWxsPSIjRjVGNUY1Ii8+CjxwYXRoIGQ9Ik0yNSAxNkMzMC41MjI4IDE2IDM1IDIwLjQ3NzIgMzUgMjZDMzUgMzEuNTIyOCAzMC41MjI4IDM2IDI1IDM2QzE5LjQ3NzIgMzYgMTUgMzEuNTIyOCAxNSAyNkMxNSAyMC40NzcyIDE5LjQ3NzIgMTYgMjUgMTZaIiBmaWxsPSIjQ0RDRENEIi8+Cjwvc3ZnPgo='}
-                  alt={productName}
-                  className="rounded"
-                  style={{ width: "50px", height: "50px", objectFit: "cover" }}
-                  onError={(e) => {
-                    e.target.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNTAiIGhlaWdodD0iNTAiIHZpZXdCb3g9IjAgMCA1MCA1MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjUwIiBoZWlnaHQ9IjUwIiBmaWxsPSIjRjVGNUY1Ii8+CjxwYXRoIGQ9Ik0yNSAxNkMzMC41MjI4IDE2IDM1IDIwLjQ3NzIgMzUgMjZDMzUgMzEuNTIyOCAzMC41MjI4IDM2IDI1IDM2QzE5LjQ3NzIgMzYgMTUgMzEuNTIyOCAxNSAyNkMxNSAyMC40NzcyIDE5LjQ3NzIgMTYgMjUgMTZaIiBmaWxsPSIjQ0RDRENEIi8+Cjwvc3ZnPgo=';
-                  }}
-                />
-              </div>
-              
-              <div className="flex-grow-1">
-                <div className="d-flex justify-content-between align-items-start mb-1">
-                  <span className="fw-medium text-dark">{productName}</span>
-                  <span className="badge bg-danger ms-2">
-                    -{discount}% OFF
-                  </span>
-                </div>
-                
-                <div className="d-flex align-items-center">
-                  <span className="fw-bold text-success me-2">
-                    ${discountedPrice}
-                  </span>
-                  <span className="text-muted text-decoration-line-through small">
-                    ${productPrice}
-                  </span>
-                </div>
-                
-                <small className="text-muted d-block">
-                  {productCategory}
-                </small>
-              </div>
-              
-              <div className="flex-shrink-0 ms-2">
-                <i className="fas fa-chevron-right text-muted"></i>
-              </div>
-            </div>
-          );
-        })}
-        
-        <div className="p-2 bg-light text-center">
-          <button
-            className="btn btn-link btn-sm text-decoration-none"
-            onClick={viewAllDiscountedProducts}
-          >
-            View all discounted products <i className="fas fa-arrow-right ms-1"></i>
-          </button>
-        </div>
-      </>
-    ) : (
-      <div className="p-4 text-center text-muted">
-        <i className="fas fa-bell-slash fa-2x mb-2"></i>
-        <div>No special offers right now</div>
-        <small>Check back later for discounts!</small>
-      </div>
-    )}
-  </div>
-)}
+                    {notificationsLoading ? (
+                      <div className="p-4 text-center">
+                        <div className="spinner-border spinner-border-sm text-primary me-2" role="status">
+                          <span className="visually-hidden">Loading...</span>
+                        </div>
+                        Loading offers...
+                      </div>
+                    ) : discountedProducts.length > 0 ? (
+                      <>
+                        {discountedProducts.map((product) => {
+                          // Get the correct property names
+                          const productName = product.productName || product.name || 'Product';
+                          const productPrice = product.productPrice || product.price || 0;
+                          const discount = product.discount || product.productDiscount || product.discountPercentage || 0;
+                          const productCategory = product.productCategory || product.category?.categoryName || product.category || 'Beauty';
+                          const productImage = product.productImage || product.image;
+
+                          const discountedPrice = discount > 0 ? (productPrice - (productPrice * discount / 100)).toFixed(2) : productPrice;
+
+                          return (
+                            <div
+                              key={product._id}
+                              className="notification-item p-3 border-bottom d-flex align-items-center"
+                              onClick={() => handleNotificationClick(product._id)}
+                              style={{ cursor: 'pointer' }}
+                            >
+                              <div className="flex-shrink-0 me-3">
+                                <img
+                                  src={productImage ? `http://localhost:5000/public/images/product_images/${productImage}` : 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNTAiIGhlaWdodD0iNTAiIHZpZXdCb3g9IjAgMCA1MCA1MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjUwIiBoZWlnaHQ9IjUwIiBmaWxsPSIjRjVGNUY1Ii8+CjxwYXRoIGQ9Ik0yNSAxNkMzMC41MjI4IDE2IDM1IDIwLjQ3NzIgMzUgMjZDMzUgMzEuNTIyOCAzMC41MjI4IDM2IDI1IDM2QzE5LjQ3NzIgMzYgMTUgMzEuNTIyOCAxNSAyNkMxNSAyMC40NzcyIDE5LjQ3NzIgMTYgMjUgMTZaIiBmaWxsPSIjQ0RDRENEIi8+Cjwvc3ZnPgo='}
+                                  alt={productName}
+                                  className="rounded"
+                                  style={{ width: "50px", height: "50px", objectFit: "cover" }}
+                                  onError={(e) => {
+                                    e.target.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNTAiIGhlaWdodD0iNTAiIHZpZXdCb3g9IjAgMCA1MCA1MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjUwIiBoZWlnaHQ9IjUwIiBmaWxsPSIjRjVGNUY1Ii8+CjxwYXRoIGQ9Ik0yNSAxNkMzMC41MjI4IDE2IDM1IDIwLjQ3NzIgMzUgMjZDMzUgMzEuNTIyOCAzMC41MjI4IDM2IDI1IDM2QzE5LjQ3NzIgMzYgMTUgMzEuNTIyOCAxNSAyNkMxNSAyMC40NzcyIDE5LjQ3NzIgMTYgMjUgMTZaIiBmaWxsPSIjQ0RDRENEIi8+Cjwvc3ZnPgo=';
+                                  }}
+                                />
+                              </div>
+
+                              <div className="flex-grow-1">
+                                <div className="d-flex justify-content-between align-items-start mb-1">
+                                  <span className="fw-medium text-dark">{productName}</span>
+                                  <span className="badge bg-danger ms-2">
+                                    -{discount}% OFF
+                                  </span>
+                                </div>
+
+                                <div className="d-flex align-items-center">
+                                  <span className="fw-bold text-success me-2">
+                                    ${discountedPrice}
+                                  </span>
+                                  <span className="text-muted text-decoration-line-through small">
+                                    ${productPrice}
+                                  </span>
+                                </div>
+
+                                <small className="text-muted d-block">
+                                  {productCategory}
+                                </small>
+                              </div>
+
+                              <div className="flex-shrink-0 ms-2">
+                                <i className="fas fa-chevron-right text-muted"></i>
+                              </div>
+                            </div>
+                          );
+                        })}
+
+                        <div className="p-2 bg-light text-center">
+                          <button
+                            className="btn btn-link btn-sm text-decoration-none"
+                            onClick={viewAllDiscountedProducts}
+                          >
+                            View all discounted products <i className="fas fa-arrow-right ms-1"></i>
+                          </button>
+                        </div>
+                      </>
+                    ) : (
+                      <div className="p-4 text-center text-muted">
+                        <i className="fas fa-bell-slash fa-2x mb-2"></i>
+                        <div>No special offers right now</div>
+                        <small>Check back later for discounts!</small>
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
 
               {/* Cart */}
-              <Link 
-                to="/Cart" 
+              <Link
+                to="/Cart"
                 className={`position-relative text-dark ${isActiveLink('/Cart') ? 'active' : ''}`}
               >
                 <i className="fas fa-shopping-cart fa-lg"></i>
@@ -1079,32 +1082,32 @@ function Navbar() {
                       <li className="dropdown-item-text">{user.email}</li>
                       <li><hr className="dropdown-divider" /></li>
                       <li>
-                        <Link 
-                          className={`dropdown-item ${isActiveLink('/Account') ? 'active' : ''}`} 
+                        <Link
+                          className={`dropdown-item ${isActiveLink('/Account') ? 'active' : ''}`}
                           to="/Account"
                         >
                           <i className="fas fa-user me-2 text-info"></i> Account
                         </Link>
                       </li>
                       <li>
-                        <Link 
-                          className={`dropdown-item ${isActiveLink('/Wishlist') ? 'active' : ''}`} 
+                        <Link
+                          className={`dropdown-item ${isActiveLink('/Wishlist') ? 'active' : ''}`}
                           to="/Wishlist"
                         >
                           <i className="fas fa-heart me-2 text-danger"></i> Wishlist
                         </Link>
                       </li>
                       <li>
-                        <Link 
-                          className={`dropdown-item ${isActiveLink('/Cart') ? 'active' : ''}`} 
+                        <Link
+                          className={`dropdown-item ${isActiveLink('/Cart') ? 'active' : ''}`}
                           to="/Cart"
                         >
                           <i className="fas fa-shopping-cart me-2 text-primary"></i> Cart
                         </Link>
                       </li>
                       <li>
-                        <Link 
-                          className={`dropdown-item ${isActiveLink('/OrderHistory') ? 'active' : ''}`} 
+                        <Link
+                          className={`dropdown-item ${isActiveLink('/OrderHistory') ? 'active' : ''}`}
                           to="/OrderHistory"
                         >
                           <i className="fas fa-history me-2 text-warning"></i> Order History

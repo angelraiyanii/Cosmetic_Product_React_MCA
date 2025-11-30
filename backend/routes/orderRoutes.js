@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const Order = require('../models/OrderModel');
 
-// Create Order (No Razorpay needed for dummy payments)
+// Create Order
 router.post("/create", async (req, res) => {
   try {
     const generateOrderId = () => {
@@ -14,9 +14,10 @@ router.post("/create", async (req, res) => {
     const orderId = generateOrderId();
 
     const order = new Order({
-      orderId, // 👈 save readable orderId
+      orderId, // Save readable orderId
       ...req.body,
-      razorpayOrderId: `dummy_${Date.now()}`
+      status: 'pending', // Default status
+      paymentStatus: 'pending'
     });
 
     await order.save();
@@ -31,10 +32,13 @@ router.post("/create", async (req, res) => {
       }
     });
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    console.error('Order creation error:', err);
+    res.status(500).json({ 
+      success: false,
+      message: err.message 
+    });
   }
 });
-
 
 // Dummy Payment Success Verification (No signature verification needed)
 router.post('/payment-success', async (req, res) => {
@@ -69,6 +73,48 @@ router.post('/payment-success', async (req, res) => {
       success: false, 
       message: "Dummy payment verification failed", 
       error: error.message 
+    });
+  }
+});
+
+// Get order by ID
+router.get("/:id", async (req, res) => {
+  try {
+    const order = await Order.findById(req.params.id);
+    if (!order) {
+      return res.status(404).json({
+        success: false,
+        message: "Order not found"
+      });
+    }
+    
+    res.json({
+      success: true,
+      order
+    });
+  } catch (error) {
+    console.error('Get order error:', error);
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+});
+// Get orders by user ID
+router.get("/user/:userId", async (req, res) => {
+  try {
+    const orders = await Order.find({ userId: req.params.userId })
+      .sort({ createdAt: -1 }); // Sort by latest first
+
+    res.json({
+      success: true,
+      orders
+    });
+  } catch (error) {
+    console.error('Get user orders error:', error);
+    res.status(500).json({
+      success: false,
+      message: error.message
     });
   }
 });

@@ -21,6 +21,7 @@ import OTPVerification from "./component/OTPVerification";
 import ResetPassword from "./component/ResetPassword";
 // import OrderSuccess from './component/OrderSuccess'
 import Checkout from './component/Checkout'
+import OrderHistory from './component/OrderHistory'
 // Admin Called
 import AdCategory from './component/Admin/AdCategory'
 import AdPro from './component/Admin/AdPro'
@@ -72,7 +73,9 @@ function App() {
         <Route path="/reset-password" element={<ResetPassword />} />
         {/* <Route path="/order-success" element={<OrderSuccess />} /> */}
         <Route path="/checkout" element={<Checkout />} />
+        <Route path="/orderHistory" element={<OrderHistory />} />
 
+        {/* Admin Routes */}
         <Route path='/Admin/AdAbout' element={<AdAbout />} />
         <Route path='/Admin/ASlider' element={<ASlider />} />
         <Route path="/Admin/AdBanner" element={<AdBanner />} />
