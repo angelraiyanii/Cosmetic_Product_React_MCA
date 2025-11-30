@@ -666,8 +666,8 @@ class CheckoutForm extends Component {
                   </button>
 
                   <button className="btn-secondary-full" onClick={onBack}>
-                    <FaArrowLeft className="me-2" />
-                    Back to Cart
+                    <FaArrowLeft className="me-2" style={{ fontSize: '20px' }} />
+                    Back to  Cart
                   </button>
 
                   <div className="security-badges">

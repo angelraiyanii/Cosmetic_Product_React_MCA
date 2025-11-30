@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { 
@@ -7,7 +6,14 @@ import {
   FaShieldAlt, 
   FaTruck, 
   FaArrowLeft, 
-  FaCreditCard 
+  FaCreditCard,
+  FaMapMarkerAlt,
+  FaEnvelope,
+  FaPhone,
+  FaBox,
+  FaTag,
+  FaPercent,
+  FaShoppingBag
 } from "react-icons/fa";
 
 const Checkout = () => {
@@ -51,8 +57,6 @@ const Checkout = () => {
     return num.toFixed(2);
   };
 
-  const displayOrderId = orderId || null;
-
   const handlePayment = async () => {
     setIsProcessing(true);
 
@@ -94,7 +98,7 @@ const Checkout = () => {
 
       // 2. Open Razorpay Checkout
       const options = {
-        key: RAZORPAY_KEY, // public Razorpay key from env (Vite: VITE_RAZORPAY_KEY)
+        key: RAZORPAY_KEY,
         amount: razorpayOrder.amount,
         currency: razorpayOrder.currency,
         name: "GlowCosmetics",
@@ -136,7 +140,7 @@ const Checkout = () => {
           contact: orderData.phone,
         },
         theme: {
-          color: "#007bff",
+          color: "#667eea",
         },
         modal: {
           ondismiss: function() {
@@ -161,35 +165,129 @@ const Checkout = () => {
     }
   };
 
+  // Loading state
   if (!orderData) {
     return (
-      <div style={{ textAlign: 'center', padding: '2rem' }}>
-        <FaSpinner className="spin" style={{ fontSize: '3rem' }} />
-        <p>Loading...</p>
+      <div style={{
+        minHeight: '100vh',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        background: 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)'
+      }}>
+        <div style={{ textAlign: 'center' }}>
+          <FaSpinner style={{ 
+            fontSize: '50px', 
+            color: '#667eea',
+            animation: 'spin 1s linear infinite'
+          }} />
+          <p style={{ 
+            marginTop: '20px', 
+            fontSize: '18px', 
+            color: '#666',
+            fontWeight: '600'
+          }}>Loading checkout...</p>
+        </div>
       </div>
     );
   }
 
   if (paymentSuccess) {
     return (
-      <div className="payment-success-page">
-        <div className="success-animation">
-          <FaCheckCircle className="success-icon" />
-          <h1>Payment Successful!</h1>
-          <p>Order ID: <strong>{orderId}</strong></p>
-          <p>Razorpay Order ID: <strong>{razorpayOrderId}</strong></p>
-          <p>Your order has been placed successfully.</p>
+      <div style={{
+        minHeight: '100vh',
+        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: '20px'
+      }}>
+        <div style={{
+          background: 'white',
+          borderRadius: '20px',
+          padding: '60px 40px',
+          textAlign: 'center',
+          maxWidth: '500px',
+          boxShadow: '0 20px 60px rgba(0,0,0,0.3)',
+          animation: 'slideUp 0.5s ease-out'
+        }}>
+          <div style={{
+            width: '100px',
+            height: '100px',
+            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+            borderRadius: '50%',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            margin: '0 auto 30px',
+            animation: 'scaleIn 0.5s ease-out'
+          }}>
+            <FaCheckCircle style={{ fontSize: '50px', color: 'white' }} />
+          </div>
           
-          <div className="success-actions">
-            <button 
-              className="btn-primary" 
-              onClick={() => window.location.href = "/"}
+          <h1 style={{
+            fontSize: '32px',
+            fontWeight: 'bold',
+            color: '#333',
+            marginBottom: '15px'
+          }}>Payment Successful!</h1>
+          
+          <div style={{
+            background: '#f8f9fa',
+            borderRadius: '12px',
+            padding: '20px',
+            marginBottom: '25px'
+          }}>
+            <p style={{ color: '#666', marginBottom: '10px' }}>Order ID</p>
+            <p style={{ 
+              fontSize: '24px', 
+              fontWeight: 'bold',
+              color: '#667eea',
+              fontFamily: 'monospace'
+            }}>#{orderId}</p>
+          </div>
+          
+          <p style={{ color: '#666', marginBottom: '30px', lineHeight: '1.6' }}>
+            Thank you for your purchase! Your order has been confirmed and will be shipped soon.
+          </p>
+          
+          <div style={{ display: 'flex', gap: '15px', justifyContent: 'center' }}>
+            <button style={{
+              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+              color: 'white',
+              border: 'none',
+              padding: '15px 30px',
+              borderRadius: '10px',
+              fontSize: '16px',
+              fontWeight: '600',
+              cursor: 'pointer',
+              transition: 'transform 0.2s',
+              boxShadow: '0 5px 15px rgba(102, 126, 234, 0.4)'
+            }}
+            onMouseOver={(e) => e.target.style.transform = 'translateY(-2px)'}
+            onMouseOut={(e) => e.target.style.transform = 'translateY(0)'}
             >
               Continue Shopping
             </button>
-            <button 
-              className="btn-secondary" 
-              onClick={() => window.location.href = "/orders"}
+            <button style={{
+              background: 'white',
+              color: '#667eea',
+              border: '2px solid #667eea',
+              padding: '15px 30px',
+              borderRadius: '10px',
+              fontSize: '16px',
+              fontWeight: '600',
+              cursor: 'pointer',
+              transition: 'all 0.2s'
+            }}
+            onMouseOver={(e) => {
+              e.target.style.background = '#667eea';
+              e.target.style.color = 'white';
+            }}
+            onMouseOut={(e) => {
+              e.target.style.background = 'white';
+              e.target.style.color = '#667eea';
+            }}
             >
               View Orders
             </button>
@@ -200,123 +298,507 @@ const Checkout = () => {
   }
 
   return (
-    <div className="checkout-page">
-      <div className="checkout-header">
-        <button 
-          onClick={() => window.location.href = "/cart"} 
-          className="back-button"
-        >
-          <FaArrowLeft /> Back to Cart
-        </button>
-        <h2>Review Your Order</h2>
+    <div style={{
+      minHeight: '100vh',
+      background: 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)'
+    }}>
+      {/* Gradient Header */}
+      <div style={{
+        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+        padding: '40px 20px',
+        marginBottom: '40px'
+      }}>
+        <div style={{ 
+          maxWidth: '1200px', 
+          margin: '0 auto',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '20px'
+        }}>
+          {/* Back Button */}
+          <button 
+            onClick={() => window.history.back()}
+            style={{
+              width: '60px',
+              height: '50px',
+              borderRadius: '50%',
+              background: 'rgba(255, 255, 255, 0.2)',
+              border: 'none',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              cursor: 'pointer',
+              transition: 'all 0.3s',
+              backdropFilter: 'blur(10px)',
+              color: 'white',
+              fontSize: '18px'
+            }}
+            onMouseOver={(e) => {
+              e.target.style.background = 'rgba(255, 255, 255, 0.3)';
+              e.target.style.transform = 'scale(1.05)';
+            }}
+            onMouseOut={(e) => {
+              e.target.style.background = 'rgba(255, 255, 255, 0.2)';
+              e.target.style.transform = 'scale(1)';
+            }}
+          >
+            <FaArrowLeft />
+          </button>
+
+          {/* Shopping Bag Icon */}
+          <div style={{
+            width: '60px',
+            height: '60px',
+            borderRadius: '15px',
+            background: 'rgba(255, 255, 255, 0.95)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            boxShadow: '0 8px 20px rgba(0, 0, 0, 0.15)'
+          }}>
+            <FaShoppingBag style={{ 
+              fontSize: '28px', 
+              color: '#667eea'
+            }} />
+          </div>
+
+          {/* Title and Subtitle */}
+          <div>
+            <h1 style={{
+              fontSize: '36px',
+              fontWeight: 'bold',
+              color: 'white',
+              margin: '0 0 5px 0',
+              letterSpacing: '-0.5px'
+            }}>
+              Checkout
+            </h1>
+            <p style={{
+              fontSize: '16px',
+              color: 'rgba(255, 255, 255, 0.9)',
+              margin: 0,
+              fontWeight: '400'
+            }}>
+              Complete your order
+            </p>
+          </div>
+        </div>
       </div>
 
-      <div className="checkout-container">
-        <div className="checkout-main">
-          {/* Order ID */}
-          <div className="section">
-            <h3>Order Details</h3>
-            <div className="info-box">
-              <strong>Order ID:</strong> {displayOrderId ? `#${displayOrderId}` : `#${Math.floor(Math.random() * 1000000)}`}
+      {/* Main Content */}
+      <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 20px 40px' }}>
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: '1fr 400px',
+          gap: '30px'
+        }}>
+          {/* Left Column */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '25px' }}>
+            {/* Order ID Card */}
+            <div style={{
+              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+              borderRadius: '20px',
+              padding: '30px',
+              boxShadow: '0 10px 30px rgba(102, 126, 234, 0.3)',
+              color: 'white'
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+                <div style={{
+                  width: '50px',
+                  height: '50px',
+                  background: 'rgba(255,255,255,0.2)',
+                  borderRadius: '12px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center'
+                }}>
+                  <FaBox size={24} />
+                </div>
+                <div>
+                  <p style={{ fontSize: '14px', opacity: 0.9, marginBottom: '5px' }}>Order ID</p>
+                  <h3 style={{ 
+                    fontSize: '24px', 
+                    fontWeight: 'bold',
+                    fontFamily: 'monospace'
+                  }}>#{orderId || `GCP-${Date.now().toString().slice(-6)}`}</h3>
+                </div>
+              </div>
             </div>
-          </div>
 
-          {/* Shipping Address */}
-          <div className="section">
-            <h3>Shipping Address</h3>
-            <div className="info-box">
-              <p><strong>Name:</strong> {orderData.addressName}</p>
-              <p><strong>Email:</strong> {orderData.email}</p>
-              <p><strong>Phone:</strong> {orderData.phone}</p>
-              <p><strong>Address:</strong> {orderData.address}</p>
-              <p><strong>City:</strong> {orderData.city}, {orderData.state} - {orderData.zip}</p>
-            </div>
-          </div>
-
-          {/* Products */}
-          <div className="section">
-            <h3>Products ({cartItems.length} items)</h3>
-            {cartItems.map((item, index) => {
-              const product = item.productId;
-              return (
-                <div className="product-item" key={index}>
-                  <img 
-                    src={product.image 
-                      ? `http://localhost:5000/public/images/product_images/${product.image}` 
-                      : "placeholder.jpg"
-                    }
-                    alt={product.name}
-                  />
-                  <div className="product-info">
-                    <h4>{product.name}</h4>
-                    <p>₹{product.price} x {item.quantity}</p>
+            {/* Shipping Address */}
+            <div style={{
+              background: 'white',
+              borderRadius: '20px',
+              padding: '30px',
+              boxShadow: '0 4px 20px rgba(0,0,0,0.08)'
+            }}>
+              <h3 style={{
+                fontSize: '20px',
+                fontWeight: 'bold',
+                color: '#333',
+                marginBottom: '20px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '10px'
+              }}>
+                <FaMapMarkerAlt style={{ color: '#667eea' }} />
+                Shipping Address
+              </h3>
+              
+              <div style={{
+                background: '#f8f9fa',
+                borderRadius: '15px',
+                padding: '20px'
+              }}>
+                <div style={{ marginBottom: '15px' }}>
+                  <p style={{ 
+                    fontSize: '18px', 
+                    fontWeight: 'bold', 
+                    color: '#333',
+                    marginBottom: '5px'
+                  }}>{orderData.addressName}</p>
+                </div>
+                
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                    <FaEnvelope style={{ color: '#667eea', fontSize: '16px' }} />
+                    <span style={{ color: '#666' }}>{orderData.email}</span>
                   </div>
-                  <div className="product-total">
-                    ₹{(product.price * item.quantity).toFixed(2)}
+                  
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                    <FaPhone style={{ color: '#667eea', fontSize: '16px' }} />
+                    <span style={{ color: '#666' }}>{orderData.phone}</span>
+                  </div>
+                  
+                  <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+                    <FaMapMarkerAlt style={{ color: '#667eea', fontSize: '16px', marginTop: '3px' }} />
+                    <div style={{ color: '#666' }}>
+                      <p>{orderData.address}</p>
+                      <p>{orderData.city}, {orderData.state} - {orderData.zip}</p>
+                      <p>{orderData.country}</p>
+                    </div>
                   </div>
                 </div>
-              );
-            })}
+              </div>
+            </div>
+
+            {/* Products */}
+            <div style={{
+              background: 'white',
+              borderRadius: '20px',
+              padding: '30px',
+              boxShadow: '0 4px 20px rgba(0,0,0,0.08)'
+            }}>
+              <h3 style={{
+                fontSize: '20px',
+                fontWeight: 'bold',
+                color: '#333',
+                marginBottom: '20px'
+              }}>
+                Order Items ({cartItems.length})
+              </h3>
+              
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+                {cartItems.map((item, index) => {
+                  const product = item.productId;
+                  return (
+                    <div key={index} style={{
+                      display: 'flex',
+                      gap: '15px',
+                      padding: '15px',
+                      background: '#f8f9fa',
+                      borderRadius: '15px',
+                      alignItems: 'center',
+                      transition: 'transform 0.2s'
+                    }}
+                    onMouseOver={(e) => e.currentTarget.style.transform = 'translateX(5px)'}
+                    onMouseOut={(e) => e.currentTarget.style.transform = 'translateX(0)'}
+                    >
+                      {/* Product Image */}
+                      <div style={{
+                        width: '80px',
+                        height: '80px',
+                        borderRadius: '12px',
+                        flexShrink: 0,
+                        overflow: 'hidden',
+                        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
+                      }}>
+                        {product.image ? (
+                          <img 
+                            src={`http://localhost:5000/public/images/product_images/${product.image}`}
+                            alt={product.name}
+                            style={{
+                              width: '100%',
+                              height: '100%',
+                              objectFit: 'cover'
+                            }}
+                            onError={(e) => {
+                              e.target.style.display = 'none';
+                              e.target.parentElement.innerHTML = `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:white;font-size:30px;font-weight:bold">${product.name.charAt(0)}</div>`;
+                            }}
+                          />
+                        ) : (
+                          <div style={{
+                            width: '100%',
+                            height: '100%',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            color: 'white',
+                            fontSize: '30px',
+                            fontWeight: 'bold'
+                          }}>
+                            {product.name.charAt(0)}
+                          </div>
+                        )}
+                      </div>
+                      
+                      <div style={{ flex: 1 }}>
+                        <h4 style={{ 
+                          fontSize: '16px', 
+                          fontWeight: '600',
+                          color: '#333',
+                          marginBottom: '5px'
+                        }}>{product.name}</h4>
+                        <p style={{ color: '#999', fontSize: '14px' }}>
+                          ₹{formatCurrency(product.price)} × {item.quantity}
+                        </p>
+                      </div>
+                      
+                      <div style={{
+                        fontSize: '18px',
+                        fontWeight: 'bold',
+                        color: '#667eea'
+                      }}>
+                        ₹{formatCurrency(product.price * item.quantity)}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
           </div>
-        </div>
 
-        {/* Order Summary */}
-        <div className="checkout-sidebar">
-          <div className="summary-card">
-            <h3>Order Summary</h3>
-            
-            <div className="summary-row">
-              <span>Subtotal:</span>
-              <span>₹{formatCurrency(orderData.subtotal)}</span>
-            </div>
-            
-            <div className="summary-row">
-              <span>Shipping:</span>
-              <span>{parseFloat(orderData.shipping || 0) === 0 ? "FREE" : `₹${formatCurrency(orderData.shipping)}`}</span>
-            </div>
-            
-            <div className="summary-row">
-              <span>Tax:</span>
-              <span>₹{formatCurrency(orderData.tax)}</span>
-            </div>
-            
-            {parseFloat(orderData.discount || 0) > 0 && (
-              <div className="summary-row discount">
-                <span>Discount:</span>
-                <span>-₹{formatCurrency(orderData.discount)}</span>
+          {/* Right Column - Order Summary */}
+          <div style={{ position: 'sticky', top: '20px', height: 'fit-content' }}>
+            <div style={{
+              background: 'white',
+              borderRadius: '20px',
+              padding: '30px',
+              boxShadow: '0 10px 40px rgba(0,0,0,0.1)'
+            }}>
+              <h3 style={{
+                fontSize: '22px',
+                fontWeight: 'bold',
+                color: '#333',
+                marginBottom: '25px',
+                textAlign: 'center'
+              }}>Order Summary</h3>
+              
+              <div style={{
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '15px',
+                marginBottom: '20px'
+              }}>
+                <div style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  padding: '12px 0',
+                  borderBottom: '1px solid #f0f0f0'
+                }}>
+                  <span style={{ color: '#666' }}>Subtotal</span>
+                  <span style={{ fontWeight: '600', color: '#333' }}>
+                    ₹{formatCurrency(orderData.subtotal)}
+                  </span>
+                </div>
+                
+                <div style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  padding: '12px 0',
+                  borderBottom: '1px solid #f0f0f0',
+                  alignItems: 'center'
+                }}>
+                  <span style={{ color: '#666', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <FaTruck style={{ color: '#667eea' }} />
+                    Shipping
+                  </span>
+                  <span style={{
+                    fontWeight: '600',
+                    color: parseFloat(orderData.shipping) === 0 ? '#10b981' : '#333'
+                  }}>
+                    {parseFloat(orderData.shipping) === 0 ? "FREE" : `₹${formatCurrency(orderData.shipping)}`}
+                  </span>
+                </div>
+                
+                <div style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  padding: '12px 0',
+                  borderBottom: '1px solid #f0f0f0'
+                }}>
+                  <span style={{ color: '#666' }}>Tax (GST)</span>
+                  <span style={{ fontWeight: '600', color: '#333' }}>
+                    ₹{formatCurrency(orderData.tax)}
+                  </span>
+                </div>
+                
+                {parseFloat(orderData.discount) > 0 && (
+                  <div style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    padding: '12px 0',
+                    borderBottom: '1px solid #f0f0f0',
+                    alignItems: 'center'
+                  }}>
+                    <span style={{ color: '#10b981', display: 'flex', alignItems: 'center', gap: '8px', fontWeight: '600' }}>
+                      <FaTag />
+                      Discount
+                    </span>
+                    <span style={{ fontWeight: '600', color: '#10b981' }}>
+                      -₹{formatCurrency(orderData.discount)}
+                    </span>
+                  </div>
+                )}
               </div>
-            )}
-            
-            <hr />
-            
-            <div className="summary-total">
-              <span>Total:</span>
-              <span>₹{formatCurrency(orderData.total)}</span>
-            </div>
-
-            <button 
-              className="payment-btn" 
-              onClick={handlePayment} 
-              disabled={isProcessing}
-            >
-              {isProcessing ? (
-                <><FaSpinner className="spin" /> Processing...</>
-              ) : (
-                <><FaCreditCard /> Proceed to Payment</>
-              )}
-            </button>
-
-            <div className="security-badges">
-              <div className="badge">
-                <FaShieldAlt /> Secure Payment
+              
+              <div style={{
+                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                borderRadius: '15px',
+                padding: '20px',
+                marginBottom: '25px'
+              }}>
+                <div style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  color: 'white'
+                }}>
+                  <span style={{ fontSize: '18px', fontWeight: '600' }}>Total Amount</span>
+                  <span style={{ fontSize: '28px', fontWeight: 'bold' }}>
+                    ₹{formatCurrency(orderData.total)}
+                  </span>
+                </div>
               </div>
-              <div className="badge">
-                <FaTruck /> Fast Delivery
+
+              <button 
+                onClick={handlePayment}
+                disabled={isProcessing}
+                style={{
+                  width: '100%',
+                  background: isProcessing 
+                    ? '#ccc' 
+                    : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                  color: 'white',
+                  border: 'none',
+                  padding: '18px',
+                  borderRadius: '12px',
+                  fontSize: '18px',
+                  fontWeight: 'bold',
+                  cursor: isProcessing ? 'not-allowed' : 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '10px',
+                  transition: 'all 0.3s',
+                  boxShadow: '0 8px 25px rgba(102, 126, 234, 0.4)',
+                  marginBottom: '20px'
+                }}
+                onMouseOver={(e) => {
+                  if (!isProcessing) {
+                    e.target.style.transform = 'translateY(-2px)';
+                    e.target.style.boxShadow = '0 12px 35px rgba(102, 126, 234, 0.5)';
+                  }
+                }}
+                onMouseOut={(e) => {
+                  e.target.style.transform = 'translateY(0)';
+                  e.target.style.boxShadow = '0 8px 25px rgba(102, 126, 234, 0.4)';
+                }}
+              >
+                {isProcessing ? (
+                  <>
+                    <FaSpinner style={{ animation: 'spin 1s linear infinite' }} />
+                    Processing...
+                  </>
+                ) : (
+                  <>
+                    <FaCreditCard />
+                    Proceed to Payment
+                  </>
+                )}
+              </button>
+
+              <div style={{
+                display: 'flex',
+                gap: '15px',
+                justifyContent: 'center'
+              }}>
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  color: '#10b981',
+                  fontSize: '14px',
+                  fontWeight: '600'
+                }}>
+                  <FaShieldAlt />
+                  Secure Payment
+                </div>
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  color: '#667eea',
+                  fontSize: '14px',
+                  fontWeight: '600'
+                }}>
+                  <FaTruck />
+                  Fast Delivery
+                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
+
+      <style>
+        {`
+          @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+          }
+          
+          @keyframes slideUp {
+            0% {
+              opacity: 0;
+              transform: translateY(30px);
+            }
+            100% {
+              opacity: 1;
+              transform: translateY(0);
+            }
+          }
+          
+          @keyframes scaleIn {
+            0% {
+              transform: scale(0);
+            }
+            50% {
+              transform: scale(1.1);
+            }
+            100% {
+              transform: scale(1);
+            }
+          }
+          
+          @media (max-width: 968px) {
+            div[style*="gridTemplateColumns: 1fr 400px"] {
+              grid-template-columns: 1fr !important;
+            }
+          }
+        `}
+      </style>
     </div>
   );
 };
