@@ -1,74 +1,78 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { 
-  FaCheckCircle, 
-  FaSpinner, 
-  FaShieldAlt, 
-  FaTruck, 
-  FaArrowLeft, 
+import {
+  FaCheckCircle,
+  FaSpinner,
+  FaShieldAlt,
+  FaTruck,
+  FaArrowLeft,
   FaCreditCard,
   FaMapMarkerAlt,
   FaEnvelope,
   FaPhone,
   FaBox,
   FaTag,
-  FaPercent,
   FaShoppingBag
 } from "react-icons/fa";
 
 const Checkout = () => {
+  // Add this function before the component state
+  const generateTempOrderId = () => {
+    const chars = '0123456789abcdef';
+    let result = '';
+    for (let i = 0; i < 24; i++) {
+      result += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return result;
+  };
+
   const [isProcessing, setIsProcessing] = useState(false);
   const [paymentSuccess, setPaymentSuccess] = useState(false);
-  const [orderId, setOrderId] = useState("");
-  const [razorpayOrderId, setRazorpayOrderId] = useState("");
+  const [orderId, setOrderId] = useState(generateTempOrderId()); // Add here
   const [orderData, setOrderData] = useState(null);
   const [cartItems, setCartItems] = useState([]);
 
   useEffect(() => {
-    // Load data from localStorage
-    const checkoutData = localStorage.getItem('checkoutData');
+    const checkoutData = localStorage.getItem("checkoutData");
     if (checkoutData) {
       const data = JSON.parse(checkoutData);
       setOrderData(data.orderData);
       setCartItems(data.cartItems);
     } else {
-      // Redirect to cart if no data
       window.location.href = "/cart";
     }
 
-    // Load Razorpay script
     const script = document.createElement("script");
     script.src = "https://checkout.razorpay.com/v1/checkout.js";
     script.async = true;
     document.body.appendChild(script);
-    
+
     return () => {
-      if (document.body.contains(script)) {
-        document.body.removeChild(script);
-      }
+      if (document.body.contains(script)) document.body.removeChild(script);
     };
   }, []);
 
-  const RAZORPAY_KEY = import.meta?.env?.VITE_RAZORPAY_KEY || "YOUR_RAZORPAY_KEY";
+  const RAZORPAY_KEY = "rzp_test_YourTestKey"; // Razorpay test key
 
   const formatCurrency = (value) => {
-    const num = typeof value === 'number' ? value : parseFloat(value || 0);
-    if (Number.isNaN(num)) return '0.00';
+    const num = typeof value === "number" ? value : parseFloat(value || 0);
+    if (Number.isNaN(num)) return "0.00";
     return num.toFixed(2);
   };
 
-  const handlePayment = async () => {
-    setIsProcessing(true);
+const handlePayment = async () => {
+  if (!orderData || cartItems.length === 0) return;
+  setIsProcessing(true);
 
     try {
-      // 1. Create Order in Database + Razorpay Order
+      // Create order payload
       const orderPayload = {
         userId: orderData.userId,
-        products: cartItems.map(item => ({
+        products: cartItems.map((item) => ({
           productId: item.productId._id || item.productId,
           name: item.productId.name,
           price: item.productId.price,
-          quantity: item.quantity
+          quantity: item.quantity,
         })),
         shippingAddress: {
           name: orderData.addressName || "Customer",
@@ -78,115 +82,111 @@ const Checkout = () => {
           city: orderData.city,
           state: orderData.state,
           zip: orderData.zip,
-          country: orderData.country || "India"
+          country: orderData.country || "India",
         },
         subtotal: parseFloat(orderData.subtotal),
         tax: parseFloat(orderData.tax),
         shipping: parseFloat(orderData.shipping),
         discount: parseFloat(orderData.discount || 0),
-        totalAmount: parseFloat(orderData.total)
+        totalAmount: parseFloat(orderData.total),
       };
 
-      const res = await axios.post(
-        "http://localhost:5000/api/orders/create", 
-        orderPayload
-      );
+        const res = await axios.post(
+      "http://localhost:5000/api/orderModel/create",
+      orderPayload
+    );
+    const actualOrderId = order?._id || backendOrderId;
+    setOrderId(actualOrderId);
+      setOrderId(actualOrderId);
 
-      const { order, razorpayOrder } = res.data;
-      setOrderId(order.orderId);
-      setRazorpayOrderId(razorpayOrder.id);
-
-      // 2. Open Razorpay Checkout
+      // Open Razorpay checkout
       const options = {
         key: RAZORPAY_KEY,
         amount: razorpayOrder.amount,
         currency: razorpayOrder.currency,
         name: "GlowCosmetics",
-        description: `Order ${order.orderId}`,
+        description: `Order ${actualOrderId}`,
         order_id: razorpayOrder.id,
-        handler: async function (response) {
-          try {
-            // 3. Update payment status
-            const paymentRes = await axios.post(
-              "http://localhost:5000/api/orders/payment-success",
-              {
-                orderId: order.orderId,
-                paymentId: response.razorpay_payment_id,
-                signature: response.razorpay_signature
-              }
-            );
-
-            if (paymentRes.data.success) {
-              setPaymentSuccess(true);
-              setIsProcessing(false);
-              
-              // Clear cart
-              await axios.delete(
-                `http://localhost:5000/api/CartModel/clear/${orderData.userId}`
-              );
-              
-              // Clear checkout data
-              localStorage.removeItem('checkoutData');
-            }
-          } catch (error) {
-            console.error("Payment verification error:", error);
-            alert("Payment verification failed. Please contact support.");
-            setIsProcessing(false);
-          }
-        },
         prefill: {
           name: orderData.addressName || "Customer",
           email: orderData.email,
           contact: orderData.phone,
         },
-        theme: {
-          color: "#667eea",
-        },
+        theme: { color: "#667eea" },
         modal: {
-          ondismiss: function() {
+          ondismiss: function () {
             setIsProcessing(false);
             alert("Payment cancelled");
+          },
+        },
+        handler: async function (response) {
+          try {
+            const paymentRes = await axios.post(
+              "http://localhost:5000/api/orders/payment-success",
+              {
+                orderId: actualOrderId, // Use the actual order ID
+                paymentId: response.razorpay_payment_id,
+                signature: response.razorpay_signature,
+              }
+            );
+
+            if (paymentRes.data.success) {
+              setPaymentSuccess(true);
+              // Order ID is already set above
+
+              // Clear checkout and cart data
+              localStorage.removeItem("checkoutData");
+              await axios.delete(
+                `http://localhost:5000/api/CartModel/clear/${orderData.userId}`
+              );
+            }
+          } catch (err) {
+            console.error("Payment verification failed:", err);
+            alert("Payment verification failed. Contact support.");
+          } finally {
+            setIsProcessing(false);
           }
-        }
+        },
       };
 
       const rzp = new window.Razorpay(options);
-      rzp.on('payment.failed', function (response) {
+      rzp.on("payment.failed", function (response) {
         alert("Payment failed: " + response.error.description);
         setIsProcessing(false);
       });
-      
       rzp.open();
-      setIsProcessing(false);
-    } catch (error) {
-      console.error("Payment Error:", error);
-      alert("Payment failed: " + (error.response?.data?.message || error.message));
+    } catch (err) {
+      console.error("Payment Error:", err);
+      alert("Payment failed: " + (err.response?.data?.message || err.message));
       setIsProcessing(false);
     }
   };
 
-  // Loading state
   if (!orderData) {
     return (
-      <div style={{
-        minHeight: '100vh',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        background: 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)'
-      }}>
-        <div style={{ textAlign: 'center' }}>
-          <FaSpinner style={{ 
-            fontSize: '50px', 
-            color: '#667eea',
-            animation: 'spin 1s linear infinite'
-          }} />
-          <p style={{ 
-            marginTop: '20px', 
-            fontSize: '18px', 
-            color: '#666',
-            fontWeight: '600'
-          }}>Loading checkout...</p>
+      <div
+        style={{
+          minHeight: "100vh",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          background: "linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)",
+        }}
+      >
+        <div style={{ textAlign: "center" }}>
+          <FaSpinner
+            style={{ fontSize: "50px", color: "#667eea", animation: "spin 1s linear infinite" }}
+          />
+          <p
+            style={{
+              marginTop: "20px",
+              fontSize: "18px",
+              color: "#666",
+              fontWeight: "600",
+            }}
+          >
+            Loading checkout...
+          </p>
         </div>
       </div>
     );
@@ -194,100 +194,108 @@ const Checkout = () => {
 
   if (paymentSuccess) {
     return (
-      <div style={{
-        minHeight: '100vh',
-        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: '20px'
-      }}>
-        <div style={{
-          background: 'white',
-          borderRadius: '20px',
-          padding: '60px 40px',
-          textAlign: 'center',
-          maxWidth: '500px',
-          boxShadow: '0 20px 60px rgba(0,0,0,0.3)',
-          animation: 'slideUp 0.5s ease-out'
-        }}>
-          <div style={{
-            width: '100px',
-            height: '100px',
-            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-            borderRadius: '50%',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            margin: '0 auto 30px',
-            animation: 'scaleIn 0.5s ease-out'
-          }}>
-            <FaCheckCircle style={{ fontSize: '50px', color: 'white' }} />
-          </div>
-          
-          <h1 style={{
-            fontSize: '32px',
-            fontWeight: 'bold',
-            color: '#333',
-            marginBottom: '15px'
-          }}>Payment Successful!</h1>
-          
-          <div style={{
-            background: '#f8f9fa',
-            borderRadius: '12px',
-            padding: '20px',
-            marginBottom: '25px'
-          }}>
-            <p style={{ color: '#666', marginBottom: '10px' }}>Order ID</p>
-            <p style={{ 
-              fontSize: '24px', 
-              fontWeight: 'bold',
-              color: '#667eea',
-              fontFamily: 'monospace'
-            }}>#{orderId}</p>
-          </div>
-          
-          <p style={{ color: '#666', marginBottom: '30px', lineHeight: '1.6' }}>
-            Thank you for your purchase! Your order has been confirmed and will be shipped soon.
-          </p>
-          
-          <div style={{ display: 'flex', gap: '15px', justifyContent: 'center' }}>
-            <button style={{
-              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-              color: 'white',
-              border: 'none',
-              padding: '15px 30px',
-              borderRadius: '10px',
-              fontSize: '16px',
-              fontWeight: '600',
-              cursor: 'pointer',
-              transition: 'transform 0.2s',
-              boxShadow: '0 5px 15px rgba(102, 126, 234, 0.4)'
+      <div
+        style={{
+          minHeight: "100vh",
+          background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          padding: "20px",
+        }}
+      >
+        <div
+          style={{
+            background: "white",
+            borderRadius: "20px",
+            padding: "60px 40px",
+            textAlign: "center",
+            maxWidth: "500px",
+            boxShadow: "0 20px 60px rgba(0,0,0,0.3)",
+            animation: "slideUp 0.5s ease-out",
+          }}
+        >
+          <div
+            style={{
+              width: "100px",
+              height: "100px",
+              background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+              borderRadius: "50%",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              margin: "0 auto 30px",
+              animation: "scaleIn 0.5s ease-out",
             }}
-            onMouseOver={(e) => e.target.style.transform = 'translateY(-2px)'}
-            onMouseOut={(e) => e.target.style.transform = 'translateY(0)'}
+          >
+            <FaCheckCircle style={{ fontSize: "50px", color: "white" }} />
+          </div>
+
+          <h1
+            style={{
+              fontSize: "32px",
+              fontWeight: "bold",
+              color: "#333",
+              marginBottom: "15px",
+            }}
+          >
+            Payment Successful!
+          </h1>
+
+          <div
+            style={{
+              background: "#f8f9fa",
+              borderRadius: "12px",
+              padding: "20px",
+              marginBottom: "25px",
+            }}
+          >
+            <p style={{ color: "#666", marginBottom: "10px" }}>Order ID</p>
+            <p
+              style={{
+                fontSize: "24px",
+                fontWeight: "bold",
+                color: "#667eea",
+                fontFamily: "monospace",
+              }}
+            >
+              #{orderId}
+            </p>
+          </div>
+
+          <p style={{ color: "#666", marginBottom: "30px", lineHeight: "1.6" }}>
+            Thank you for your purchase! Your order has been confirmed and will be
+            shipped soon.
+          </p>
+
+          <div style={{ display: "flex", gap: "15px", justifyContent: "center" }}>
+            <button
+              style={{
+                background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+                color: "white",
+                border: "none",
+                padding: "15px 30px",
+                borderRadius: "10px",
+                fontSize: "16px",
+                fontWeight: "600",
+                cursor: "pointer",
+              }}
+              onClick={() => (window.location.href = "/")}
             >
               Continue Shopping
             </button>
-            <button style={{
-              background: 'white',
-              color: '#667eea',
-              border: '2px solid #667eea',
-              padding: '15px 30px',
-              borderRadius: '10px',
-              fontSize: '16px',
-              fontWeight: '600',
-              cursor: 'pointer',
-              transition: 'all 0.2s'
-            }}
-            onMouseOver={(e) => {
-              e.target.style.background = '#667eea';
-              e.target.style.color = 'white';
-            }}
-            onMouseOut={(e) => {
-              e.target.style.background = 'white';
-              e.target.style.color = '#667eea';
-            }}
+            <button
+              style={{
+                background: "white",
+                color: "#667eea",
+                border: "2px solid #667eea",
+                padding: "15px 30px",
+                borderRadius: "10px",
+                fontSize: "16px",
+                fontWeight: "600",
+                cursor: "pointer",
+              }}
+              onClick={() => (window.location.href = "/orders")}
             >
               View Orders
             </button>
@@ -296,7 +304,6 @@ const Checkout = () => {
       </div>
     );
   }
-
   return (
     <div style={{
       minHeight: '100vh',
@@ -308,15 +315,15 @@ const Checkout = () => {
         padding: '40px 20px',
         marginBottom: '40px'
       }}>
-        <div style={{ 
-          maxWidth: '1200px', 
+        <div style={{
+          maxWidth: '1200px',
           margin: '0 auto',
           display: 'flex',
           alignItems: 'center',
           gap: '20px'
         }}>
           {/* Back Button */}
-          <button 
+          <button
             onClick={() => window.history.back()}
             style={{
               width: '60px',
@@ -356,8 +363,8 @@ const Checkout = () => {
             justifyContent: 'center',
             boxShadow: '0 8px 20px rgba(0, 0, 0, 0.15)'
           }}>
-            <FaShoppingBag style={{ 
-              fontSize: '28px', 
+            <FaShoppingBag style={{
+              fontSize: '28px',
               color: '#667eea'
             }} />
           </div>
@@ -416,15 +423,16 @@ const Checkout = () => {
                 </div>
                 <div>
                   <p style={{ fontSize: '14px', opacity: 0.9, marginBottom: '5px' }}>Order ID</p>
-                  <h3 style={{ 
-                    fontSize: '24px', 
+                  <h3 style={{
+                    fontSize: '24px',
                     fontWeight: 'bold',
                     fontFamily: 'monospace'
-                  }}>#{orderId || `GCP-${Date.now().toString().slice(-6)}`}</h3>
+                  }}>
+                    #{orderId} {/* This will now show the generated ID */}
+                  </h3>
                 </div>
               </div>
             </div>
-
             {/* Shipping Address */}
             <div style={{
               background: 'white',
@@ -444,32 +452,32 @@ const Checkout = () => {
                 <FaMapMarkerAlt style={{ color: '#667eea' }} />
                 Shipping Address
               </h3>
-              
+
               <div style={{
                 background: '#f8f9fa',
                 borderRadius: '15px',
                 padding: '20px'
               }}>
                 <div style={{ marginBottom: '15px' }}>
-                  <p style={{ 
-                    fontSize: '18px', 
-                    fontWeight: 'bold', 
+                  <p style={{
+                    fontSize: '18px',
+                    fontWeight: 'bold',
                     color: '#333',
                     marginBottom: '5px'
                   }}>{orderData.addressName}</p>
                 </div>
-                
+
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                     <FaEnvelope style={{ color: '#667eea', fontSize: '16px' }} />
                     <span style={{ color: '#666' }}>{orderData.email}</span>
                   </div>
-                  
+
                   <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                     <FaPhone style={{ color: '#667eea', fontSize: '16px' }} />
                     <span style={{ color: '#666' }}>{orderData.phone}</span>
                   </div>
-                  
+
                   <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
                     <FaMapMarkerAlt style={{ color: '#667eea', fontSize: '16px', marginTop: '3px' }} />
                     <div style={{ color: '#666' }}>
@@ -497,7 +505,7 @@ const Checkout = () => {
               }}>
                 Order Items ({cartItems.length})
               </h3>
-              
+
               <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
                 {cartItems.map((item, index) => {
                   const product = item.productId;
@@ -511,8 +519,8 @@ const Checkout = () => {
                       alignItems: 'center',
                       transition: 'transform 0.2s'
                     }}
-                    onMouseOver={(e) => e.currentTarget.style.transform = 'translateX(5px)'}
-                    onMouseOut={(e) => e.currentTarget.style.transform = 'translateX(0)'}
+                      onMouseOver={(e) => e.currentTarget.style.transform = 'translateX(5px)'}
+                      onMouseOut={(e) => e.currentTarget.style.transform = 'translateX(0)'}
                     >
                       {/* Product Image */}
                       <div style={{
@@ -524,7 +532,7 @@ const Checkout = () => {
                         background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
                       }}>
                         {product.image ? (
-                          <img 
+                          <img
                             src={`http://localhost:5000/public/images/product_images/${product.image}`}
                             alt={product.name}
                             style={{
@@ -552,10 +560,10 @@ const Checkout = () => {
                           </div>
                         )}
                       </div>
-                      
+
                       <div style={{ flex: 1 }}>
-                        <h4 style={{ 
-                          fontSize: '16px', 
+                        <h4 style={{
+                          fontSize: '16px',
                           fontWeight: '600',
                           color: '#333',
                           marginBottom: '5px'
@@ -564,7 +572,7 @@ const Checkout = () => {
                           ₹{formatCurrency(product.price)} × {item.quantity}
                         </p>
                       </div>
-                      
+
                       <div style={{
                         fontSize: '18px',
                         fontWeight: 'bold',
@@ -594,7 +602,7 @@ const Checkout = () => {
                 marginBottom: '25px',
                 textAlign: 'center'
               }}>Order Summary</h3>
-              
+
               <div style={{
                 display: 'flex',
                 flexDirection: 'column',
@@ -612,7 +620,7 @@ const Checkout = () => {
                     ₹{formatCurrency(orderData.subtotal)}
                   </span>
                 </div>
-                
+
                 <div style={{
                   display: 'flex',
                   justifyContent: 'space-between',
@@ -631,7 +639,7 @@ const Checkout = () => {
                     {parseFloat(orderData.shipping) === 0 ? "FREE" : `₹${formatCurrency(orderData.shipping)}`}
                   </span>
                 </div>
-                
+
                 <div style={{
                   display: 'flex',
                   justifyContent: 'space-between',
@@ -643,7 +651,7 @@ const Checkout = () => {
                     ₹{formatCurrency(orderData.tax)}
                   </span>
                 </div>
-                
+
                 {parseFloat(orderData.discount) > 0 && (
                   <div style={{
                     display: 'flex',
@@ -662,7 +670,7 @@ const Checkout = () => {
                   </div>
                 )}
               </div>
-              
+
               <div style={{
                 background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
                 borderRadius: '15px',
@@ -682,13 +690,13 @@ const Checkout = () => {
                 </div>
               </div>
 
-              <button 
+              <button
                 onClick={handlePayment}
                 disabled={isProcessing}
                 style={{
                   width: '100%',
-                  background: isProcessing 
-                    ? '#ccc' 
+                  background: isProcessing
+                    ? '#ccc'
                     : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
                   color: 'white',
                   border: 'none',

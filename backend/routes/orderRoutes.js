@@ -1,73 +1,75 @@
-const express = require("express");
+const express = require('express');
 const router = express.Router();
-const Order = require("../models/OrderModel");
-const Razorpay = require("razorpay");
+const Order = require('../models/OrderModel');
 
-const razorpay = new Razorpay({
-  key_id: "YOUR_RAZORPAY_KEY",
-  key_secret: "YOUR_RAZORPAY_SECRET",
-});
-
-// Create Order in DB + Razorpay Order
+// Create Order (No Razorpay needed for dummy payments)
 router.post("/create", async (req, res) => {
   try {
-    const {
-      userId,
-      products,
-      shippingAddress,
-      subtotal,
-      tax,
-      shipping,
-      discount,
-      totalAmount
-    } = req.body;
+    const generateOrderId = () => {
+      const date = new Date().toISOString().slice(0,10).replace(/-/g,"");
+      const random = Math.floor(100000 + Math.random() * 900000);
+      return `GLOW-${date}-${random}`;
+    };
 
-    const orderId = "ORDER_" + Date.now();
+    const orderId = generateOrderId();
 
-    // Save order in DB
     const order = new Order({
-      userId,
-      orderId,
-      products,
-      shippingAddress,
-      subtotal,
-      tax,
-      shipping,
-      discount,
-      totalAmount
+      orderId, // 👈 save readable orderId
+      ...req.body,
+      razorpayOrderId: `dummy_${Date.now()}`
     });
 
     await order.save();
 
-    // Create Razorpay order
-    const razorpayOrder = await razorpay.orders.create({
-      amount: totalAmount * 100, // Rs to paise
-      currency: "INR",
-      receipt: orderId
+    res.status(200).json({
+      success: true,
+      order,
+      razorpayOrder: {
+        id: order.razorpayOrderId,
+        amount: Math.round(order.totalAmount * 100),
+        currency: "INR",
+      }
     });
-
-    res.status(200).json({ success: true, order, razorpayOrder });
-  } catch (error) {
-    console.error("Error creating order:", error);
-    res.status(500).json({ success: false, message: "Server Error" });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
   }
 });
 
-// Update payment status
-router.post("/payment-success", async (req, res) => {
+
+// Dummy Payment Success Verification (No signature verification needed)
+router.post('/payment-success', async (req, res) => {
   try {
     const { orderId, paymentId, signature } = req.body;
+    console.log('Dummy payment success:', { orderId, paymentId });
 
-    const order = await Order.findOne({ orderId });
-    if (!order) return res.status(404).json({ success: false, message: "Order not found" });
+    const order = await Order.findOne({ _id: orderId });
+    if (!order) {
+      return res.status(404).json({ 
+        success: false, 
+        message: "Order not found" 
+      });
+    }
 
+    // For dummy payments, always accept the payment
+    // No signature verification needed
     order.paymentStatus = "paid";
+    order.razorpayPaymentId = paymentId || `pay_dummy_${Date.now()}`;
     await order.save();
 
-    res.status(200).json({ success: true, message: "Payment successful" });
+    console.log('Dummy payment completed for order:', orderId);
+
+    res.json({ 
+      success: true, 
+      message: "Dummy payment verified successfully",
+      orderId: order._id
+    });
   } catch (error) {
-    console.error("Payment success error:", error);
-    res.status(500).json({ success: false, message: "Server Error" });
+    console.error('Dummy payment verification error:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: "Dummy payment verification failed", 
+      error: error.message 
+    });
   }
 });
 

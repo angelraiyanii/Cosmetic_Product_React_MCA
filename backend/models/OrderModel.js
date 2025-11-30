@@ -1,33 +1,18 @@
 const mongoose = require("mongoose");
 
 const orderSchema = new mongoose.Schema({
+  orderId: { type: String, unique: true }, // 👈 Custom readable ID
   userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
-  orderId: { type: String, required: true, unique: true },
-  products: [
-    {
-      productId: { type: mongoose.Schema.Types.ObjectId, ref: "Product" },
-      name: String,
-      price: Number,
-      quantity: Number
-    }
-  ],
-  shippingAddress: {
-    name: String,
-    email: String,
-    phone: String,
-    address: String,
-    city: String,
-    state: String,
-    zip: String,
-    country: String
-  },
+  products: Array,
+  shippingAddress: Object,
   subtotal: Number,
   tax: Number,
   shipping: Number,
   discount: Number,
   totalAmount: Number,
-  paymentStatus: { type: String, default: "pending" }, // pending, paid
-  createdAt: { type: Date, default: Date.now }
-});
+  paymentStatus: { type: String, default: "pending" },
+  razorpayOrderId: String,
+  razorpayPaymentId: String,
+}, { timestamps: true });
 
 module.exports = mongoose.model("Order", orderSchema);

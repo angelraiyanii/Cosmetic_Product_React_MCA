@@ -44,13 +44,8 @@ const offerRoutes = require('./offerRoutes');
 router.use("/OfferModel", offerRoutes);
 
 //order
-const orderRoutes = require("./orderRoutes");
-router.use("/orderModel", orderRoutes);
-
-//pyment
-const paymentRoutes = require("./PaymentRoutes");
-router.use("/payment", paymentRoutes);
-
+const orderRoutes = require('./orderRoutes');
+router.use('/orderModel', orderRoutes);
 
 // Test route
 router.get("/", (req, res) => {
