@@ -11,7 +11,7 @@ import Category from './component/Category'
 import Product from './component/Product'
 import Ct_product from './component/Ct_product'
 import SinglePro from './component/SinglePro'
-import  Wishlist  from './component/Wishlist'
+import Wishlist from './component/Wishlist'
 import Cart from './component/Cart'
 import Contactus from './component/Contactus'
 import Aboutus from './component/Aboutus'
@@ -19,6 +19,8 @@ import Account from './component/Account'
 import ForgotPassword from "./component/ForgotPassword";
 import OTPVerification from "./component/OTPVerification";
 import ResetPassword from "./component/ResetPassword";
+// import OrderSuccess from './component/OrderSuccess'
+import Checkout from './component/Checkout'
 // Admin Called
 import AdCategory from './component/Admin/AdCategory'
 import AdPro from './component/Admin/AdPro'
@@ -27,6 +29,7 @@ import AdAbout from './component/Admin/AdAbout'
 import AdBanner from "./component/Admin/AdBanner";
 import AdContact from './component/Admin/AdContact'
 import AdUser from './component/Admin/AdUser'
+import AdOffers from './component/Admin/AdOffers';
 
 // import OfferBanner from './component/OfferBanner'
 
@@ -51,7 +54,7 @@ function App() {
             </>
           }
         />
-        
+
         <Route path="/Userlogin" element={<Userlogin />} />
         <Route path="/login" element={<Login />} />
         <Route path='/Slider' element={<Slider />} />
@@ -67,7 +70,8 @@ function App() {
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/otp-verification" element={<OTPVerification />} />
         <Route path="/reset-password" element={<ResetPassword />} />
-        
+        {/* <Route path="/order-success" element={<OrderSuccess />} /> */}
+        <Route path="/checkout" element={<Checkout />} />
 
         <Route path='/Admin/AdAbout' element={<AdAbout />} />
         <Route path='/Admin/ASlider' element={<ASlider />} />
@@ -75,7 +79,8 @@ function App() {
         <Route path="/Admin/AdCategory" element={<AdCategory />} />
         <Route path="/Admin/AdPro" element={<AdPro />} />
         <Route path="/Admin/AdContact" element={<AdContact />} />
-        <Route path="/Admin/AdUser" element={<AdUser/>}/>
+        <Route path="/Admin/AdUser" element={<AdUser />} />
+        <Route path="/Admin/AdOffers" element={<AdOffers />} />
       </Routes>
 
       {/* Always visible */}

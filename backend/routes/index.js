@@ -39,6 +39,19 @@ router.use("/ContactModel", contactRoutes);
 const otpRoutes = require("./otpRoutes");
 router.use("/OtpModel", otpRoutes);
 
+// Offer
+const offerRoutes = require('./offerRoutes');
+router.use("/OfferModel", offerRoutes);
+
+//order
+const orderRoutes = require("./orderRoutes");
+router.use("/orderModel", orderRoutes);
+
+//pyment
+const paymentRoutes = require("./PaymentRoutes");
+router.use("/payment", paymentRoutes);
+
+
 // Test route
 router.get("/", (req, res) => {
   res.json({ message: 'API is working!' });

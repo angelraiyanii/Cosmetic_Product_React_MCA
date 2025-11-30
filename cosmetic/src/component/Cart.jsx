@@ -51,11 +51,6 @@ class CheckoutForm extends Component {
     };
   }
 
-  componentDidMount() {
-    this.fetchUserData();
-    this.loadAddressesFromLocalStorage();
-  }
-
   // Load addresses from localStorage
   loadAddressesFromLocalStorage = () => {
     try {
@@ -65,10 +60,10 @@ class CheckoutForm extends Component {
       const user = JSON.parse(userData);
       const userId = user.id;
       const storedAddresses = localStorage.getItem(`user_addresses_${userId}`);
-      
+
       if (storedAddresses) {
         const addresses = JSON.parse(storedAddresses);
-        this.setState({ 
+        this.setState({
           addresses,
           selectedAddressId: addresses.length > 0 ? addresses[0]._id : null
         });
@@ -92,10 +87,14 @@ class CheckoutForm extends Component {
     }
   };
 
+  componentDidMount() {
+    this.fetchUserData();
+    this.loadAddressesFromLocalStorage();
+  }
+
   fetchUserData = async () => {
     try {
       const userData = localStorage.getItem("user") || localStorage.getItem("admin");
-
       if (!userData) {
         this.setState({ isLoadingUser: false });
         return;
@@ -104,81 +103,37 @@ class CheckoutForm extends Component {
       const user = JSON.parse(userData);
       const userId = user.id;
 
-      const response = await axios.get(
-        `http://localhost:5000/api/Login/user-details/${userId}`
-      );
+      const res = await axios.get(`http://localhost:5000/api/Login/user-details/${userId}`);
 
-      const fetchedData = response.data.user;
+      // Create main address from user profile
+      const mainAddress = {
+        _id: "main",
+        name: "Primary Address",
+        email: res.data.email,
+        phone: res.data.mobile || "",
+        address: res.data.address || "",
+        city: this.extractCityFromAddress(res.data.address),
+        state: this.extractStateFromAddress(res.data.address),
+        zip: res.data.zip || "",
+        country: "India",
+        isDefault: true
+      };
 
-      console.log("Fetched user data:", fetchedData);
-
-      const userEmail = fetchedData.email ||
-        fetchedData.Email ||
-        user.email ||
-        user.Email ||
-        "";
-
-      console.log("Extracted email:", userEmail);
-
-      // Check if we already have addresses in localStorage
-      const storedAddresses = localStorage.getItem(`user_addresses_${userId}`);
-      let addresses = [];
-      let selectedAddressId = null;
-
-      if (storedAddresses) {
-        // Use addresses from localStorage
-        addresses = JSON.parse(storedAddresses);
-        selectedAddressId = addresses.length > 0 ? addresses[0]._id : null;
-      } else {
-        // Create main address from user profile data (only if no stored addresses)
-        const userMainAddress = {
-          _id: "main",
-          name: "Primary",
-          email: userEmail,
-          phone: fetchedData.mobile || fetchedData.Mobile || fetchedData.phone || "",
-          address: fetchedData.address || fetchedData.Address || "",
-          city: this.extractCityFromAddress(fetchedData.address || fetchedData.Address || ""),
-          state: this.extractStateFromAddress(fetchedData.address || fetchedData.Address || ""),
-          zip: fetchedData.pincode || fetchedData.Pincode || fetchedData.zip || "",
-          country: "India",
-          isDefault: true
-        };
-
-        addresses = [userMainAddress];
-        selectedAddressId = "main";
-        
-        // Save to localStorage
-        this.saveAddressesToLocalStorage(addresses);
-      }
+      // Combine main address with saved addresses
+      const savedAddresses = this.state.addresses.filter(addr => addr._id !== "main");
+      const allAddresses = [mainAddress, ...savedAddresses];
 
       this.setState({
-        userEmail: userEmail,
-        userData: fetchedData,
-        addresses: addresses,
-        selectedAddressId: selectedAddressId,
-        phone: fetchedData.mobile || fetchedData.Mobile || fetchedData.phone || "",
-        address: fetchedData.address || fetchedData.Address || "",
-        city: this.extractCityFromAddress(fetchedData.address || fetchedData.Address || ""),
-        state: this.extractStateFromAddress(fetchedData.address || fetchedData.Address || ""),
-        zip: fetchedData.pincode || fetchedData.Pincode || fetchedData.zip || "",
-        isLoadingUser: false,
+        userData: res.data,
+        userEmail: res.data.email,
+        addresses: allAddresses,
+        selectedAddressId: allAddresses.length > 0 ? allAddresses[0]._id : null,
+        phone: res.data.mobile || "",
+        isLoadingUser: false
       });
-    } catch (error) {
-      console.error("Error fetching user data:", error);
-      console.error("Error details:", error.response?.data);
+    } catch (err) {
+      console.error("Error fetching user data:", err);
       this.setState({ isLoadingUser: false });
-
-      // Fallback: Try to get email from localStorage
-      const userData = localStorage.getItem("user") || localStorage.getItem("admin");
-      if (userData) {
-        const user = JSON.parse(userData);
-        if (user.email || user.Email) {
-          this.setState({
-            userEmail: user.email || user.Email,
-            phone: user.mobile || user.Mobile || user.phone || ""
-          });
-        }
-      }
     }
   };
 
@@ -252,7 +207,7 @@ class CheckoutForm extends Component {
 
     // Remove from local state and localStorage
     const updatedAddresses = this.state.addresses.filter(addr => addr._id !== addressId);
-    
+
     this.setState({
       addresses: updatedAddresses,
       selectedAddressId: updatedAddresses.length > 0 ? updatedAddresses[0]._id : null
@@ -350,7 +305,7 @@ class CheckoutForm extends Component {
       const userData = localStorage.getItem("user") || localStorage.getItem("admin");
 
       if (!userData) {
-        alert("Please login to place order");
+        alert("Please login to Continue");
         window.location.href = "/login";
         return;
       }
@@ -362,41 +317,38 @@ class CheckoutForm extends Component {
         addr => addr._id === this.state.selectedAddressId
       );
 
+      // Prepare order data to pass to Checkout page
       const orderData = {
         userId,
         email: selectedAddress.email,
         phone: selectedAddress.phone,
-        address: `${selectedAddress.name}: ${selectedAddress.address}, ${selectedAddress.city}, ${selectedAddress.state} - ${selectedAddress.zip}`,
+        address: selectedAddress.address,
         city: selectedAddress.city,
         state: selectedAddress.state,
         zip: selectedAddress.zip,
         country: selectedAddress.country,
-        totalAmount: this.props.total,
-        discount: this.props.discount || 0,
+        addressName: selectedAddress.name,
         subtotal: this.props.subtotal,
         tax: this.props.tax,
         shipping: this.props.shipping,
+        discount: this.props.discount || 0,
+        total: this.props.total,
       };
 
-      const response = await axios.post(
-        "http://localhost:5000/api/orders/create",
-        orderData
-      );
+      // Store order data in localStorage to pass to checkout page
+      localStorage.setItem('checkoutData', JSON.stringify({
+        orderData,
+        cartItems: this.props.cartItems
+      }));
 
-      alert("Order placed successfully!");
-
-      // Clear cart
-      await axios.delete(`http://localhost:5000/api/CartModel/clear/${userId}`);
-
-      // Redirect to home or orders page
-      window.location.href = "/";
+      // Navigate to checkout page
+      window.location.href = "/checkout";
 
     } catch (error) {
-      console.error("Error creating order:", error);
-      alert("Failed to place order: " + (error.response?.data?.error || error.message));
+      console.error("Error preparing checkout:", error);
+      alert("Failed to proceed: " + (error.message || "Unknown error"));
     }
   };
-
   render() {
     const { subtotal, discount, tax, shipping, total, onBack } = this.props;
     const {
@@ -709,7 +661,7 @@ class CheckoutForm extends Component {
 
                   <button className="checkout-btn" onClick={this.handleCheckout}>
                     <FaCheck className="me-2" />
-                    Place Order
+                    Continue to Payment
                     <span className="btn-amount">${total}</span>
                   </button>
 
@@ -750,7 +702,7 @@ class CheckoutForm extends Component {
   }
 }
 
-// The Cart component remains exactly the same as in your original code
+// The Cart component
 export class Cart extends Component {
   constructor() {
     super();
@@ -914,9 +866,10 @@ export class Cart extends Component {
     }
   };
 
-  proceedToCheckout = () => {
-    this.setState({ showCheckout: true });
-  };
+ proceedToCheckout = () => {
+  localStorage.setItem('cartItemsForCheckout', JSON.stringify(this.state.cartItems));
+  this.setState({ showCheckout: true });
+};
 
   handleBackToCart = () => {
     this.setState({ showCheckout: false });
@@ -986,19 +939,20 @@ export class Cart extends Component {
         </div>
       );
     }
-
     // Show checkout form
-    if (showCheckout) {
-      return (
-        <CheckoutForm
-          subtotal={this.calculateSubtotal()}
-          tax={this.calculateTax()}
-          shipping={this.calculateShipping()}
-          total={this.calculateTotal()}
-          onBack={this.handleBackToCart}
-        />
-      );
-    }
+  if (showCheckout) {
+  return (
+    <CheckoutForm
+      subtotal={this.calculateSubtotal()}
+      tax={this.calculateTax()}
+      shipping={this.calculateShipping()}
+      total={this.calculateTotal()}
+      discount={0}
+      cartItems={this.state.cartItems}
+      onBack={this.handleBackToCart}
+    />
+  );
+}
 
     const subtotal = parseFloat(this.calculateSubtotal());
 
@@ -1201,7 +1155,7 @@ export class Cart extends Component {
                   <button className="checkout-btn" onClick={this.proceedToCheckout}>
                     <div className="btn-content">
                       <FaCreditCard className="me-3" />
-                      <span>Proceed to Checkout</span>
+                      <span>Place to Address</span>
                     </div>
                     <span className="btn-amount">${this.calculateTotal()}</span>
                   </button>
