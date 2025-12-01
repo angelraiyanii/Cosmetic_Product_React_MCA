@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { FaHeart, FaShoppingCart, FaEye, FaStar, FaFilter } from "react-icons/fa";
+import { FaHeart, FaShoppingCart, FaEye, FaStar, FaFilter, FaBolt } from "react-icons/fa";
 import Category from "../component/Category";
 import placeholder from "./images/c1.jpeg";
 
@@ -10,7 +10,7 @@ export default function Ct_product() {
   const [activeCategories, setActiveCategories] = useState([]);
   const [liked, setLiked] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState(null);
-  const [isLoading, setIsLoading] = useState(true); // Start with true
+  const [isLoading, setIsLoading] = useState(true);
   const [isLikeLoading, setIsLikeLoading] = useState(false);
   const [sortOption, setSortOption] = useState("featured");
   const [searchQuery, setSearchQuery] = useState("");
@@ -61,24 +61,21 @@ export default function Ct_product() {
     }
   }, [location.search]);
 
-  // Fetch products - simplified approach like in Product component
+  // Fetch products
   useEffect(() => {
     const fetchProducts = async () => {
       try {
         setIsLoading(true);
         
-        // Always fetch all products first (like in Product component)
         const response = await axios.get("http://localhost:5000/api/ProductModel/");
         const allProducts = response.data;
         
-        // Filter products by active categories and status
         const activeCategoryNames = activeCategories.map(cat => cat.categoryName);
         let filteredProducts = allProducts.filter((product) =>
           product.status === "active" &&
           (activeCategoryNames.length === 0 || activeCategoryNames.includes(product.category?.categoryName))
         );
         
-        // Further filter by selected category if one is chosen
         if (selectedCategory) {
           filteredProducts = filteredProducts.filter(product => 
             product.category?.categoryName === selectedCategory
@@ -87,11 +84,9 @@ export default function Ct_product() {
 
         setProducts(filteredProducts);
         
-        // Initialize liked array
         const initialLiked = new Array(filteredProducts.length).fill(false);
         setLiked(initialLiked);
 
-        // Check user wishlist
         const userData = localStorage.getItem("user") || localStorage.getItem("admin");
         if (userData) {
           try {
@@ -115,7 +110,6 @@ export default function Ct_product() {
         }
       } catch (error) {
         console.error("Error fetching products:", error);
-        // Fallback data for cosmetics
         const fallbackProducts = [
           {
             _id: "fallback1",
@@ -157,7 +151,6 @@ export default function Ct_product() {
           },
         ];
         
-        // Filter fallback by selected category
         const filteredFallback = selectedCategory 
           ? fallbackProducts.filter(p => p.category?.categoryName === selectedCategory)
           : fallbackProducts;
@@ -169,7 +162,6 @@ export default function Ct_product() {
       }
     };
 
-    // Only fetch products after categories are loaded or if we have a selected category from URL
     if (activeCategories.length > 0 || selectedCategory) {
       fetchProducts();
     }
@@ -202,7 +194,6 @@ export default function Ct_product() {
         );
         alert("Added to wishlist!");
       } else {
-        // Remove from wishlist
         await axios.delete(`http://localhost:5000/api/WishlistModel/${userId}/${productId}`);
         setLiked((prevLiked) =>
           prevLiked.map((likedState, i) => (i === index ? false : likedState))
@@ -258,7 +249,45 @@ export default function Ct_product() {
           (error.response?.data?.error || error.message)
       );
     } finally {
-      setIsLoading(currentLoading); // Restore previous loading state
+      setIsLoading(currentLoading);
+    }
+  };
+
+  // Buy Now functionality
+  const handleBuyNow = async (productId) => {
+    const userData = localStorage.getItem("user") || localStorage.getItem("admin");
+
+    if (!userData) {
+      window.location.href = "/login";
+      return;
+    }
+
+    try {
+      const user = JSON.parse(userData);
+      const userId = user.id;
+
+      // First, add the product to cart
+      const response = await axios.post(
+        "http://localhost:5000/api/CartModel/add",
+        {
+          userId,
+          productId,
+        }
+      );
+
+      console.log("Added to cart for checkout:", response.data);
+      
+      // Redirect to checkout page
+      navigate("/Checkout");
+    } catch (error) {
+      console.error(
+        "Error in Buy Now:",
+        error.response?.data || error.message
+      );
+      alert(
+        "Failed to process Buy Now: " +
+          (error.response?.data?.error || error.message)
+      );
     }
   };
 
@@ -274,9 +303,8 @@ export default function Ct_product() {
 
   // Get filtered and sorted products
   const getProcessedProducts = () => {
-    let filteredProducts = [...products]; // Create a copy
+    let filteredProducts = [...products];
     
-    // Filter by search query
     if (searchQuery) {
       filteredProducts = filteredProducts.filter(product =>
         product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -284,7 +312,6 @@ export default function Ct_product() {
       );
     }
     
-    // Sort products
     switch(sortOption) {
       case "price-low":
         filteredProducts.sort((a, b) => a.price - b.price);
@@ -299,7 +326,6 @@ export default function Ct_product() {
         filteredProducts.sort((a, b) => (b.rating || 0) - (a.rating || 0));
         break;
       default:
-        // Default sorting (featured)
         break;
     }
     
@@ -427,24 +453,35 @@ export default function Ct_product() {
                         </Link>
                       </div>
                       
-                      {/* Add to Cart Button on Hover */}
-                      <div className="cosmetic-add-to-cart position-absolute bottom-0 w-100 text-center p-2">
-                        <button
-                          className="btn btn-dark w-100 rounded-pill"
-                          onClick={() => addToCart(product._id)}
-                          disabled={isLoading}
-                        >
-                          {isLoading ? (
-                            <div className="spinner-border spinner-border-sm" role="status">
-                              <span className="visually-hidden">Loading...</span>
-                            </div>
-                          ) : (
-                            <>
-                              <FaShoppingCart className="me-2" />
-                              Add to Cart
-                            </>
-                          )}
-                        </button>
+                      {/* Action Buttons on Hover */}
+                      <div className="cosmetic-add-to-cart position-absolute bottom-0 w-100 p-2">
+                        <div className="d-flex gap-2">
+                          <button
+                            className="btn btn-dark w-50 rounded-pill d-flex align-items-center justify-content-center"
+                            onClick={() => addToCart(product._id)}
+                            disabled={isLoading}
+                          >
+                            {isLoading ? (
+                              <div className="spinner-border spinner-border-sm" role="status">
+                                <span className="visually-hidden">Loading...</span>
+                              </div>
+                            ) : (
+                              <>
+                                <FaShoppingCart className="me-2" />
+                                Add to Cart
+                              </>
+                            )}
+                          </button>
+                          
+                          <button
+                            className="btn glow-buy-now w-50 rounded-pill d-flex align-items-center justify-content-center"
+                            onClick={() => handleBuyNow(product._id)}
+                            disabled={isLoading}
+                          >
+                            <FaBolt className="me-2" />
+                            Buy Now
+                          </button>
+                        </div>
                       </div>
                     </div>
                     
@@ -479,7 +516,7 @@ export default function Ct_product() {
         )}
       </div>
       
-      {/* Add custom CSS */}
+      {/* Add custom CSS with your website's color scheme */}
       <style>
         {`
           .cosmetic-category-container {
@@ -554,6 +591,62 @@ export default function Ct_product() {
           .discount-badge {
             font-size: 12px;
             font-weight: bold;
+          }
+          
+          .cosmetic-add-to-cart .btn {
+            font-size: 0.8rem;
+            padding: 0.5rem;
+            white-space: nowrap;
+          }
+          
+          /* Custom Buy Now button with your website's color scheme */
+          .glow-buy-now {
+            background: linear-gradient(135deg, #8B5CF6 0%, #D946EF 100%);
+            border: none;
+            color: white;
+            font-weight: 600;
+            transition: all 0.3s ease;
+          }
+          
+          .glow-buy-now:hover {
+            background: linear-gradient(135deg, #7C3AED 0%, #C026D3 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(139, 92, 246, 0.3);
+            color: white;
+          }
+          
+          .glow-buy-now:active {
+            transform: translateY(0);
+            background: linear-gradient(135deg, #6D28D9 0%, #A21CAF 100%);
+          }
+          
+          .glow-buy-now:disabled {
+            background: #A78BFA;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+          }
+          
+          /* Optional: Style for the "Add to Cart" button to match */
+          .cosmetic-add-to-cart .btn-dark {
+            background: #1F2937;
+            border: none;
+            transition: all 0.3s ease;
+          }
+          
+          .cosmetic-add-to-cart .btn-dark:hover {
+            background: #111827;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+          }
+          
+          .cosmetic-add-to-cart .btn-dark:active {
+            transform: translateY(0);
+          }
+          
+          /* Optional: Purple accent for loading spinner */
+          .text-primary {
+            color: #8B5CF6 !important;
           }
         `}
       </style>
