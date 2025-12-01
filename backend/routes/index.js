@@ -5,8 +5,8 @@ const router = express.Router();
 router.get('/', (req, res) => {
   res.json({ message: 'API is working!' });
 });
-// const express = require("express");
-// const router = express.Router();
+router.use('/public', express.static('public'));
+
 // User 
 const Userroutes = require("./userroutes");
 router.use("/UserModel", Userroutes);

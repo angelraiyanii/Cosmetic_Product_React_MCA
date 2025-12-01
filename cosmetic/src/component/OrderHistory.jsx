@@ -13,7 +13,8 @@ import {
   FaArrowLeft,
   FaReceipt,
   FaChevronDown,
-  FaChevronUp
+  FaChevronUp,
+  FaImage
 } from 'react-icons/fa';
 
 const OrderHistory = () => {
@@ -21,49 +22,132 @@ const OrderHistory = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [expandedOrders, setExpandedOrders] = useState(new Set());
+  const [userId, setUserId] = useState(null);
+  const [selectedImage, setSelectedImage] = useState(null);
 
-  // Get userId from localStorage or your auth system
-  const userId = localStorage.getItem('userId');
-
-  useEffect(() => {
-    fetchOrders();
-  }, []);
-
-  // Function to get the full image URL
   const getImageUrl = (imagePath) => {
     if (!imagePath) return null;
+    
+    if (imagePath.startsWith('http')) {
+      return imagePath;
+    }
+    
+    if (imagePath.includes('/')) {
+      return `http://localhost:5000/${imagePath}`;
+    }
+    
     return `http://localhost:5000/public/images/product_images/${imagePath}`;
   };
 
-  const fetchOrders = async () => {
+  const getProductImage = (item) => {
+    return item.productId?.productImage ||
+      item.productId?.productImageName ||
+      item.productId?.product_image ||
+      item.productId?.image ||
+      item.image ||
+      null;
+  };
+
+  // Function to open image preview
+  const openImagePreview = (imagePath) => {
+    if (imagePath) {
+      setSelectedImage(getImageUrl(imagePath));
+    }
+  };
+
+  useEffect(() => {
+    const getUserId = () => {
+      try {
+        const userStr = localStorage.getItem('user');
+        if (userStr) {
+          const user = JSON.parse(userStr);
+          console.log('✅ User found in localStorage:', user);
+          return user.id;
+        }
+        console.log('❌ No user found in localStorage');
+        return null;
+      } catch (err) {
+        console.error('❌ Error parsing user from localStorage:', err);
+        return null;
+      }
+    };
+
+    const id = getUserId();
+    setUserId(id);
+
+    if (id) {
+      fetchOrders(id);
+    } else {
+      setError('Please log in to view your order history');
+      setLoading(false);
+    }
+  }, []);
+
+  const fetchOrders = async (id) => {
     try {
       setLoading(true);
-      console.log('Fetching orders for userId:', userId);
-      
-      // Try to fetch user-specific orders first
-      const response = await fetch(`http://localhost:5000/api/orderModel/user/${userId}`);
-      console.log('Response status:', response.status);
-      
+      console.log('🔍 Fetching orders for userId:', id);
+
+      const response = await fetch(`http://localhost:5000/api/OrderModel/user/${id}`);
+      console.log('📡 Response status:', response.status);
+
       const data = await response.json();
-      console.log('Response data:', data);
-      
+      console.log('📦 Response data:', data);
+
       if (data.success) {
-        console.log('Orders found:', data.orders.length);
-        
-        // If no orders found, show debug info
-        if (data.orders.length === 0) {
-          console.warn('⚠️ No orders found for this userId!');
-          console.log('💡 To debug: Visit http://localhost:5000/api/orderModel/debug/all');
-          console.log('💡 Then update userId in localStorage with the correct value');
-        }
-        
-        setOrders(data.orders);
+        console.log('✅ Orders found:', data.orders.length);
+
+        const transformedOrders = data.orders.map(order => {
+          if (order.items && order.items.length > 0) {
+            return {
+              ...order,
+              products: order.items.map(item => {
+                const productImage = getProductImage(item);
+
+                return {
+                  _id: item.productId?._id || item.productId,
+                  name: item.productId?.productName ||
+                    item.productId?.name ||
+                    'Unknown Product',
+                  price: item.price,
+                  quantity: item.quantity,
+                  size: item.size,
+                  image: productImage,
+                  fullProduct: item.productId
+                };
+              }),
+              orderId: order._id.substring(order._id.length - 8).toUpperCase(),
+              totalAmount: order.total || 0,
+              subtotal: order.subtotal || 0,
+              tax: order.tax || 0,
+              shipping: order.shipping || 0,
+              discount: order.discount || 0,
+              paymentStatus: order.status || 'pending',
+              shippingAddress: order.shippingAddress || {
+                name: 'N/A',
+                address: 'N/A',
+                city: 'N/A',
+                state: 'N/A',
+                zip: 'N/A',
+                country: 'India',
+                email: 'N/A',
+                phone: 'N/A'
+              },
+              createdAt: order.createdAt || new Date().toISOString()
+            };
+          }
+          return order;
+        });
+
+        console.log('🔄 Transformed orders:', transformedOrders);
+        setOrders(transformedOrders);
+        setError('');
       } else {
-        console.error('API returned success: false');
+        console.error('❌ API returned success: false');
         setError(data.message || 'Failed to fetch orders');
       }
     } catch (err) {
-      console.error('Error fetching orders:', err);
+      console.error('❌ Error fetching orders:', err);
       setError(`Failed to load order history: ${err.message}`);
     } finally {
       setLoading(false);
@@ -139,14 +223,9 @@ const OrderHistory = () => {
     return configs[status] || configs.pending;
   };
 
-  // Function to handle image loading errors
-  const handleImageError = (e) => {
-    // Hide the broken image and show placeholder
-    e.target.style.display = 'none';
-    const placeholder = e.target.parentElement.querySelector('.image-placeholder');
-    if (placeholder) {
-      placeholder.style.display = 'flex';
-    }
+  // Function to close image preview
+  const closeImagePreview = () => {
+    setSelectedImage(null);
   };
 
   if (loading) {
@@ -356,7 +435,7 @@ const OrderHistory = () => {
                   overflow: 'hidden',
                   transition: 'all 0.3s'
                 }}>
-                  {/* Order Header */}
+                  {/* Order Header - FIXED: Removed product reference */}
                   <div style={{
                     padding: '25px 30px',
                     background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
@@ -367,22 +446,37 @@ const OrderHistory = () => {
                     flexWrap: 'wrap',
                     gap: '15px'
                   }}>
-                    <div>
-                      <p style={{
-                        fontSize: '14px',
-                        opacity: 0.9,
-                        marginBottom: '5px'
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+                      {/* Show a simple order icon instead of product image */}
+                      <div style={{
+                        width: '50px',
+                        height: '50px',
+                        borderRadius: '12px',
+                        background: 'rgba(255, 255, 255, 0.2)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        flexShrink: 0
                       }}>
-                        Order ID
-                      </p>
-                      <h3 style={{
-                        fontSize: '20px',
-                        fontWeight: 'bold',
-                        fontFamily: 'monospace',
-                        margin: 0
-                      }}>
-                        #{order.orderId}
-                      </h3>
+                        <FaBox style={{ fontSize: '24px' }} />
+                      </div>
+                      <div>
+                        <p style={{
+                          fontSize: '14px',
+                          opacity: 0.9,
+                          marginBottom: '5px'
+                        }}>
+                          Order ID
+                        </p>
+                        <h3 style={{
+                          fontSize: '20px',
+                          fontWeight: 'bold',
+                          fontFamily: 'monospace',
+                          margin: 0
+                        }}>
+                          #{order.orderId}
+                        </h3>
+                      </div>
                     </div>
 
                     <div style={{
@@ -572,9 +666,19 @@ const OrderHistory = () => {
                             flexDirection: 'column',
                             gap: '12px'
                           }}>
-                            {order.products.map((item, index) => {
-                              const imageUrl = getImageUrl(item.image);
-                              
+                            {order.products.map((product, index) => {
+                              const imagePath = product.image || product.fullProduct?.productImage || product.fullProduct?.image;
+                              const imageUrl = getImageUrl(imagePath);
+
+                              console.debug('Product image data:', {
+                                index,
+                                productName: product.name,
+                                imagePath,
+                                imageUrl,
+                                hasImage: !!imagePath,
+                                productData: product
+                              });
+
                               return (
                                 <div key={index} style={{
                                   display: 'flex',
@@ -582,52 +686,80 @@ const OrderHistory = () => {
                                   gap: '15px',
                                   padding: '12px',
                                   background: '#f8f9fa',
-                                  borderRadius: '10px'
+                                  borderRadius: '10px',
+                                  transition: 'all 0.3s'
                                 }}>
-                                  {/* Product Image */}
-                                  <div style={{
-                                    width: '80px',
-                                    height: '80px',
-                                    borderRadius: '8px',
-                                    overflow: 'hidden',
-                                    flexShrink: 0,
-                                    background: '#fff',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    position: 'relative',
-                                    border: '1px solid #e9ecef'
-                                  }}>
+                                  {/* Product Image - Clickable for preview */}
+                                  <div
+                                    style={{
+                                      width: '80px',
+                                      height: '80px',
+                                      borderRadius: '8px',
+                                      overflow: 'hidden',
+                                      flexShrink: 0,
+                                      background: '#fff',
+                                      display: 'flex',
+                                      alignItems: 'center',
+                                      justifyContent: 'center',
+                                      position: 'relative',
+                                      border: '1px solid #e9ecef',
+                                      cursor: imageUrl ? 'pointer' : 'default'
+                                    }}
+                                    onClick={() => imageUrl && openImagePreview(imagePath)}
+                                  >
                                     {imageUrl ? (
-                                      <img 
-                                        src={imageUrl} 
-                                        alt={item.name}
+                                      <img
+                                        src={imageUrl}
+                                        alt={product.name}
                                         style={{
                                           width: '100%',
                                           height: '100%',
-                                          objectFit: 'cover'
+                                          objectFit: 'cover',
+                                          transition: 'transform 0.3s'
                                         }}
-                                        onError={handleImageError}
+                                        onError={(e) => {
+                                          console.error('Image failed to load:', imageUrl);
+                                          e.target.style.display = 'none';
+                                          e.target.parentElement.innerHTML = `
+                                            <div style="
+                                              width: 100%;
+                                              height: 100%;
+                                              display: flex;
+                                              align-items: center;
+                                              justify-content: center;
+                                              background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                                              color: white;
+                                              font-size: 30px;
+                                              font-weight: bold;
+                                              text-transform: uppercase;
+                                            ">
+                                              ${product.name.charAt(0)}
+                                            </div>
+                                          `;
+                                        }}
+                                        onMouseOver={(e) => {
+                                          if (imageUrl) e.target.style.transform = 'scale(1.05)';
+                                        }}
+                                        onMouseOut={(e) => {
+                                          if (imageUrl) e.target.style.transform = 'scale(1)';
+                                        }}
                                       />
-                                    ) : null}
-                                    <div 
-                                      className="image-placeholder"
-                                      style={{
-                                        display: imageUrl ? 'none' : 'flex',
-                                        alignItems: 'center',
-                                        justifyContent: 'center',
+                                    ) : (
+                                      <div style={{
                                         width: '100%',
                                         height: '100%',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
                                         background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
                                         color: 'white',
-                                        fontSize: '12px',
+                                        fontSize: '30px',
                                         fontWeight: 'bold',
-                                        textAlign: 'center',
-                                        padding: '5px'
-                                      }}
-                                    >
-                                      No Image
-                                    </div>
+                                        textTransform: 'uppercase'
+                                      }}>
+                                        {product.name.charAt(0)}
+                                      </div>
+                                    )}
                                   </div>
 
                                   {/* Product Details */}
@@ -644,22 +776,22 @@ const OrderHistory = () => {
                                         marginBottom: '5px',
                                         fontSize: '15px'
                                       }}>
-                                        {item.name}
+                                        {product.name}
                                       </p>
                                       <p style={{
                                         fontSize: '14px',
                                         color: '#666',
                                         marginBottom: '3px'
                                       }}>
-                                        ₹{formatCurrency(item.price)} × {item.quantity}
+                                        ₹{formatCurrency(product.price)} × {product.quantity}
                                       </p>
-                                      {item.size && (
+                                      {product.size && (
                                         <p style={{
                                           fontSize: '13px',
                                           color: '#888',
                                           margin: 0
                                         }}>
-                                          Size: {item.size}
+                                          Size: {product.size}
                                         </p>
                                       )}
                                     </div>
@@ -668,7 +800,7 @@ const OrderHistory = () => {
                                       fontWeight: 'bold',
                                       color: '#667eea'
                                     }}>
-                                      ₹{formatCurrency(item.price * item.quantity)}
+                                      ₹{formatCurrency(product.price * product.quantity)}
                                     </p>
                                   </div>
                                 </div>
@@ -803,6 +935,58 @@ const OrderHistory = () => {
           </div>
         )}
       </div>
+
+      {/* Image Preview Modal */}
+      {selectedImage && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(0, 0, 0, 0.8)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 9999,
+          padding: '20px'
+        }}>
+          <div style={{
+            position: 'relative',
+            maxWidth: '90%',
+            maxHeight: '90%'
+          }}>
+            <button
+              onClick={closeImagePreview}
+              style={{
+                position: 'absolute',
+                top: '-40px',
+                right: '0',
+                background: 'rgba(255, 255, 255, 0.1)',
+                border: 'none',
+                color: 'white',
+                fontSize: '24px',
+                cursor: 'pointer',
+                padding: '5px 15px',
+                borderRadius: '5px',
+                backdropFilter: 'blur(10px)'
+              }}
+            >
+              ✕
+            </button>
+            <img
+              src={selectedImage}
+              alt="Product Preview"
+              style={{
+                maxWidth: '100%',
+                maxHeight: '80vh',
+                objectFit: 'contain',
+                borderRadius: '10px'
+              }}
+            />
+          </div>
+        </div>
+      )}
 
       <style>
         {`
