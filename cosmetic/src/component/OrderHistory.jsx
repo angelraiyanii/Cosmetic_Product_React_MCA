@@ -23,12 +23,17 @@ const OrderHistory = () => {
   const [expandedOrders, setExpandedOrders] = useState(new Set());
 
   // Get userId from localStorage or your auth system
-  // Replace 'YOUR_USER_ID_HERE' with an actual userId from your database
-  const userId = localStorage.getItem('userId') ;
+  const userId = localStorage.getItem('userId');
 
   useEffect(() => {
     fetchOrders();
   }, []);
+
+  // Function to get the full image URL
+  const getImageUrl = (imagePath) => {
+    if (!imagePath) return null;
+    return `http://localhost:5000/public/images/product_images/${imagePath}`;
+  };
 
   const fetchOrders = async () => {
     try {
@@ -132,6 +137,16 @@ const OrderHistory = () => {
       }
     };
     return configs[status] || configs.pending;
+  };
+
+  // Function to handle image loading errors
+  const handleImageError = (e) => {
+    // Hide the broken image and show placeholder
+    e.target.style.display = 'none';
+    const placeholder = e.target.parentElement.querySelector('.image-placeholder');
+    if (placeholder) {
+      placeholder.style.display = 'flex';
+    }
   };
 
   if (loading) {
@@ -557,39 +572,108 @@ const OrderHistory = () => {
                             flexDirection: 'column',
                             gap: '12px'
                           }}>
-                            {order.products.map((item, index) => (
-                              <div key={index} style={{
-                                display: 'flex',
-                                justifyContent: 'space-between',
-                                alignItems: 'center',
-                                padding: '12px',
-                                background: '#f8f9fa',
-                                borderRadius: '10px'
-                              }}>
-                                <div>
-                                  <p style={{
-                                    fontWeight: '600',
-                                    color: '#333',
-                                    marginBottom: '3px'
-                                  }}>
-                                    {item.name}
-                                  </p>
-                                  <p style={{
-                                    fontSize: '14px',
-                                    color: '#666'
-                                  }}>
-                                    ₹{formatCurrency(item.price)} × {item.quantity}
-                                  </p>
-                                </div>
-                                <p style={{
-                                  fontSize: '16px',
-                                  fontWeight: 'bold',
-                                  color: '#667eea'
+                            {order.products.map((item, index) => {
+                              const imageUrl = getImageUrl(item.image);
+                              
+                              return (
+                                <div key={index} style={{
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  gap: '15px',
+                                  padding: '12px',
+                                  background: '#f8f9fa',
+                                  borderRadius: '10px'
                                 }}>
-                                  ₹{formatCurrency(item.price * item.quantity)}
-                                </p>
-                              </div>
-                            ))}
+                                  {/* Product Image */}
+                                  <div style={{
+                                    width: '80px',
+                                    height: '80px',
+                                    borderRadius: '8px',
+                                    overflow: 'hidden',
+                                    flexShrink: 0,
+                                    background: '#fff',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    position: 'relative',
+                                    border: '1px solid #e9ecef'
+                                  }}>
+                                    {imageUrl ? (
+                                      <img 
+                                        src={imageUrl} 
+                                        alt={item.name}
+                                        style={{
+                                          width: '100%',
+                                          height: '100%',
+                                          objectFit: 'cover'
+                                        }}
+                                        onError={handleImageError}
+                                      />
+                                    ) : null}
+                                    <div 
+                                      className="image-placeholder"
+                                      style={{
+                                        display: imageUrl ? 'none' : 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        width: '100%',
+                                        height: '100%',
+                                        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                                        color: 'white',
+                                        fontSize: '12px',
+                                        fontWeight: 'bold',
+                                        textAlign: 'center',
+                                        padding: '5px'
+                                      }}
+                                    >
+                                      No Image
+                                    </div>
+                                  </div>
+
+                                  {/* Product Details */}
+                                  <div style={{
+                                    flex: 1,
+                                    display: 'flex',
+                                    justifyContent: 'space-between',
+                                    alignItems: 'center'
+                                  }}>
+                                    <div>
+                                      <p style={{
+                                        fontWeight: '600',
+                                        color: '#333',
+                                        marginBottom: '5px',
+                                        fontSize: '15px'
+                                      }}>
+                                        {item.name}
+                                      </p>
+                                      <p style={{
+                                        fontSize: '14px',
+                                        color: '#666',
+                                        marginBottom: '3px'
+                                      }}>
+                                        ₹{formatCurrency(item.price)} × {item.quantity}
+                                      </p>
+                                      {item.size && (
+                                        <p style={{
+                                          fontSize: '13px',
+                                          color: '#888',
+                                          margin: 0
+                                        }}>
+                                          Size: {item.size}
+                                        </p>
+                                      )}
+                                    </div>
+                                    <p style={{
+                                      fontSize: '16px',
+                                      fontWeight: 'bold',
+                                      color: '#667eea'
+                                    }}>
+                                      ₹{formatCurrency(item.price * item.quantity)}
+                                    </p>
+                                  </div>
+                                </div>
+                              );
+                            })}
                           </div>
                         </div>
 

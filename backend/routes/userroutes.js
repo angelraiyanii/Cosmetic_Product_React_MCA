@@ -3,8 +3,8 @@ const multer = require("multer");
 const path = require("path");
 const jwt = require("jsonwebtoken");
 const nodemailer = require("nodemailer");
-const mongoose = require("mongoose");  
-const User  = require("../models/Usermodel");
+const mongoose = require("mongoose");
+const User = require("../models/Usermodel");
 const router = express.Router();
 const bcrypt = require("bcrypt");
 
@@ -33,11 +33,11 @@ router.post("/add-Usermodel", upload.single("profilePic"), async (req, res) => {
 
     const verificationToken = jwt.sign({ email }, process.env.JWT_SECRET, { expiresIn: "1d" });
 
-    const newUser = new User ({
+    const newUser = new User({
       fullname,
       email,
       mobile,
-      password, 
+      password,
       gender,
       pincode,
       address,
@@ -89,10 +89,10 @@ router.put("/:id", upload.single("profilePic"), async (req, res) => {
       address,
     };
 
-    if (password) updateData.password = password; 
+    if (password) updateData.password = password;
     if (req.file) updateData.profilePic = req.file.filename;
 
-    const updatedUser = await User .findByIdAndUpdate(req.params.id, updateData, { new: true });
+    const updatedUser = await User.findByIdAndUpdate(req.params.id, updateData, { new: true });
 
     if (!updatedUser) {
       return res.status(404).json({ message: "User not found" });
@@ -112,7 +112,7 @@ router.get("/verify-email/:token", async (req, res) => {
   try {
     const { token } = req.params;
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const user = await User .findOne({ email: decoded.email });
+    const user = await User.findOne({ email: decoded.email });
 
     if (!user) {
       return res.redirect("http://localhost:5173/Usermodel?status=error&message=Invalid or expired token.");
@@ -131,7 +131,7 @@ router.get("/verify-email/:token", async (req, res) => {
 // Retrieve all Users
 router.get("/all-Usermodel", async (req, res) => {
   try {
-    const allUsermodel = await User .find();
+    const allUsermodel = await User.find();
     res.status(200).json({ Usermodel: allUsermodel });
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -141,7 +141,7 @@ router.get("/all-Usermodel", async (req, res) => {
 // Delete User by ID
 router.delete("/:id", async (req, res) => {
   try {
-    const deletedUser = await User .findByIdAndDelete(req.params.id);
+    const deletedUser = await User.findByIdAndDelete(req.params.id);
     if (!deletedUser) {
       return res.status(404).json({ message: "User not found" });
     }
@@ -151,7 +151,7 @@ router.delete("/:id", async (req, res) => {
   }
 });
 
-// Usermodel Route
+// Usermodel Route - FIXED VERSION
 router.post("/Usermodel", async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -160,7 +160,7 @@ router.post("/Usermodel", async (req, res) => {
       return res.status(400).json({ status: "error", message: "Email and password are required!" });
     }
 
-    const user = await User .findOne({ email }); 
+    const user = await User.findOne({ email }); 
     if (!user) {
       return res.status(400).json({ status: "error", message: "Email is not registered!" });
     }
@@ -173,6 +173,7 @@ router.post("/Usermodel", async (req, res) => {
       expiresIn: "1h",
     });
 
+    // RETURN COMPLETE USER DATA - THIS IS THE FIX
     return res.status(200).json({
       message: "Usermodel successful",
       status: "success",
@@ -182,16 +183,19 @@ router.post("/Usermodel", async (req, res) => {
         fullname: user.fullname,
         email: user.email,
         role: user.role,
+        mobile: user.mobile || "",        // ADD THIS
+        address: user.address || "",      // ADD THIS
+        pincode: user.pincode || "",      // ADD THIS
+        gender: user.gender || "",        // ADD THIS
+        profilePic: user.profilePic || "" // ADD THIS
       },
     });
   } catch (error) {
     console.error("🔥 Backend Error:", error.message, error.stack);
     return res.status(500).json({ error: "Internal server error", details: error.message });
   }
-
 });
-// Get user details by ID
-
+// Get user details by ID - FIXED VERSION
 router.get("/user-details/:userId", async (req, res) => {
   try {
     const { userId } = req.params;
@@ -207,7 +211,20 @@ router.get("/user-details/:userId", async (req, res) => {
       return res.status(404).json({ success: false, error: "User not found" });
     }
 
-    res.status(200).json({ success: true, user });
+    res.status(200).json({
+      success: true,
+      user: {
+        id: user._id,
+        fullname: user.fullname,
+        email: user.email,
+        role: user.role,
+        mobile: user.mobile || "",
+        address: user.address || "",
+        pincode: user.pincode || "",
+        gender: user.gender || "",
+        profilePic: user.profilePic || ""
+      }
+    });
   } catch (error) {
     console.error("Error fetching user:", error.message);
     res.status(500).json({ success: false, error: "Failed to fetch user details" });
@@ -221,8 +238,8 @@ router.put("/change-password/:userId", async (req, res) => {
 
     // Validate input
     if (!oldPassword || !newPassword) {
-      return res.status(400).json({ 
-        message: "Old password and new password are required" 
+      return res.status(400).json({
+        message: "Old password and new password are required"
       });
     }
 
@@ -239,15 +256,15 @@ router.put("/change-password/:userId", async (req, res) => {
 
     // Check if old password matches (since you're not using bcrypt)
     if (oldPassword !== user.password) {
-      return res.status(400).json({ 
-        message: "Old password is incorrect" 
+      return res.status(400).json({
+        message: "Old password is incorrect"
       });
     }
 
     // Check if new password is different from old password
     if (oldPassword === newPassword) {
-      return res.status(400).json({ 
-        message: "New password must be different from old password" 
+      return res.status(400).json({
+        message: "New password must be different from old password"
       });
     }
 
@@ -255,15 +272,15 @@ router.put("/change-password/:userId", async (req, res) => {
     user.password = newPassword;
     await user.save();
 
-    res.status(200).json({ 
-      message: "Password updated successfully" 
+    res.status(200).json({
+      message: "Password updated successfully"
     });
 
   } catch (error) {
     console.error("Change password error:", error);
-    res.status(500).json({ 
+    res.status(500).json({
       message: "Server error while changing password",
-      error: error.message 
+      error: error.message
     });
   }
 });

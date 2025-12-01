@@ -92,7 +92,7 @@ class CheckoutForm extends Component {
     this.loadAddressesFromLocalStorage();
   }
 
-  fetchUserData = async () => {
+ fetchUserData = async () => {
     try {
       const userData = localStorage.getItem("user") || localStorage.getItem("admin");
       if (!userData) {
@@ -101,42 +101,84 @@ class CheckoutForm extends Component {
       }
 
       const user = JSON.parse(userData);
-      const userId = user.id;
 
-      const res = await axios.get(`http://localhost:5000/api/Login/user-details/${userId}`);
+      console.log("User data from localStorage:", user);
 
-      // Create main address from user profile
+      // Try to fetch complete user data from backend
+      try {
+        const response = await axios.get(`http://localhost:5000/api/Usermodel/user-details/${user.id}`);
+        if (response.data.success) {
+          const completeUser = response.data.user;
+          console.log("Complete user data from API:", completeUser);
+
+          // Create main address with complete data
+          const mainAddress = {
+            _id: "main",
+            name: "Primary Address",
+            email: completeUser.email || user.email || "",
+            phone: completeUser.mobile || completeUser.phone || "",
+            address: completeUser.address || "",
+            city: this.extractCityFromAddress(completeUser.address),
+            state: this.extractStateFromAddress(completeUser.address),
+            zip: completeUser.pincode || completeUser.zip || "",
+            country: "India",
+            isDefault: true
+          };
+
+          console.log("Main address created with API data:", mainAddress);
+
+          // Combine main address with saved addresses
+          const savedAddresses = this.state.addresses.filter(addr => addr._id !== "main");
+          const allAddresses = [mainAddress, ...savedAddresses];
+
+          this.setState({
+            userData: completeUser,
+            userEmail: completeUser.email || user.email || "",
+            addresses: allAddresses,
+            selectedAddressId: allAddresses.length > 0 ? allAddresses[0]._id : null,
+            phone: completeUser.mobile || completeUser.phone || "",
+            isLoadingUser: false
+          });
+          return;
+        }
+      } catch (apiError) {
+        console.warn("Could not fetch user details from API, using localStorage data:", apiError);
+      }
+
+      // Fallback: Use localStorage data only
       const mainAddress = {
         _id: "main",
         name: "Primary Address",
-        email: res.data.email,
-        phone: res.data.mobile || "",
-        address: res.data.address || "",
-        city: this.extractCityFromAddress(res.data.address),
-        state: this.extractStateFromAddress(res.data.address),
-        zip: res.data.zip || "",
+        email: user.email || "",
+        phone: user.mobile || user.phone || "",
+        address: user.address || "",
+        city: this.extractCityFromAddress(user.address),
+        state: this.extractStateFromAddress(user.address),
+        zip: user.pincode || user.zip || "",
         country: "India",
         isDefault: true
       };
+
+      console.log("Main address created with localStorage data:", mainAddress);
 
       // Combine main address with saved addresses
       const savedAddresses = this.state.addresses.filter(addr => addr._id !== "main");
       const allAddresses = [mainAddress, ...savedAddresses];
 
       this.setState({
-        userData: res.data,
-        userEmail: res.data.email,
+        userData: user,
+        userEmail: user.email || "",
         addresses: allAddresses,
         selectedAddressId: allAddresses.length > 0 ? allAddresses[0]._id : null,
-        phone: res.data.mobile || "",
+        phone: user.mobile || user.phone || "",
         isLoadingUser: false
       });
+
     } catch (err) {
-      console.error("Error fetching user data:", err);
+      console.error("Error processing user data:", err);
       this.setState({ isLoadingUser: false });
     }
   };
-
   // Helper functions to extract city and state from address
   extractCityFromAddress = (address) => {
     if (!address) return "";
@@ -176,12 +218,6 @@ class CheckoutForm extends Component {
   };
 
   handleEditAddress = (address) => {
-    // Don't allow editing the primary address from user profile
-    if (address._id === "main") {
-      alert("Primary address can be updated in your profile settings");
-      return;
-    }
-
     this.setState({
       showAddressForm: true,
       isEditing: true,
@@ -402,7 +438,7 @@ class CheckoutForm extends Component {
                 </div>
 
                 {/* Address Selection */}
-                <div className="address-selection">
+                  <div className="address-selection">
                   {addresses.map(address => (
                     <div
                       key={address._id}
@@ -418,27 +454,25 @@ class CheckoutForm extends Component {
                           )}
                         </div>
                         <div className="address-actions">
+                          <button
+                            className="btn-edit"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              this.handleEditAddress(address);
+                            }}
+                          >
+                            <FaEdit />
+                          </button>
                           {address._id !== "main" && (
-                            <>
-                              <button
-                                className="btn-edit"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  this.handleEditAddress(address);
-                                }}
-                              >
-                                <FaEdit />
-                              </button>
-                              <button
-                                className="btn-remove"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  this.handleRemoveAddress(address._id);
-                                }}
-                              >
-                                <FaTimes />
-                              </button>
-                            </>
+                            <button
+                              className="btn-remove"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                this.handleRemoveAddress(address._id);
+                              }}
+                            >
+                              <FaTimes />
+                            </button>
                           )}
                         </div>
                       </div>
@@ -457,7 +491,6 @@ class CheckoutForm extends Component {
                     </div>
                   ))}
 
-                  {/* Add New Address Button */}
                   <div
                     className="add-address-card"
                     onClick={this.toggleAddressForm}
@@ -469,9 +502,12 @@ class CheckoutForm extends Component {
 
                 {/* Add/Edit Address Form */}
                 {showAddressForm && (
-                  <div className="address-form-section">
+                <div className="address-form-section">
                     <div className="section-header">
                       <h4>{isEditing ? 'Edit Address' : 'Add New Address'}</h4>
+                      {this.state.editingAddressId === "main" && (
+                        <p className="text-info">Editing Primary Address</p>
+                      )}
                     </div>
 
                     <div className="address-form">
