@@ -436,6 +436,7 @@ class CheckoutForm extends Component {
           name: item.productId.name,
           price: item.productId.price,
           quantity: item.quantity,
+          image: item.productId.productImage || item.productId.image || null,
         })),
         shippingAddress: {
           name: orderData.addressName || "Customer",

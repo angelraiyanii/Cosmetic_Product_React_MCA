@@ -57,6 +57,22 @@ const OrderHistory = () => {
       null;
   };
 
+  // Fetch product image from API if not stored in order
+  const fetchProductImage = async (productId) => {
+    try {
+      const response = await fetch(`http://localhost:5000/api/ProductModel/${productId}`);
+      const data = await response.json();
+      
+      // The API returns the product directly, not wrapped in a 'product' property
+      const productImage = data?.productImage || data?.product_image || data?.image || null;
+      console.log('📸 Fetched product image for', productId, ':', productImage);
+      return productImage;
+    } catch (err) {
+      console.error('Error fetching product image:', err);
+      return null;
+    }
+  };
+
   // Function to open image preview
   const openImagePreview = (imagePath) => {
     if (imagePath) {
@@ -106,37 +122,46 @@ const OrderHistory = () => {
       if (data.success) {
         console.log('✅ Orders found:', data.orders.length);
 
-        const transformedOrders = data.orders.map(order => {
-          if (order.items && order.items.length > 0) {
+        // Transform and fetch missing images
+        const transformedOrders = await Promise.all(data.orders.map(async (order) => {
+          if (order.products && order.products.length > 0) {
+            const productsWithImages = await Promise.all(order.products.map(async (item) => {
+              // Use the image stored in the order
+              let productImage = item.image;
+              
+              // If no image is stored, try to fetch it from the API
+              if (!productImage && item.productId) {
+                productImage = await fetchProductImage(item.productId);
+              }
+              
+              console.log('🖼️ Product image data:', {
+                productName: item.name,
+                productImage,
+                storedImage: item.image,
+                productId: item.productId
+              });
+
+              return {
+                _id: item.productId,
+                name: item.name || 'Unknown Product',
+                price: item.price,
+                quantity: item.quantity,
+                size: item.size,
+                image: productImage,
+                fullProduct: item.productId
+              };
+            }));
+
             return {
               ...order,
-              products: order.items.map(item => {
-                const productImage = getProductImage(item);
-                console.log('🖼️ Product image data:', {
-                  productName: item.productId?.productName || item.productId?.name,
-                  productImage,
-                  productId: item.productId
-                });
-
-                return {
-                  _id: item.productId?._id || item.productId,
-                  name: item.productId?.productName ||
-                    item.productId?.name ||
-                    'Unknown Product',
-                  price: item.price,
-                  quantity: item.quantity,
-                  size: item.size,
-                  image: productImage,
-                  fullProduct: item.productId
-                };
-              }),
+              products: productsWithImages,
               orderId: order._id.substring(order._id.length - 8).toUpperCase(),
-              totalAmount: order.total || 0,
+              totalAmount: order.totalAmount || 0,
               subtotal: order.subtotal || 0,
               tax: order.tax || 0,
               shipping: order.shipping || 0,
               discount: order.discount || 0,
-              paymentStatus: order.status || 'pending',
+              paymentStatus: order.paymentStatus || 'pending',
               shippingAddress: order.shippingAddress || {
                 name: 'N/A',
                 address: 'N/A',
@@ -151,7 +176,7 @@ const OrderHistory = () => {
             };
           }
           return order;
-        });
+        }));
 
         console.log('🔄 Transformed orders:', transformedOrders);
         setOrders(transformedOrders);

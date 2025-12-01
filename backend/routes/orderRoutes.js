@@ -2,6 +2,26 @@ const express = require('express');
 const router = express.Router();
 const Order = require('../models/OrderModel');
 
+// Get all orders (for admin)
+router.get("/", async (req, res) => {
+  try {
+    const orders = await Order.find()
+      .sort({ createdAt: -1 })
+      .populate('userId', 'fullname email');
+
+    res.json({
+      success: true,
+      orders
+    });
+  } catch (error) {
+    console.error('Get all orders error:', error);
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+});
+
 // Create Order
 router.post("/create", async (req, res) => {
   try {
@@ -80,7 +100,9 @@ router.post('/payment-success', async (req, res) => {
 // Get order by ID
 router.get("/:id", async (req, res) => {
   try {
-    const order = await Order.findById(req.params.id);
+    const order = await Order.findById(req.params.id)
+      .populate('userId', 'fullname email');
+    
     if (!order) {
       return res.status(404).json({
         success: false,
@@ -100,6 +122,7 @@ router.get("/:id", async (req, res) => {
     });
   }
 });
+
 // Get orders by user ID
 router.get("/user/:userId", async (req, res) => {
   try {
@@ -112,6 +135,64 @@ router.get("/user/:userId", async (req, res) => {
     });
   } catch (error) {
     console.error('Get user orders error:', error);
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+});
+
+// Update order status (for admin)
+router.put("/:id", async (req, res) => {
+  try {
+    const { status, paymentStatus } = req.body;
+    
+    const order = await Order.findById(req.params.id);
+    if (!order) {
+      return res.status(404).json({
+        success: false,
+        message: "Order not found"
+      });
+    }
+
+    if (status) order.status = status;
+    if (paymentStatus) order.paymentStatus = paymentStatus;
+
+    await order.save();
+
+    res.json({
+      success: true,
+      order
+    });
+  } catch (error) {
+    console.error('Update order error:', error);
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+});
+
+// Debug endpoint - check order structure
+router.get("/debug/check-orders", async (req, res) => {
+  try {
+    const orders = await Order.find().limit(5);
+    const ordersWithPopulate = await Order.find().populate('userId', 'name email').limit(5);
+    
+    console.log("=== ORDERS WITHOUT POPULATE ===");
+    console.log(JSON.stringify(orders, null, 2));
+    
+    console.log("\n=== ORDERS WITH POPULATE ===");
+    console.log(JSON.stringify(ordersWithPopulate, null, 2));
+    
+    res.json({
+      success: true,
+      ordersWithoutPopulate: orders,
+      ordersWithPopulate: ordersWithPopulate,
+      totalOrders: await Order.countDocuments()
+    });
+  } catch (error) {
+    console.error('Debug error:', error);
     res.status(500).json({
       success: false,
       message: error.message

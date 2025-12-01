@@ -10,6 +10,7 @@ const orderSchema = new mongoose.Schema({
   shipping: Number,
   discount: Number,
   totalAmount: Number,
+  status: { type: String, default: "pending" },
   paymentStatus: { type: String, default: "pending" },
   razorpayOrderId: String,
   razorpayPaymentId: String,
