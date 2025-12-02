@@ -32,7 +32,7 @@ class ProductComponent extends Component {
   fetchCategoriesAndProducts = async () => {
     try {
       this.setState({ isLoading: true });
-      
+
       // Fetch categories
       const categoriesResponse = await axios.get(
         "http://localhost:5000/api/CategoryModel/categories"
@@ -54,14 +54,14 @@ class ProductComponent extends Component {
         try {
           const user = JSON.parse(userData);
           const userId = user.id;
-          
+
           const wishlistResponse = await axios.get(
             `http://localhost:5000/api/WishlistModel/${userId}`
           );
           const wishlistProductIds = wishlistResponse.data.map(
             (item) => item.productId._id
           );
-          
+
           allProducts.forEach((product, index) => {
             if (wishlistProductIds.includes(product._id)) {
               liked[index] = true;
@@ -157,7 +157,7 @@ class ProductComponent extends Component {
         window.location.href = "/login";
         return;
       }
-      
+
       const user = JSON.parse(userData);
       const userId = user.id;
 
@@ -179,7 +179,7 @@ class ProductComponent extends Component {
       );
       alert(
         "Failed to add product to cart: " +
-          (error.response?.data?.error || error.message)
+        (error.response?.data?.error || error.message)
       );
     } finally {
       this.setState({ isLoading: false });
@@ -187,7 +187,7 @@ class ProductComponent extends Component {
   };
 
   // Buy Now functionality
-  handleBuyNow = async (productId) => {
+  handleBuyNow = async (product) => {  // Changed parameter to receive the product object
     const userData = localStorage.getItem("user") || localStorage.getItem("admin");
 
     if (!userData) {
@@ -199,19 +199,23 @@ class ProductComponent extends Component {
       const user = JSON.parse(userData);
       const userId = user.id;
 
-      // First, add the product to cart
-      const response = await axios.post(
-        "http://localhost:5000/api/CartModel/add",
-        {
-          userId,
-          productId,
-        }
-      );
+      // Prepare checkout data for single product
+      const checkoutData = {
+        type: 'buy_now',
+        productId: product._id,
+        name: product.name,
+        price: product.price,
+        quantity: 1,
+        productImage: product.image || product.productImage,
+        // Add other necessary product details
+      };
 
-      console.log("Added to cart for checkout:", response.data);
-      
+      // Save to localStorage
+      localStorage.setItem('checkoutData', JSON.stringify(checkoutData));
+
       // Redirect to checkout page using the navigate prop
       this.props.navigate("/Checkout");
+
     } catch (error) {
       console.error(
         "Error in Buy Now:",
@@ -219,7 +223,7 @@ class ProductComponent extends Component {
       );
       alert(
         "Failed to process Buy Now: " +
-          (error.response?.data?.error || error.message)
+        (error.response?.data?.error || error.message)
       );
     }
   };
@@ -265,7 +269,7 @@ class ProductComponent extends Component {
       );
       alert(
         "Failed to update wishlist: " +
-          (error.response?.data?.error || error.message)
+        (error.response?.data?.error || error.message)
       );
     } finally {
       this.setState({ isLikeLoading: false });
@@ -295,15 +299,15 @@ class ProductComponent extends Component {
   // Get filtered, sorted, and paginated products
   getProcessedProducts = () => {
     const { products, sortOption, filterCategory, searchQuery, currentPage, productsPerPage } = this.state;
-    
+
     // Filter by category
     let filteredProducts = products;
     if (filterCategory !== "all") {
-      filteredProducts = products.filter(product => 
+      filteredProducts = products.filter(product =>
         product.category?.categoryName === filterCategory
       );
     }
-    
+
     // Filter by search query
     if (searchQuery) {
       filteredProducts = filteredProducts.filter(product =>
@@ -311,12 +315,12 @@ class ProductComponent extends Component {
         (product.category?.categoryName || "").toLowerCase().includes(searchQuery.toLowerCase())
       );
     }
-    
+
     // Filter only active products
     filteredProducts = filteredProducts.filter(product => product.status === "active");
-    
+
     // Sort products
-    switch(sortOption) {
+    switch (sortOption) {
       case "price-low":
         filteredProducts.sort((a, b) => a.price - b.price);
         break;
@@ -333,13 +337,13 @@ class ProductComponent extends Component {
         // Default sorting (featured)
         break;
     }
-    
+
     // Pagination
     const indexOfLastProduct = currentPage * productsPerPage;
     const indexOfFirstProduct = indexOfLastProduct - productsPerPage;
     const currentProducts = filteredProducts.slice(indexOfFirstProduct, indexOfLastProduct);
     const totalPages = Math.ceil(filteredProducts.length / productsPerPage);
-    
+
     return {
       currentProducts,
       totalPages,
@@ -348,24 +352,24 @@ class ProductComponent extends Component {
   };
 
   render() {
-    const { 
-      isLoading, 
-      isLikeLoading, 
-      sortOption, 
-      filterCategory, 
-      searchQuery, 
-      currentPage, 
-      categories 
+    const {
+      isLoading,
+      isLikeLoading,
+      sortOption,
+      filterCategory,
+      searchQuery,
+      currentPage,
+      categories
     } = this.state;
-    
+
     const { currentProducts, totalPages, totalProducts } = this.getProcessedProducts();
-    
+
     // Get unique categories
     const uniqueCategories = [...new Set(categories
       .filter(cat => cat.categoryStatus === "Active")
       .map(cat => cat.categoryName)
     )];
-    
+
     return (
       <div className="container mt-4 cosmetic-products-container">
         {/* Header Section */}
@@ -390,11 +394,11 @@ class ProductComponent extends Component {
               />
             </div>
           </div>
-          
+
           <div className="col-md-3 mb-3">
-            <select 
-              className="form-select" 
-              value={filterCategory} 
+            <select
+              className="form-select"
+              value={filterCategory}
               onChange={(e) => this.handleCategoryFilter(e.target.value)}
             >
               <option value="all">All Categories</option>
@@ -403,11 +407,11 @@ class ProductComponent extends Component {
               ))}
             </select>
           </div>
-          
+
           <div className="col-md-3 mb-3">
-            <select 
-              className="form-select" 
-              value={sortOption} 
+            <select
+              className="form-select"
+              value={sortOption}
               onChange={this.handleSortChange}
             >
               <option value="featured">Featured</option>
@@ -428,7 +432,7 @@ class ProductComponent extends Component {
 
         {isLoading ? (
           <div className="text-center py-5">
-            <div className="spinner-border text-primary mb-3" style={{width: '3rem', height: '3rem'}} role="status">
+            <div className="spinner-border text-primary mb-3" style={{ width: '3rem', height: '3rem' }} role="status">
               <span className="visually-hidden">Loading...</span>
             </div>
             <p>Loading our beautiful collection...</p>
@@ -446,11 +450,11 @@ class ProductComponent extends Component {
             {/* Products Grid */}
             <div className="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4">
               {currentProducts.map((product, index) => {
-                  const discountedPrice = product.discount 
-                    ? (product.price - (product.price * product.discount / 100)).toFixed(2)
-                    : null;
-                  const outOfStock = (product.stock || 0) <= 0 || product.status === 'inactive';
-                  
+                const discountedPrice = product.discount
+                  ? (product.price - (product.price * product.discount / 100)).toFixed(2)
+                  : null;
+                const outOfStock = (product.stock || 0) <= 0 || product.status === 'inactive';
+
                 return (
                   <div className="col" key={product._id}>
                     <div className="card cosmetic-product-card h-100 border-0">
@@ -466,7 +470,7 @@ class ProductComponent extends Component {
                           className="cosmetic-product-img"
                           onError={(e) => (e.target.src = placeholder)}
                         />
-                        
+
                         {/* Discount Badge */}
                         {product.discount && (
                           <div className="discount-badge position-absolute top-0 start-0 bg-danger text-white px-2 py-1 m-2 rounded">
@@ -480,7 +484,7 @@ class ProductComponent extends Component {
                             <span className="badge bg-danger">Out of Stock</span>
                           </div>
                         )}
-                        
+
                         {/* Action Buttons Overlay */}
                         <div className="cosmetic-action-buttons position-absolute top-0 end-0 d-flex flex-column p-2">
                           <button
@@ -491,7 +495,7 @@ class ProductComponent extends Component {
                           >
                             <FaHeart />
                           </button>
-                          <Link 
+                          <Link
                             to={`/SinglePro/${product._id}`}
                             className="btn btn-icon btn-light mb-2"
                             title="View Details"
@@ -499,11 +503,11 @@ class ProductComponent extends Component {
                             <FaEye />
                           </Link>
                         </div>
-                        
+
                         {/* Action Buttons on Hover */}
                         <div className="cosmetic-add-to-cart position-absolute bottom-0 w-100 p-2">
                           <div className="d-flex gap-2">
-                            { /* compute out of stock */ }
+                            { /* compute out of stock */}
                             {
                               (() => {
                                 const outOfStock = (product.stock || 0) <= 0 || product.status === 'inactive';
@@ -528,7 +532,7 @@ class ProductComponent extends Component {
 
                                     <button
                                       className={`btn glow-buy-now w-50 rounded-pill d-flex align-items-center justify-content-center ${outOfStock ? 'btn-secondary' : ''}`}
-                                      onClick={() => this.handleBuyNow(product._id)}
+                                      onClick={() => this.handleBuyNow(product)}  // Pass the product object
                                       disabled={isLoading || outOfStock}
                                     >
                                       <FaBolt className="me-2" />
@@ -538,11 +542,11 @@ class ProductComponent extends Component {
                                 );
                               })()
                             }
-                          
+
                           </div>
                         </div>
                       </div>
-                      
+
                       {/* Product Info */}
                       <div className="card-body pb-0">
                         <div className="d-flex justify-content-between align-items-start mb-2">
@@ -552,9 +556,9 @@ class ProductComponent extends Component {
                             <small className="text-muted">{product.rating || "4.5"}</small>
                           </div>
                         </div>
-                        
+
                         <small className="text-muted d-block mb-2">{product.category?.categoryName || "Uncategorized"}</small>
-                        
+
                         <div className="d-flex align-items-center">
                           {discountedPrice ? (
                             <>
@@ -571,35 +575,35 @@ class ProductComponent extends Component {
                 );
               })}
             </div>
-            
+
             {/* Pagination */}
             {totalPages > 1 && (
               <nav className="d-flex justify-content-center mt-5">
                 <ul className="pagination">
                   <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
-                    <button 
-                      className="page-link" 
+                    <button
+                      className="page-link"
                       onClick={() => this.handlePageChange(currentPage - 1)}
                       disabled={currentPage === 1}
                     >
                       Previous
                     </button>
                   </li>
-                  
+
                   {[...Array(totalPages)].map((_, index) => (
                     <li key={index} className={`page-item ${currentPage === index + 1 ? 'active' : ''}`}>
-                      <button 
-                        className="page-link" 
+                      <button
+                        className="page-link"
                         onClick={() => this.handlePageChange(index + 1)}
                       >
                         {index + 1}
                       </button>
                     </li>
                   ))}
-                  
+
                   <li className={`page-item ${currentPage === totalPages ? 'disabled' : ''}`}>
-                    <button 
-                      className="page-link" 
+                    <button
+                      className="page-link"
                       onClick={() => this.handlePageChange(currentPage + 1)}
                       disabled={currentPage === totalPages}
                     >
@@ -611,7 +615,7 @@ class ProductComponent extends Component {
             )}
           </>
         )}
-        
+
         {/* Add custom CSS with your website's color scheme */}
         <style>
           {`

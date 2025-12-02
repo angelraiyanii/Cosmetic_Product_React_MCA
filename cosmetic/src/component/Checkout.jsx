@@ -144,6 +144,7 @@ class CheckoutForm extends Component {
       window.location.href = "/cart";
     }
   };
+  
   prepareBuyNowCheckout = (data) => {
     // Create cart item structure similar to cart items
     const cartItem = {
