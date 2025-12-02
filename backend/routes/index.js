@@ -50,6 +50,10 @@ router.use('/orderModel', orderRoutes);
 //razorpay
 const razorpayRoutes = require('./razorpayRoutes');
 router.use('/payment', razorpayRoutes);
+
+//review
+const reviewRoutes = require('./reviewRoutes');
+router.use('/ReviewModel', reviewRoutes);
 // Test route
 router.get("/", (req, res) => {
   res.json({ message: 'API is working!' });

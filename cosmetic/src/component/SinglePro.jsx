@@ -20,20 +20,38 @@ class SingleProClass extends Component {
       quantity: 1,
       selectedImage: 0,
       isInWishlist: false
+      ,avgRating: 0
+      ,reviewCount: 0
     };
   }
 
   componentDidMount() {
     this.fetchProduct();
     this.checkWishlistStatus();
+    this.fetchReviewStats();
   }
 
   componentDidUpdate(prevProps) {
     if (prevProps.productId !== this.props.productId) {
       this.fetchProduct();
       this.checkWishlistStatus();
+      this.fetchReviewStats();
     }
   }
+
+  fetchReviewStats = async () => {
+    try {
+      const { productId } = this.props;
+      if (!productId) return;
+      const response = await axios.get(`http://localhost:5000/api/ReviewModel/product/${productId}`);
+      const stats = response.data?.statistics || {};
+      const avg = parseFloat(stats.averageRating) || 0;
+      const total = parseInt(stats.totalReviews) || 0;
+      this.setState({ avgRating: avg, reviewCount: total });
+    } catch (err) {
+      console.error('Error fetching review stats:', err?.response?.data || err.message || err);
+    }
+  };
 
   fetchProduct = async () => {
     const { productId } = this.props;
@@ -168,10 +186,10 @@ class SingleProClass extends Component {
     const body = encodeURIComponent(`I found this product and thought you might like it: ${productLink}`);
 
     // Opens default email client
-     window.open(
-    `http://mail.google.com/mail/?view=cm&fs=1&to=&su=${subject}&body=${body}`,
-    "_blank"
-  );
+    window.open(
+      `http://mail.google.com/mail/?view=cm&fs=1&to=&su=${subject}&body=${body}`,
+      "_blank"
+    );
   };
 
   render() {
@@ -267,11 +285,18 @@ class SingleProClass extends Component {
                   {/* Rating */}
                   <div className="product-rating mb-3 d-flex align-items-center">
                     <div className="stars me-2">
-                      {[...Array(5)].map((_, i) => (
-                        <FaStar key={i} className="text-warning me-1" />
-                      ))}
+                      {(() => {
+                        const avg = this.state.avgRating || 0;
+                        const filled = Math.round(avg);
+                        return [...Array(5)].map((_, i) => (
+                          <FaStar
+                            key={i}
+                            className={`${i < filled ? 'text-warning' : 'text-muted'} me-1`}
+                          />
+                        ));
+                      })()}
                     </div>
-                    <span className="rating-text text-muted">(4.5) 234 Reviews</span>
+                    <span className="rating-text text-muted">({(this.state.avgRating || 0).toFixed(1)}) {this.state.reviewCount} Review{this.state.reviewCount !== 1 ? 's' : ''}</span>
                   </div>
 
                   {/* Price */}
@@ -632,7 +657,7 @@ class SingleProClass extends Component {
           }
         `}</style>
 
-        {/* <Rating_Review /> */}
+      <Rating_Review productId={this.props.productId} />
       </>
     );
   }

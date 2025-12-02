@@ -201,7 +201,7 @@ router.put("/:id", async (req, res) => {
 router.get("/debug/check-orders", async (req, res) => {
   try {
     const orders = await Order.find().limit(5);
-    const ordersWithPopulate = await Order.find().populate('userId', 'name email').limit(5);
+    const ordersWithPopulate = await Order.find().populate('userId', 'fullname email').limit(5);
     
     console.log("=== ORDERS WITHOUT POPULATE ===");
     console.log(JSON.stringify(orders, null, 2));

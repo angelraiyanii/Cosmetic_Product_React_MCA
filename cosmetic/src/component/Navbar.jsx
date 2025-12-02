@@ -386,6 +386,7 @@ function Navbar() {
     setCartCount(0);
     setWishlistCount(0);
     navigate("/");
+    window.location.reload();
   };
 
   const handleCategoryClick = (categoryName) => {

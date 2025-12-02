@@ -19,9 +19,10 @@ import Account from './component/Account'
 import ForgotPassword from "./component/ForgotPassword";
 import OTPVerification from "./component/OTPVerification";
 import ResetPassword from "./component/ResetPassword";
-// import OrderSuccess from './component/OrderSuccess'
 import Checkout from './component/Checkout'
 import OrderHistory from './component/OrderHistory'
+import PurchasedProductsForReview from './component/PurchasedProductsForReview'
+
 // Admin Called
 import AdCategory from './component/Admin/AdCategory'
 import AdPro from './component/Admin/AdPro'
@@ -36,7 +37,13 @@ import AdOrder from './component/Admin/AdOrder'
 // import OfferBanner from './component/OfferBanner'
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [count, setCount] = useState(0);
+  
+  // Get user data from localStorage
+  const userData = localStorage.getItem("user") || localStorage.getItem("admin");
+  const user = userData ? JSON.parse(userData) : null;
+  const userId = user?.id || null;
+  const isAuthenticated = !!user;
 
   return (
     <Router>
@@ -50,6 +57,9 @@ function App() {
           element={
             <>
               <Slider />
+              {isAuthenticated && (
+                <PurchasedProductsForReview userId={userId} isAuthenticated={isAuthenticated} />
+              )}
               <Category />
               <Product />
               {/* <OfferBanner/> */}
@@ -72,9 +82,11 @@ function App() {
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/otp-verification" element={<OTPVerification />} />
         <Route path="/reset-password" element={<ResetPassword />} />
-        {/* <Route path="/order-success" element={<OrderSuccess />} /> */}
         <Route path="/checkout" element={<Checkout />} />
         <Route path="/orderHistory" element={<OrderHistory />} />
+        <Route path="/purchased-products-for-review" element={<PurchasedProductsForReview userId={userId} isAuthenticated={isAuthenticated} />} />
+        <Route path="/my-reviews" element={<PurchasedProductsForReview userId={userId} isAuthenticated={isAuthenticated} />} />
+
 
         {/* Admin Routes */}
         <Route path='/Admin/AdAbout' element={<AdAbout />} />
@@ -94,4 +106,4 @@ function App() {
   )
 }
 
-export default App
+export default App;

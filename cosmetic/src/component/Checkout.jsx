@@ -31,7 +31,7 @@ class CheckoutForm extends Component {
       tax: 0,
       shipping: 0,
       total: 0,
-      
+
       // Address management
       addresses: [],
       selectedAddressId: null,
@@ -49,13 +49,13 @@ class CheckoutForm extends Component {
       showAddressForm: false,
       isEditing: false,
       editingAddressId: null,
-      
+
       // Payment processing
       isProcessing: false,
       paymentSuccess: false,
       orderId: "",
       paymentErrors: {}
-      ,razorpayLoaded: false
+      , razorpayLoaded: false
     };
   }
 
@@ -65,6 +65,15 @@ class CheckoutForm extends Component {
     this.loadAddressesFromLocalStorage();
     // Load Razorpay SDK once when component mounts
     this.loadRazorpayScript().catch(err => console.warn('Razorpay SDK failed to load:', err));
+
+    // Suppress Razorpay feature warnings
+    const originalWarn = console.warn;
+    console.warn = function (...args) {
+      if (args[0] && args[0].includes('otp-credentials')) {
+        return; // Suppress this specific warning
+      }
+      originalWarn.apply(console, args);
+    };
   }
 
   loadRazorpayScript = () => {
@@ -96,26 +105,119 @@ class CheckoutForm extends Component {
       document.body.appendChild(script);
     });
   };
-
   loadCartData = () => {
     try {
       const checkoutData = localStorage.getItem('checkoutData');
-      if (checkoutData) {
-        const data = JSON.parse(checkoutData);
-        this.setState({
-          cartItems: data.cartItems || [],
-          subtotal: data.subtotal || 0,
-          tax: data.tax || 0,
-          shipping: data.shipping || 0,
-          total: data.total || 0
-        });
+
+      if (!checkoutData) {
+        // Try to get from cart
+        const cartData = localStorage.getItem('cart');
+        if (!cartData || JSON.parse(cartData).items.length === 0) {
+          window.location.href = "/cart";
+          return;
+        }
+
+        // Use cart data
+        const cart = JSON.parse(cartData);
+        this.prepareCheckoutFromCart(cart.items);
+        return;
+      }
+
+      const data = JSON.parse(checkoutData);
+
+      // Check if it's a "Buy Now" or full cart checkout
+      if (data.type === 'buy_now') {
+        // Single product buy now
+        this.prepareBuyNowCheckout(data);
+      } else if (data.cartItems) {
+        // Full cart checkout
+        this.prepareCheckoutFromCart(data.cartItems);
+      } else if (data.productId) {
+        // Legacy buy now format
+        this.prepareBuyNowCheckout(data);
       } else {
         window.location.href = "/cart";
       }
+
     } catch (error) {
       console.error("Error loading cart data:", error);
       window.location.href = "/cart";
     }
+  };
+  prepareBuyNowCheckout = (data) => {
+    // Create cart item structure similar to cart items
+    const cartItem = {
+      productId: {
+        _id: data.productId,
+        name: data.name || "Product",
+        price: data.price || 0,
+        productImage: data.productImage,
+        image: data.productImage
+      },
+      quantity: data.quantity || 1
+    };
+
+    const subtotal = (data.price || 0) * (data.quantity || 1);
+    const shipping = subtotal > 50 ? 0 : 5.99;
+    const tax = subtotal * 0.10;
+    const total = subtotal + shipping + tax;
+
+    this.setState({
+      cartItems: [cartItem], // Single item array
+      subtotal,
+      tax,
+      shipping,
+      total
+    });
+  };
+
+  prepareCheckoutFromCart = (cartItems) => {
+    // Calculate totals from cart items
+    const subtotal = cartItems.reduce((sum, item) => {
+      const price = item.productId?.price || item.price || 0;
+      const quantity = item.quantity || 1;
+      return sum + (price * quantity);
+    }, 0);
+
+    const shipping = subtotal > 50 ? 0 : 5.99;
+    const tax = subtotal * 0.10;
+    const total = subtotal + shipping + tax;
+
+    this.setState({
+      cartItems: cartItems.map(item => ({
+        ...item,
+        productId: {
+          ...item.productId,
+          // Ensure productId has proper structure
+          _id: item.productId?._id || item.productId,
+          name: item.productId?.name || "Product",
+          price: item.productId?.price || item.price || 0,
+          productImage: item.productId?.productImage || item.productId?.image,
+          image: item.productId?.productImage || item.productId?.image
+        }
+      })),
+      subtotal,
+      tax,
+      shipping,
+      total
+    });
+  };
+
+  getProductImageUrl = (product) => {
+    if (!product) return placeholderImage;
+
+    // Try different possible image field names
+    const imageField = product.productImage || product.image || product.productImageName;
+
+    if (!imageField) return placeholderImage;
+
+    // Check if it's already a full URL
+    if (imageField.startsWith('http')) {
+      return imageField;
+    }
+
+    // Build full URL for local images
+    return `http://localhost:5000/public/images/product_images/${imageField}`;
   };
 
   loadAddressesFromLocalStorage = () => {
@@ -522,7 +624,7 @@ class CheckoutForm extends Component {
 
             if (verificationResponse.data.success) {
               this.setState({ paymentSuccess: true });
-              
+
               // Clear cart and local storage
               localStorage.removeItem("checkoutData");
               await axios.delete(
@@ -558,7 +660,7 @@ class CheckoutForm extends Component {
       };
 
       const rzp = new window.Razorpay(options);
-      
+
       rzp.on('payment.failed', (response) => {
         console.error("Payment failed:", response.error);
         this.setState({
@@ -574,7 +676,7 @@ class CheckoutForm extends Component {
     } catch (error) {
       console.error("Payment Error:", error);
       let errorMessage = "Something went wrong. Please try again.";
-      
+
       if (error.response) {
         errorMessage = error.response.data.message || errorMessage;
       } else if (error.request) {
@@ -597,109 +699,110 @@ class CheckoutForm extends Component {
   };
 
   renderPaymentSuccess = () => {
+    const { orderId } = this.state;
+
     return (
-    <div className="checkout-success-container">
-      <div className="checkout-success-wrapper">
-        <div className="success-content">
-          
-          {/* Success Icon */}
-          <div className="success-icon-wrapper">
-            <div className="success-icon-circle">
-              <FaCheck className="success-icon" />
+      <div className="checkout-success-container">
+        <div className="checkout-success-wrapper">
+          <div className="success-content">
+
+            {/* Success Icon */}
+            <div className="success-icon-wrapper">
+              <div className="success-icon-circle">
+                <FaCheck className="success-icon" />
+              </div>
+              <div className="success-icon-shadow"></div>
             </div>
-            <div className="success-icon-shadow"></div>
-          </div>
-          
-          {/* Success Heading */}
-          <h2 className="success-heading">
-            <span className="heading-text">Payment Successful!</span>
-            <span className="heading-decoration"></span>
-          </h2>
-          
-          {/* Order ID */}
-          <div className="order-id-container">
-            <div className="order-id-label">Order ID</div>
-            <div className="order-id-value">#{orderId}</div>
-            <div className="order-id-hint">Save this for reference</div>
-          </div>
-          
-          {/* Success Message */}
-          <div className="success-message-card">
-            <div className="message-icon">📦</div>
-            <p className="success-message">
-              Thank you for your purchase! Your order has been confirmed and will be shipped soon.
-            </p>
-            <p className="shipping-info">
-              You'll receive a confirmation email with tracking details shortly.
-            </p>
-          </div>
-          
-          {/* Contact Information */}
-          <div className="contact-info">
-            <p className="contact-text">
-              Need help? Contact our <a href="/support" className="support-link">customer support</a>
-            </p>
-          </div>
-          
-          {/* Action Buttons */}
-          <div className="success-actions">
-            <button 
-              className="btn-primary-custom"
-              onClick={() => window.location.href = "/"}
-            >
-              <span className="btn-icon">🛒</span>
-              Continue Shopping
-            </button>
-            <button 
-              className="btn-secondary-custom"
-              onClick={() => window.location.href = "/OrderHistory"}
-            >
-              <span className="btn-icon">📋</span>
-              View Orders
-            </button>
-            <button 
-              className="btn-tertiary-custom"
-              onClick={() => window.print()}
-            >
-              <span className="btn-icon">🖨️</span>
-              Print Receipt
-            </button>
-          </div>
-          
-          {/* Progress Indicator */}
-          <div className="order-progress">
-            <div className="progress-steps">
-              <div className="step completed">
-                <div className="step-number">1</div>
-                <div className="step-label">Order Placed</div>
-              </div>
-              <div className="step-line active"></div>
-              <div className="step active">
-                <div className="step-number">2</div>
-                <div className="step-label">Processing</div>
-              </div>
-              <div className="step-line"></div>
-              <div className="step">
-                <div className="step-number">3</div>
-                <div className="step-label">Shipped</div>
+
+            {/* Success Heading */}
+            <h2 className="success-heading">
+              <span className="heading-text">Payment Successful!</span>
+              <span className="heading-decoration"></span>
+            </h2>
+
+            {/* Order ID */}
+            <div className="order-id-container">
+              <div className="order-id-label">Order ID</div>
+              <div className="order-id-value">#{orderId || 'Processing...'}</div>
+              <div className="order-id-hint">Save this for reference</div>
+            </div>
+            {/* Success Message */}
+            <div className="success-message-card">
+              <div className="message-icon">📦</div>
+              <p className="success-message">
+                Thank you for your purchase! Your order has been confirmed and will be shipped soon.
+              </p>
+              <p className="shipping-info">
+                You'll receive a confirmation email with tracking details shortly.
+              </p>
+            </div>
+
+            {/* Contact Information */}
+            <div className="contact-info">
+              <p className="contact-text">
+                Need help? Contact our <a href="/support" className="support-link">customer support</a>
+              </p>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="success-actions">
+              <button
+                className="btn-primary-custom"
+                onClick={() => window.location.href = "/"}
+              >
+                <span className="btn-icon">🛒</span>
+                Continue Shopping
+              </button>
+              <button
+                className="btn-secondary-custom"
+                onClick={() => window.location.href = "/OrderHistory"}
+              >
+                <span className="btn-icon">📋</span>
+                View Orders
+              </button>
+              <button
+                className="btn-tertiary-custom"
+                onClick={() => window.print()}
+              >
+                <span className="btn-icon">🖨️</span>
+                Print Receipt
+              </button>
+            </div>
+
+            {/* Progress Indicator */}
+            <div className="order-progress">
+              <div className="progress-steps">
+                <div className="step completed">
+                  <div className="step-number">1</div>
+                  <div className="step-label">Order Placed</div>
+                </div>
+                <div className="step-line active"></div>
+                <div className="step active">
+                  <div className="step-number">2</div>
+                  <div className="step-label">Processing</div>
+                </div>
+                <div className="step-line"></div>
+                <div className="step">
+                  <div className="step-number">3</div>
+                  <div className="step-label">Shipped</div>
+                </div>
               </div>
             </div>
+
           </div>
-          
-        </div>
-        
-        {/* Confetti Effect */}
-        <div className="confetti-container">
-          {[...Array(50)].map((_, i) => (
-            <div key={i} className="confetti" style={{
-              left: `${Math.random() * 100}%`,
-              animationDelay: `${Math.random() * 3}s`,
-              backgroundColor: ['#4CAF50', '#2196F3', '#FF9800', '#E91E63'][Math.floor(Math.random() * 4)]
-            }} />
-          ))}
+
+          {/* Confetti Effect */}
+          <div className="confetti-container">
+            {[...Array(50)].map((_, i) => (
+              <div key={i} className="confetti" style={{
+                left: `${Math.random() * 100}%`,
+                animationDelay: `${Math.random() * 3}s`,
+                backgroundColor: ['#4CAF50', '#2196F3', '#FF9800', '#E91E63'][Math.floor(Math.random() * 4)]
+              }} />
+            ))}
+          </div>
         </div>
       </div>
-    </div>
     );
   };
 
@@ -993,19 +1096,17 @@ class CheckoutForm extends Component {
                       const product = item.productId && typeof item.productId === 'object'
                         ? item.productId
                         : { name: "Unknown Product", price: 0 };
-                      
+
                       return (
                         <div className="order-item" key={index}>
                           <div className="order-item-image">
-                            <img
-                              src={
-                                product.image
-                                  ? `http://localhost:5000/public/images/product_images/${product.image}`
-                                  : placeholderImage
-                              }
-                              alt={product.name}
-                              onError={(e) => (e.target.src = placeholderImage)}
-                            />
+                            {this.getProductImageUrl(product) && (
+                              <img
+                                src={this.getProductImageUrl(product)}
+                                alt={product.name}
+                                onError={(e) => (e.target.src = placeholderImage)}
+                              />
+                            )}
                           </div>
                           <div className="order-item-details">
                             <h5>{product.name}</h5>
@@ -1070,8 +1171,8 @@ class CheckoutForm extends Component {
                     </div>
                   )}
 
-                  <button 
-                    className="checkout-btn" 
+                  <button
+                    className="checkout-btn"
                     onClick={this.handlePayment}
                     disabled={isProcessing || !selectedAddressId}
                   >
@@ -1110,7 +1211,7 @@ class CheckoutForm extends Component {
           <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
         )}
         <style>
-        {`
+          {`
         /* Order Items Section */
 .order-items {
   display: flex;
@@ -1381,12 +1482,7 @@ class CheckoutForm extends Component {
   margin-bottom: 15px;
 }
 
-.success-message {
-  font-size: 1.1rem;
-  color: #333;
-  line-height: 1.6;
-  margin-bottom: 10px;
-}
+
 
 .shipping-info {
   font-size: 0.95rem;
@@ -1596,6 +1692,576 @@ class CheckoutForm extends Component {
   
   .step-line {
     display: none;
+  }
+}
+  /* Add to your existing CSS */
+.order-item-image {
+  width: 80px;
+  height: 80px;
+  flex-shrink: 0;
+  overflow: hidden;
+  border-radius: 8px;
+  background: #f5f5f5;
+}
+
+.order-item-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+  //success------------------------------------
+  /* Main Container */
+.checkout-success-container {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f8f9ff 0%, #f0f2ff 100%);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  font-family: 'Segoe UI', 'Inter', -apple-system, system-ui, sans-serif;
+}
+
+.checkout-success-wrapper {
+  position: relative;
+  width: 100%;
+  max-width: 550px;
+  background: white;
+  border-radius: 24px;
+  box-shadow: 0 20px 60px rgba(76, 95, 255, 0.15);
+  padding: 40px 30px;
+  overflow: hidden;
+  border: 1px solid rgba(76, 175, 80, 0.1);
+  animation: fadeIn 0.8s ease-out;
+}
+
+/* Success Icon */
+.success-icon-wrapper {
+  position: relative;
+  width: 120px;
+  height: 120px;
+  margin: 0 auto 30px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.success-icon-circle {
+  width: 80px;
+  height: 80px;
+  background: linear-gradient(135deg, #4CAF50 0%, #43a047 100%);
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2;
+  position: relative;
+  animation: scaleIn 0.6s ease-out 0.3s both;
+  box-shadow: 0 10px 30px rgba(76, 175, 80, 0.4);
+}
+
+.success-icon {
+  color: white;
+  font-size: 36px;
+  animation: checkmark 0.5s ease-out 0.8s both;
+}
+
+.success-icon-shadow {
+  position: absolute;
+  width: 100px;
+  height: 100px;
+  background: rgba(76, 175, 80, 0.2);
+  border-radius: 50%;
+  filter: blur(10px);
+  animation: pulse 2s infinite ease-in-out;
+}
+
+/* Success Heading */
+.success-heading {
+  text-align: center;
+  margin-bottom: 30px;
+  position: relative;
+}
+
+.heading-text {
+  font-size: 32px;
+  font-weight: 800;
+  background: linear-gradient(135deg, #4CAF50 0%, #2196F3 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  display: inline-block;
+  margin-bottom: 10px;
+}
+
+.heading-decoration {
+  display: block;
+  width: 60px;
+  height: 4px;
+  background: linear-gradient(to right, #4CAF50, #2196F3);
+  margin: 10px auto;
+  border-radius: 2px;
+  animation: widthGrow 1s ease-out 0.5s both;
+}
+
+/* Order ID Container */
+.order-id-container {
+  background: linear-gradient(135deg, #f8fff8 0%, #f0f8ff 100%);
+  border: 2px dashed #4CAF50;
+  border-radius: 16px;
+  padding: 20px;
+  text-align: center;
+  margin-bottom: 25px;
+  position: relative;
+  overflow: hidden;
+  animation: slideUp 0.6s ease-out 0.4s both;
+}
+
+.order-id-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(76, 175, 80, 0.1), transparent);
+  animation: shimmer 3s infinite;
+}
+
+.order-id-label {
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 8px;
+  font-weight: 600;
+  letter-spacing: 1px;
+}
+
+.order-id-value {
+  font-size: 22px;
+  font-weight: 700;
+  color: #2c3e50;
+  font-family: 'Courier New', monospace;
+  margin-bottom: 8px;
+  letter-spacing: 1px;
+  word-break: break-all;
+}
+
+.order-id-hint {
+  font-size: 13px;
+  color: #7f8c8d;
+  font-style: italic;
+}
+
+/* Success Message Card */
+.success-message-card {
+  background: white;
+  border-radius: 16px;
+  padding: 25px;
+  margin-bottom: 25px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.06);
+  border: 1px solid rgba(76, 175, 80, 0.15);
+  animation: slideUp 0.6s ease-out 0.6s both;
+  position: relative;
+  overflow: hidden;
+}
+
+.success-message-card::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 5px;
+  height: 100%;
+  background: linear-gradient(to bottom, #4CAF50, #2196F3);
+}
+
+.message-icon {
+  font-size: 24px;
+  margin-bottom: 15px;
+  display: inline-block;
+  animation: bounce 2s infinite;
+}
+
+.success-message {
+  font-size: 16px;
+  color: #2c3e50;
+  margin-bottom: 12px;
+  line-height: 1.6;
+  font-weight: 500;
+}
+
+.shipping-info {
+  font-size: 14px;
+  color: #7f8c8d;
+  line-height: 1.5;
+  font-style: italic;
+}
+
+/* Contact Information */
+.contact-info {
+  text-align: center;
+  margin-bottom: 30px;
+  animation: fadeIn 0.8s ease-out 0.8s both;
+}
+
+.contact-text {
+  font-size: 15px;
+  color: #666;
+}
+
+.support-link {
+  color: #2196F3;
+  text-decoration: none;
+  font-weight: 600;
+  position: relative;
+  transition: color 0.3s;
+}
+
+.support-link:hover {
+  color: #1976D2;
+}
+
+.support-link::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: #2196F3;
+  transform: scaleX(0);
+  transition: transform 0.3s;
+}
+
+.support-link:hover::after {
+  transform: scaleX(1);
+}
+
+/* Action Buttons */
+.success-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  justify-content: center;
+  margin-bottom: 40px;
+  animation: slideUp 0.6s ease-out 1s both;
+}
+
+.btn-primary-custom,
+.btn-secondary-custom,
+.btn-tertiary-custom {
+  padding: 15px 25px;
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  border: none;
+  min-width: 160px;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-primary-custom {
+  background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+  color: white;
+  box-shadow: 0 6px 20px rgba(76, 175, 80, 0.3);
+}
+
+.btn-secondary-custom {
+  background: white;
+  color: #2196F3;
+  border: 2px solid #2196F3;
+  box-shadow: 0 4px 15px rgba(33, 150, 243, 0.1);
+}
+
+.btn-tertiary-custom {
+  background: #f8f9fa;
+  color: #666;
+  border: 2px solid #e0e0e0;
+}
+
+.btn-icon {
+  font-size: 18px;
+}
+
+.btn-primary-custom:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 30px rgba(76, 175, 80, 0.4);
+}
+
+.btn-secondary-custom:hover {
+  transform: translateY(-3px);
+  background: #2196F3;
+  color: white;
+  box-shadow: 0 12px 30px rgba(33, 150, 243, 0.2);
+}
+
+.btn-tertiary-custom:hover {
+  transform: translateY(-3px);
+  border-color: #666;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+}
+
+.btn-primary-custom:active,
+.btn-secondary-custom:active,
+.btn-tertiary-custom:active {
+  transform: translateY(-1px);
+}
+
+/* Progress Indicator */
+.order-progress {
+  margin-top: 40px;
+  padding-top: 30px;
+  border-top: 1px solid #eee;
+  animation: fadeIn 1s ease-out 1.2s both;
+}
+
+.progress-steps {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+.step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  z-index: 2;
+}
+
+.step.completed .step-number {
+  background: linear-gradient(135deg, #4CAF50 0%, #43a047 100%);
+  color: white;
+  box-shadow: 0 6px 15px rgba(76, 175, 80, 0.3);
+}
+
+.step.active .step-number {
+  background: #2196F3;
+  color: white;
+  box-shadow: 0 6px 15px rgba(33, 150, 243, 0.3);
+}
+
+.step:not(.completed):not(.active) .step-number {
+  background: #f0f0f0;
+  color: #999;
+}
+
+.step-number {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 16px;
+  transition: all 0.4s ease;
+  margin-bottom: 10px;
+}
+
+.step-label {
+  font-size: 13px;
+  color: #666;
+  font-weight: 600;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.step-line {
+  flex: 1;
+  height: 3px;
+  background: #e0e0e0;
+  position: relative;
+  margin: 0 10px;
+}
+
+.step-line.active {
+  background: linear-gradient(to right, #4CAF50, #2196F3);
+  animation: lineProgress 1.5s ease-out 1.4s both;
+}
+
+/* Confetti */
+.confetti-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.confetti {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  opacity: 0;
+  border-radius: 2px;
+  animation: confettiFall 5s linear infinite;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    transform: scale(0);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes checkmark {
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(0.9);
+    opacity: 0.7;
+  }
+  50% {
+    transform: scale(1.1);
+    opacity: 0.4;
+  }
+}
+
+@keyframes widthGrow {
+  from {
+    width: 0;
+  }
+  to {
+    width: 60px;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(30px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    left: -100%;
+  }
+  100% {
+    left: 100%;
+  }
+}
+
+@keyframes lineProgress {
+  from {
+    width: 0;
+  }
+  to {
+    width: 100%;
+  }
+}
+
+@keyframes confettiFall {
+  0% {
+    transform: translateY(-100px) rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(1000px) rotate(720deg);
+    opacity: 0;
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .checkout-success-wrapper {
+    padding: 30px 20px;
+    margin: 20px;
+    border-radius: 20px;
+  }
+  
+  .heading-text {
+    font-size: 26px;
+  }
+  
+  .success-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .btn-primary-custom,
+  .btn-secondary-custom,
+  .btn-tertiary-custom {
+    width: 100%;
+    min-width: auto;
+  }
+  
+  .progress-steps {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px;
+  }
+  
+  .step-line {
+    display: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .checkout-success-wrapper {
+    padding: 25px 15px;
+  }
+  
+  .heading-text {
+    font-size: 22px;
+  }
+  
+  .order-id-value {
+    font-size: 18px;
+  }
+  
+  .success-message,
+  .shipping-info {
+    font-size: 14px;
   }
 }
   `}

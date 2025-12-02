@@ -167,6 +167,7 @@ export default function Ct_product() {
     }
   }, [selectedCategory, activeCategories]);
 
+  // Handler functions - Define all handlers before JSX
   const handleCategorySelect = (categoryName) => {
     setSelectedCategory(categoryName);
   };
