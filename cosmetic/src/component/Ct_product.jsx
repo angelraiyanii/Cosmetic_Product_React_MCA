@@ -410,6 +410,7 @@ export default function Ct_product() {
               const discountedPrice = product.discount 
                 ? (product.price - (product.price * product.discount / 100)).toFixed(2)
                 : null;
+              const outOfStock = (product.stock || 0) <= 0 || product.status === 'inactive';
                 
               return (
                 <div className="col" key={product._id}>
@@ -431,6 +432,13 @@ export default function Ct_product() {
                       {product.discount && (
                         <div className="discount-badge position-absolute top-0 start-0 bg-danger text-white px-2 py-1 m-2 rounded">
                           -{product.discount}%
+                        </div>
+                      )}
+
+                      {/* Out of Stock Badge */}
+                      {outOfStock && (
+                        <div className="position-absolute top-0 start-0 m-2">
+                          <span className="badge bg-danger">Out of Stock</span>
                         </div>
                       )}
                       
@@ -459,7 +467,7 @@ export default function Ct_product() {
                           <button
                             className="btn btn-dark w-50 rounded-pill d-flex align-items-center justify-content-center"
                             onClick={() => addToCart(product._id)}
-                            disabled={isLoading}
+                            disabled={isLoading || outOfStock}
                           >
                             {isLoading ? (
                               <div className="spinner-border spinner-border-sm" role="status">
@@ -474,12 +482,12 @@ export default function Ct_product() {
                           </button>
                           
                           <button
-                            className="btn glow-buy-now w-50 rounded-pill d-flex align-items-center justify-content-center"
+                            className={`btn glow-buy-now w-50 rounded-pill d-flex align-items-center justify-content-center ${outOfStock ? 'btn-secondary' : ''}`}
                             onClick={() => handleBuyNow(product._id)}
-                            disabled={isLoading}
+                            disabled={isLoading || outOfStock}
                           >
                             <FaBolt className="me-2" />
-                            Buy Now
+                            {outOfStock ? 'Unavailable' : 'Buy Now'}
                           </button>
                         </div>
                       </div>

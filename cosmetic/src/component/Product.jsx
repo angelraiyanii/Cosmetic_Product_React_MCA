@@ -446,9 +446,10 @@ class ProductComponent extends Component {
             {/* Products Grid */}
             <div className="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4">
               {currentProducts.map((product, index) => {
-                const discountedPrice = product.discount 
-                  ? (product.price - (product.price * product.discount / 100)).toFixed(2)
-                  : null;
+                  const discountedPrice = product.discount 
+                    ? (product.price - (product.price * product.discount / 100)).toFixed(2)
+                    : null;
+                  const outOfStock = (product.stock || 0) <= 0 || product.status === 'inactive';
                   
                 return (
                   <div className="col" key={product._id}>
@@ -470,6 +471,13 @@ class ProductComponent extends Component {
                         {product.discount && (
                           <div className="discount-badge position-absolute top-0 start-0 bg-danger text-white px-2 py-1 m-2 rounded">
                             -{product.discount}%
+                          </div>
+                        )}
+
+                        {/* Out of Stock Badge */}
+                        {outOfStock && (
+                          <div className="position-absolute top-0 start-0 m-2">
+                            <span className="badge bg-danger">Out of Stock</span>
                           </div>
                         )}
                         
@@ -495,31 +503,42 @@ class ProductComponent extends Component {
                         {/* Action Buttons on Hover */}
                         <div className="cosmetic-add-to-cart position-absolute bottom-0 w-100 p-2">
                           <div className="d-flex gap-2">
-                            <button
-                              className="btn btn-dark w-50 rounded-pill d-flex align-items-center justify-content-center"
-                              onClick={() => this.addToCart(product._id)}
-                              disabled={isLoading}
-                            >
-                              {isLoading ? (
-                                <div className="spinner-border spinner-border-sm" role="status">
-                                  <span className="visually-hidden">Loading...</span>
-                                </div>
-                              ) : (
-                                <>
-                                  <FaShoppingCart className="me-2" />
-                                  Add to Cart
-                                </>
-                              )}
-                            </button>
-                            
-                            <button
-                              className="btn glow-buy-now w-50 rounded-pill d-flex align-items-center justify-content-center"
-                              onClick={() => this.handleBuyNow(product._id)}
-                              disabled={isLoading}
-                            >
-                              <FaBolt className="me-2" />
-                              Buy Now
-                            </button>
+                            { /* compute out of stock */ }
+                            {
+                              (() => {
+                                const outOfStock = (product.stock || 0) <= 0 || product.status === 'inactive';
+                                return (
+                                  <>
+                                    <button
+                                      className="btn btn-dark w-50 rounded-pill d-flex align-items-center justify-content-center"
+                                      onClick={() => this.addToCart(product._id)}
+                                      disabled={isLoading || outOfStock}
+                                    >
+                                      {isLoading ? (
+                                        <div className="spinner-border spinner-border-sm" role="status">
+                                          <span className="visually-hidden">Loading...</span>
+                                        </div>
+                                      ) : (
+                                        <>
+                                          <FaShoppingCart className="me-2" />
+                                          {outOfStock ? 'Out of Stock' : 'Add to Cart'}
+                                        </>
+                                      )}
+                                    </button>
+
+                                    <button
+                                      className={`btn glow-buy-now w-50 rounded-pill d-flex align-items-center justify-content-center ${outOfStock ? 'btn-secondary' : ''}`}
+                                      onClick={() => this.handleBuyNow(product._id)}
+                                      disabled={isLoading || outOfStock}
+                                    >
+                                      <FaBolt className="me-2" />
+                                      {outOfStock ? 'Unavailable' : 'Buy Now'}
+                                    </button>
+                                  </>
+                                );
+                              })()
+                            }
+                          
                           </div>
                         </div>
                       </div>

@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const Order = require('../models/OrderModel');
+const Product = require('../models/ProductModel');
 
 // Get all orders (for admin)
 router.get("/", async (req, res) => {
@@ -41,6 +42,29 @@ router.post("/create", async (req, res) => {
     });
 
     await order.save();
+
+    // Decrement product stock for each ordered product
+    try {
+      if (order.products && Array.isArray(order.products)) {
+        for (const item of order.products) {
+          const prodId = item.productId;
+          const qty = parseInt(item.quantity) || 0;
+          if (!prodId) continue;
+
+          const product = await Product.findById(prodId);
+          if (!product) continue;
+
+          const newStock = Math.max(0, (product.stock || 0) - qty);
+          product.stock = newStock;
+          // If stock reaches zero, mark product as inactive
+          if (newStock === 0) product.status = 'inactive';
+          await product.save();
+        }
+      }
+    } catch (stockErr) {
+      console.error('Error updating product stock after order create:', stockErr);
+      // Do not fail the order creation if stock update fails
+    }
 
     res.status(200).json({
       success: true,
