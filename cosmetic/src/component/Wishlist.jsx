@@ -89,6 +89,7 @@ export class Wishlist extends Component {
       });
 
       alert("Product added to cart!");
+      window.location.reload();
     } catch (error) {
       console.error("Error adding to cart:", error);
       alert("Failed to add product to cart");
@@ -131,6 +132,7 @@ export class Wishlist extends Component {
       });
 
       alert(`${this.state.wishlistItems.length} items moved to cart!`);
+      window.location.reload();
     } catch (error) {
       console.error("Error moving items to cart:", error);
       this.setState({ isProcessing: false });

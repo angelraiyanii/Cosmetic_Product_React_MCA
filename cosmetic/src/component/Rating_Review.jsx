@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import axios from 'axios';
-import { FaStar, FaRegStar, FaThumbsUp, FaEdit, FaTrash, FaCheckCircle } from 'react-icons/fa';
+import { FaStar, FaRegStar, FaThumbsUp, FaEdit, FaTrash, FaCheckCircle, FaImage, FaTimes } from 'react-icons/fa';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 class Rating_Review extends Component {
@@ -18,6 +18,8 @@ class Rating_Review extends Component {
       hoverRating: 0,
       title: '',
       comment: '',
+      selectedImages: [],
+      imagePreviews: [],
       isSubmitting: false,
       // User status
       currentUser: null,
@@ -28,8 +30,13 @@ class Rating_Review extends Component {
       showReviewForm: false,
       isEditing: false,
       error: '',
-      success: ''
+      success: '',
+      // Image modal
+      showImageModal: false,
+      modalImages: [],
+      currentImageIndex: 0
     };
+    this.fileInputRef = React.createRef();
   }
 
   componentDidMount() {
@@ -69,24 +76,21 @@ class Rating_Review extends Component {
     if (!currentUser) return;
 
     try {
-      // Check if user has reviewed
       const reviewResponse = await axios.get(
         `http://localhost:5000/api/ReviewModel/check-review/${currentUser.id}/${productId}`
       );
-      
+
       this.setState({
         hasReviewed: reviewResponse.data.hasReviewed,
         userReview: reviewResponse.data.review
       });
 
-      // Check if user has purchased (optional)
       try {
         const purchaseResponse = await axios.get(
           `http://localhost:5000/api/ReviewModel/check-purchase/${currentUser.id}/${productId}`
         );
         this.setState({ hasPurchased: purchaseResponse.data.hasPurchased });
       } catch (error) {
-        // If purchase check fails, still allow review
         this.setState({ hasPurchased: true });
       }
     } catch (error) {
@@ -107,83 +111,157 @@ class Rating_Review extends Component {
     this.setState({ [name]: value });
   };
 
+  handleImageSelect = (e) => {
+    const files = Array.from(e.target.files);
+    const { selectedImages, imagePreviews } = this.state;
+
+    // Limit to 5 images total
+    const remainingSlots = 5 - selectedImages.length;
+    const filesToAdd = files.slice(0, remainingSlots);
+
+    if (files.length > remainingSlots) {
+      this.setState({
+        error: `You can only upload up to 5 images. ${files.length - remainingSlots} file(s) ignored.`
+      });
+      setTimeout(() => this.setState({ error: '' }), 3000);
+    }
+
+    // Validate file sizes (5MB each)
+    const validFiles = filesToAdd.filter(file => {
+      if (file.size > 5 * 1024 * 1024) {
+        this.setState({
+          error: `${file.name} is too large. Maximum size is 5MB.`
+        });
+        setTimeout(() => this.setState({ error: '' }), 3000);
+        return false;
+      }
+      return true;
+    });
+
+    if (validFiles.length === 0) return;
+
+    // Create previews
+    const newPreviews = validFiles.map(file => URL.createObjectURL(file));
+
+    this.setState({
+      selectedImages: [...selectedImages, ...validFiles],
+      imagePreviews: [...imagePreviews, ...newPreviews]
+    });
+  };
+
+  handleRemoveImage = (index) => {
+    const { selectedImages, imagePreviews } = this.state;
+
+    // Revoke the URL to free memory
+    URL.revokeObjectURL(imagePreviews[index]);
+
+    this.setState({
+      selectedImages: selectedImages.filter((_, i) => i !== index),
+      imagePreviews: imagePreviews.filter((_, i) => i !== index)
+    });
+
+    // Reset file input
+    if (this.fileInputRef.current) {
+      this.fileInputRef.current.value = '';
+    }
+  };
+
   validateForm = () => {
     const { rating, title, comment } = this.state;
-    
+
     if (rating === 0) {
       this.setState({ error: 'Please select a rating' });
       return false;
     }
-    if (title.trim().length < 2) {
-      this.setState({ error: 'Title must be at least 5 characters' });
+    if (title.trim().length < 5) {
+      this.setState({ error: 'Title must be at least 2 characters' });
       return false;
     }
-    if (comment.trim().length < 5) {
-      this.setState({ error: 'Review must be at least 20 characters' });
+    if (comment.trim().length < 20) {
+      this.setState({ error: 'Review must be at least 5 characters' });
       return false;
     }
-    
+
     return true;
   };
 
   handleSubmitReview = async (e) => {
     e.preventDefault();
-    
+
     if (!this.validateForm()) return;
 
-    const { currentUser, rating, title, comment, isEditing, userReview } = this.state;
+    const { currentUser, rating, title, comment, selectedImages, isEditing, userReview, imagePreviews } = this.state;
     const { productId } = this.props;
 
     this.setState({ isSubmitting: true, error: '', success: '' });
 
     try {
+      const formData = new FormData();
+      formData.append('userId', currentUser.id);
+      formData.append('productId', productId);
+      formData.append('rating', rating);
+      formData.append('title', title);
+      formData.append('comment', comment);
+      formData.append('userName', currentUser.fullname || currentUser.name || currentUser.username || currentUser.email);
+      formData.append('userEmail', currentUser.email || '');
+
+      // Append images (optional)
+      selectedImages.forEach((image) => {
+        formData.append('images', image);
+      });
+
       if (isEditing && userReview) {
-        // Update existing review
+        // If editing, you might want to keep some existing images
+        formData.append('imagesToKeep', JSON.stringify(userReview.images || []));
         await axios.put(
           `http://localhost:5000/api/ReviewModel/update/${userReview._id}`,
+          formData,
           {
-            userId: currentUser.id,
-            rating,
-            title,
-            comment
+            headers: {
+              'Content-Type': 'multipart/form-data'
+            }
           }
         );
         this.setState({ success: 'Review updated successfully!' });
       } else {
-        // Add new review
-        await axios.post('http://localhost:5000/api/ReviewModel/add', {
-          userId: currentUser.id,
-          productId,
-          rating,
-          title,
-          comment,
-          // User model uses 'fullname' in backend; fall back to other fields
-          userName: currentUser.fullname || currentUser.name || currentUser.username || currentUser.email,
-          userEmail: currentUser.email || currentUser.userEmail || ''
+        await axios.post('http://localhost:5000/api/ReviewModel/add', formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data'
+          }
         });
         this.setState({ success: 'Review submitted successfully!' });
       }
 
-      // Reset form and refresh reviews
+      // Clean up previews
+      imagePreviews.forEach(preview => URL.revokeObjectURL(preview));
+
       setTimeout(() => {
         this.setState({
           rating: 0,
           hoverRating: 0,
           title: '',
           comment: '',
+          selectedImages: [],
+          imagePreviews: [],
           showReviewForm: false,
           isEditing: false,
           success: ''
         });
+        if (this.fileInputRef.current) {
+          this.fileInputRef.current.value = '';
+        }
         this.fetchReviews();
         this.checkUserReviewStatus();
       }, 2000);
 
     } catch (error) {
       console.error('Error submitting review:', error.response?.data || error.message || error);
-      this.setState({ 
-        error: error.response?.data?.error || error.response?.data?.message || 'Failed to submit review' 
+      this.setState({
+        error: error.response?.data?.error || error.response?.data?.message || 'Failed to submit review'
       });
+
+      // Clean up previews even on error
+      imagePreviews.forEach(preview => URL.revokeObjectURL(preview));
     } finally {
       this.setState({ isSubmitting: false });
     }
@@ -196,7 +274,9 @@ class Rating_Review extends Component {
       title: userReview.title,
       comment: userReview.comment,
       showReviewForm: true,
-      isEditing: true
+      isEditing: true,
+      selectedImages: [],
+      imagePreviews: []
     });
   };
 
@@ -230,6 +310,32 @@ class Rating_Review extends Component {
     } catch (error) {
       console.error('Error marking review as helpful:', error);
     }
+  };
+
+  openImageModal = (images, startIndex = 0) => {
+    this.setState({
+      showImageModal: true,
+      modalImages: images,
+      currentImageIndex: startIndex
+    });
+  };
+
+  closeImageModal = () => {
+    this.setState({
+      showImageModal: false,
+      modalImages: [],
+      currentImageIndex: 0
+    });
+  };
+
+  navigateImage = (direction) => {
+    const { currentImageIndex, modalImages } = this.state;
+    let newIndex = currentImageIndex + direction;
+
+    if (newIndex < 0) newIndex = modalImages.length - 1;
+    if (newIndex >= modalImages.length) newIndex = 0;
+
+    this.setState({ currentImageIndex: newIndex });
   };
 
   renderStars = (rating, interactive = false, size = 'md') => {
@@ -293,44 +399,248 @@ class Rating_Review extends Component {
     );
   };
 
+  renderImageModal = () => {
+    const { showImageModal, modalImages, currentImageIndex } = this.state;
+
+    if (!showImageModal || modalImages.length === 0) return null;
+
+    return (
+      <div
+        className="modal d-block"
+        style={{ backgroundColor: 'rgba(0,0,0,0.9)' }}
+        onClick={this.closeImageModal}
+      >
+        <div className="modal-dialog modal-dialog-centered modal-lg">
+          <div className="modal-content bg-transparent border-0">
+            <div className="modal-header border-0">
+              <button
+                type="button"
+                className="btn-close btn-close-white"
+                onClick={this.closeImageModal}
+              />
+            </div>
+            <div className="modal-body text-center position-relative">
+              <img
+                src={`http://localhost:5000${modalImages[currentImageIndex]}`}
+                className="img-fluid"
+                style={{ maxHeight: "80vh" }}
+                alt={`Review image ${currentImageIndex + 1}`}
+              />
+
+              {modalImages.length > 1 && (
+                <>
+                  <button
+                    className="btn btn-light position-absolute start-0 top-50 translate-middle-y ms-3"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      this.navigateImage(-1);
+                    }}
+                  >
+                    ‹
+                  </button>
+                  <button
+                    className="btn btn-light position-absolute end-0 top-50 translate-middle-y me-3"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      this.navigateImage(1);
+                    }}
+                  >
+                    ›
+                  </button>
+                  <div className="text-white mt-2">
+                    {currentImageIndex + 1} / {modalImages.length}
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
+renderReviewImages = (images) => {
+  console.log('Review images:', images);
+  if (!images || images.length === 0) return null;
+
+  return (
+    <div className="review-images mt-3">
+      <div className="d-flex flex-wrap gap-2">
+        {images.map((imageUrl, index) => {
+          // FIXED: Use the correct path - images are in /images/ratingreview_images/
+          const fullImageUrl = `http://localhost:5000/images/ratingreview_images/${imageUrl.split('/').pop()}`;
+          
+          return (
+            <div
+              key={index}
+              className="review-image-thumbnail cursor-pointer"
+              onClick={() => this.openImageModal(images, index)}
+            >
+              <img
+                src={fullImageUrl}
+                alt={`Review image ${index + 1}`}
+                className="img-thumbnail"
+                style={{ width: '100px', height: '100px', objectFit: 'cover' }}
+                onError={(e) => {
+                  // Set a fallback image or hide it
+                  e.target.style.display = 'none';
+                  console.warn(`Failed to load review image: ${imageUrl}`);
+                }}
+                onLoad={(e) => {
+                  console.log(`Successfully loaded image: ${imageUrl}`);
+                }}
+              />
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+};
+
+renderImageModal = () => {
+  const { showImageModal, modalImages, currentImageIndex } = this.state;
+
+  if (!showImageModal || modalImages.length === 0) return null;
+
+  const currentImage = modalImages[currentImageIndex];
+  // FIXED: Extract just the filename and build correct URL
+  const fileName = currentImage.split('/').pop();
+  const fullImageUrl = `http://localhost:5000/images/ratingreview_images/${fileName}`;
+
+  return (
+    <div
+      className="modal d-block"
+      style={{ backgroundColor: 'rgba(0,0,0,0.9)' }}
+      onClick={this.closeImageModal}
+    >
+      <div className="modal-dialog modal-dialog-centered modal-lg">
+        <div className="modal-content bg-transparent border-0">
+          <div className="modal-header border-0">
+            <button
+              type="button"
+              className="btn-close btn-close-white"
+              onClick={this.closeImageModal}
+            />
+          </div>
+          <div className="modal-body text-center position-relative">
+            <img
+              src={fullImageUrl}
+              className="img-fluid"
+              style={{ maxHeight: "80vh" }}
+              alt={`Review image ${currentImageIndex + 1}`}
+              onError={(e) => {
+                e.target.src = '/placeholder-image.jpg'; // Fallback
+                console.error(`Failed to load modal image: ${currentImage}`);
+              }}
+            />
+
+            {modalImages.length > 1 && (
+              <>
+                <button
+                  className="btn btn-light position-absolute start-0 top-50 translate-middle-y ms-3"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    this.navigateImage(-1);
+                  }}
+                >
+                  ‹
+                </button>
+                <button
+                  className="btn btn-light position-absolute end-0 top-50 translate-middle-y me-3"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    this.navigateImage(1);
+                  }}
+                >
+                  ›
+                </button>
+                <div className="text-white mt-2">
+                  {currentImageIndex + 1} / {modalImages.length}
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+  renderImagePreviews = () => {
+    const { imagePreviews, selectedImages } = this.state;
+
+    if (imagePreviews.length === 0) return null;
+
+    return (
+      <div className="mb-3">
+        <label className="form-label fw-bold">Image Previews:</label>
+        <div className="d-flex flex-wrap gap-2">
+          {imagePreviews.map((preview, index) => (
+            <div key={index} className="position-relative" style={{ width: '100px', height: '100px' }}>
+              <img
+                src={preview}
+                alt={`Preview ${index + 1}`}
+                className="img-thumbnail w-100 h-100"
+                style={{ objectFit: 'cover' }}
+              />
+              <button
+                type="button"
+                className="btn btn-sm btn-danger position-absolute top-0 end-0 p-1"
+                onClick={() => this.handleRemoveImage(index)}
+                style={{ transform: 'translate(50%, -50%)' }}
+              >
+                <FaTimes />
+              </button>
+              <div className="position-absolute bottom-0 start-0 w-100 bg-dark bg-opacity-75 text-white text-center py-1">
+                {selectedImages[index]?.name || `Image ${index + 1}`}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  };
+
+
+
   renderReviewForm = () => {
-    const { 
-      rating, 
-      title, 
-      comment, 
-      isSubmitting, 
-      error, 
+    const {
+      rating,
+      title,
+      comment,
+      selectedImages,
+      isSubmitting,
+      error,
       success,
-      isEditing 
+      isEditing
     } = this.state;
 
     return (
       <div className="review-form-container bg-light p-4 rounded-3 mb-4">
         <h5 className="mb-3">{isEditing ? 'Edit Your Review' : 'Write a Review'}</h5>
-        
+
         {error && (
           <div className="alert alert-danger alert-dismissible fade show">
             {error}
-            <button 
-              type="button" 
-              className="btn-close" 
+            <button
+              type="button"
+              className="btn-close"
               onClick={() => this.setState({ error: '' })}
             />
           </div>
         )}
-        
+
         {success && (
           <div className="alert alert-success alert-dismissible fade show">
             {success}
-            <button 
-              type="button" 
-              className="btn-close" 
+            <button
+              type="button"
+              className="btn-close"
               onClick={() => this.setState({ success: '' })}
             />
           </div>
         )}
 
-        <form onSubmit={this.handleSubmitReview}>
+        <div onSubmit={this.handleSubmitReview}>
           <div className="mb-3">
             <label className="form-label fw-bold">Your Rating *</label>
             {this.renderStars(rating, true, 'lg')}
@@ -366,11 +676,36 @@ class Rating_Review extends Component {
             <small className="text-muted">{comment.length}/1000 characters</small>
           </div>
 
+          <div className="mb-3">
+            <label className="form-label fw-bold">
+              <FaImage className="me-2" />
+              Add Images (Optional - Max 5)
+            </label>
+            <input
+              ref={this.fileInputRef}
+              type="file"
+              className="form-control"
+              accept="image/*"
+              multiple
+              onChange={this.handleImageSelect}
+              disabled={selectedImages.length >= 5}
+            />
+            <small className="text-muted d-block mt-1">
+              You can upload up to 5 images. Max 5MB per image. Supported formats: JPG, PNG, GIF
+            </small>
+            <small className="text-muted">
+              <strong>Note:</strong> Images are optional - you can submit your review without any images.
+            </small>
+          </div>
+
+          {this.renderImagePreviews()}
+
           <div className="d-flex gap-2">
             <button
-              type="submit"
+              type="button"
               className="btn btn-dark px-4"
               disabled={isSubmitting}
+              onClick={this.handleSubmitReview}
             >
               {isSubmitting ? (
                 <>
@@ -384,32 +719,41 @@ class Rating_Review extends Component {
             <button
               type="button"
               className="btn btn-outline-secondary"
-              onClick={() => this.setState({ 
-                showReviewForm: false, 
-                isEditing: false,
-                rating: 0,
-                title: '',
-                comment: '',
-                error: ''
-              })}
+              onClick={() => {
+                // Clean up previews
+                this.state.imagePreviews.forEach(preview => URL.revokeObjectURL(preview));
+                this.setState({
+                  showReviewForm: false,
+                  isEditing: false,
+                  rating: 0,
+                  title: '',
+                  comment: '',
+                  selectedImages: [],
+                  imagePreviews: [],
+                  error: ''
+                });
+                if (this.fileInputRef.current) {
+                  this.fileInputRef.current.value = '';
+                }
+              }}
             >
               Cancel
             </button>
           </div>
-        </form>
+        </div>
       </div>
     );
   };
 
   render() {
-    const { 
-      reviews, 
-      statistics, 
-      currentUser, 
-      hasReviewed, 
+    const {
+      reviews,
+      statistics,
+      currentUser,
+      hasReviewed,
       hasPurchased,
       userReview,
-      showReviewForm 
+      showReviewForm
     } = this.state;
 
     return (
@@ -461,6 +805,7 @@ class Rating_Review extends Component {
                   </div>
                   <h6 className="fw-bold">{userReview.title}</h6>
                   <p className="mb-0">{userReview.comment}</p>
+                  {this.renderReviewImages(userReview.images)}
                   {userReview.isVerifiedPurchase && (
                     <div className="mt-2">
                       <span className="badge bg-success">
@@ -473,7 +818,7 @@ class Rating_Review extends Component {
               ) : !hasReviewed && !showReviewForm ? (
                 <div className="text-center p-4 bg-light rounded-3">
                   <p className="mb-3">
-                    {hasPurchased 
+                    {hasPurchased
                       ? "You haven't reviewed this product yet. Share your experience!"
                       : "Purchase this product to leave a review"}
                   </p>
@@ -504,7 +849,7 @@ class Rating_Review extends Component {
           {/* Reviews List */}
           <div className="reviews-list">
             <h4 className="mb-4">Customer Reviews ({statistics.totalReviews})</h4>
-            
+
             {reviews.length === 0 ? (
               <div className="text-center py-5">
                 <p className="text-muted">No reviews yet. Be the first to review!</p>
@@ -533,12 +878,14 @@ class Rating_Review extends Component {
                       })}
                     </small>
                   </div>
-                  
+
                   <h6 className="fw-bold mb-2">{review.title}</h6>
                   <p className="mb-3">{review.comment}</p>
-                  
+
+                  {this.renderReviewImages(review.images)}
+
                   <button
-                    className="btn btn-sm btn-outline-secondary"
+                    className="btn btn-sm btn-outline-secondary mt-3"
                     onClick={() => this.handleMarkHelpful(review._id)}
                   >
                     <FaThumbsUp className="me-1" />
@@ -549,6 +896,8 @@ class Rating_Review extends Component {
             )}
           </div>
         </div>
+
+        {this.renderImageModal()}
 
         {/* Custom Styles */}
         <style>{`
@@ -581,6 +930,19 @@ class Rating_Review extends Component {
           .form-control:focus {
             border-color: #6c757d;
             box-shadow: 0 0 0 0.2rem rgba(108, 117, 125, 0.25);
+          }
+
+          .review-image-thumbnail {
+            cursor: pointer;
+            transition: transform 0.2s ease;
+          }
+
+          .review-image-thumbnail:hover {
+            transform: scale(1.05);
+          }
+
+          .cursor-pointer {
+            cursor: pointer;
           }
         `}</style>
       </div>

@@ -704,109 +704,181 @@ class CheckoutForm extends Component {
 
     return (
       <div className="checkout-success-container">
-        <div className="checkout-success-wrapper">
-          <div className="success-content">
+      <div className="checkout-success-wrapper">
+        <div className="success-content">
+          {/* Success Icon with Animation */}
+          <div className="success-icon-wrapper">
+            <div className="success-icon-circle">
+              <FaCheck className="success-icon" />
+            </div>
+            <div className="success-rings">
+              <div className="ring ring-1"></div>
+              <div className="ring ring-2"></div>
+              <div className="ring ring-3"></div>
+            </div>
+          </div>
 
-            {/* Success Icon */}
-            <div className="success-icon-wrapper">
-              <div className="success-icon-circle">
-                <FaCheck className="success-icon" />
+          {/* Success Header */}
+          <div className="success-header">
+            <h1 className="success-title">🎉 Payment Successful!</h1>
+            <p className="success-subtitle">Your order is confirmed</p>
+          </div>
+
+          {/* Order Details Card */}
+          <div className="order-details-card">
+            <div className="order-header">
+              <div className="order-icon">📦</div>
+              <div className="order-info">
+                <h3>Order Confirmation</h3>
+                <p className="order-time">Confirmed at {new Date().toLocaleTimeString()}</p>
               </div>
-              <div className="success-icon-shadow"></div>
             </div>
 
-            {/* Success Heading */}
-            <h2 className="success-heading">
-              <span className="heading-text">Payment Successful!</span>
-              <span className="heading-decoration"></span>
-            </h2>
-
-            {/* Order ID */}
-            <div className="order-id-container">
-              <div className="order-id-label">Order ID</div>
-              <div className="order-id-value">#{orderId || 'Processing...'}</div>
-              <div className="order-id-hint">Save this for reference</div>
+            {/* Order ID Section */}
+            <div className="order-id-section">
+              <div className="order-id-label">
+                <FaTag className="label-icon" />
+                <span>Order ID</span>
+              </div>
+              <div className="order-id-value">
+                <code>#{orderId || '6931531ada7285967ffb5544'}</code>
+                <button 
+                  className="copy-btn"
+                  onClick={() => {
+                    navigator.clipboard.writeText(orderId);
+                    alert('Order ID copied to clipboard!');
+                  }}
+                >
+                  📋 Copy
+                </button>
+              </div>
+              <p className="order-id-note">Save this for tracking and reference</p>
             </div>
 
-            {/* Success Message */}
-            <div className="success-message-card">
-              <div className="message-icon">📦</div>
-              <p className="success-message">
-                Thank you for your purchase! Your order has been confirmed and will be shipped soon.
-              </p>
-              <p className="shipping-info">
-                You'll receive a confirmation email with tracking details shortly.
-              </p>
+            {/* Confirmation Message */}
+            <div className="confirmation-message">
+              <div className="message-icon">✅</div>
+              <div className="message-content">
+                <h4>Thank you for your purchase!</h4>
+                <p>Your order has been confirmed and will be shipped soon.</p>
+              </div>
             </div>
 
-            {/* Contact Information */}
-            <div className="contact-info">
-              <p className="contact-text">
-                Need help? Contact our <a href="/support" className="support-link">customer support</a>
-              </p>
+            {/* Delivery Info */}
+            <div className="delivery-info">
+              <div className="info-item">
+                <FaEnvelope className="info-icon" />
+                <div className="info-content">
+                  <span className="info-label">Confirmation Email</span>
+                  <span className="info-value">Will be sent within 5 minutes</span>
+                </div>
+              </div>
+              <div className="info-item">
+                <FaTruck className="info-icon" />
+                <div className="info-content">
+                  <span className="info-label">Delivery Time</span>
+                  <span className="info-value">3-5 business days</span>
+                </div>
+              </div>
+              <div className="info-item">
+                <FaPhone className="info-icon" />
+                <div className="info-content">
+                  <span className="info-label">Need Help?</span>
+                  <span className="info-value">
+                    Contact our <a href="/support" className="support-link">customer support</a>
+                  </span>
+                </div>
+              </div>
             </div>
+          </div>
 
-            {/* Action Buttons */}
-            <div className="success-actions">
-              <button
-                className="btn-primary-custom"
-                onClick={() => window.location.href = "/"}
-              >
-                <FaShoppingBag className="btn-icon" />
-                Continue Shopping
-              </button>
+          {/* Action Buttons */}
+          <div className="success-actions">
+            <button
+              className="btn-continue"
+              onClick={() => window.location.href = "/"}
+            >
+              <FaShoppingBag className="btn-icon" />
+              Continue Shopping
+            </button>
 
-              <button
-                className="btn-secondary-custom"
-                onClick={() => window.location.href = "/OrderHistory"}
-              >
-                <FaBox className="btn-icon" />
-                View Orders
-              </button>
+            <button
+              className="btn-orders"
+              onClick={() => window.location.href = "/OrderHistory"}
+            >
+              <FaBox className="btn-icon" />
+              View My Orders
+            </button>
 
-              <button
-                className="btn-tertiary-custom"
-                onClick={() => window.print()}
-              >
-                <FaCheck className="btn-icon" />
-                Print Receipt
-              </button>
-            </div>
+            <button
+              className="btn-print"
+              onClick={() => window.print()}
+            >
+              <FaCheck className="btn-icon" />
+              Print Receipt
+            </button>
+          </div>
 
-
-            {/* Progress Indicator */}
-            <div className="order-progress">
-              <div className="progress-steps">
-                <div className="step completed">
-                  <div className="step-number">1</div>
-                  <div className="step-label">Order Placed</div>
+          {/* Order Timeline */}
+          <div className="order-timeline">
+            <div className="timeline-title">Order Status</div>
+            <div className="timeline-steps">
+              <div className="timeline-step active completed">
+                <div className="step-circle">1</div>
+                <div className="step-info">
+                  <span className="step-label">Order Placed</span>
+                  <span className="step-time">Just now</span>
                 </div>
                 <div className="step-line active"></div>
-                <div className="step active">
-                  <div className="step-number">2</div>
-                  <div className="step-label">Processing</div>
+              </div>
+
+              <div className="timeline-step active">
+                <div className="step-circle pulse">2</div>
+                <div className="step-info">
+                  <span className="step-label">Processing</span>
+                  <span className="step-time">Next step</span>
                 </div>
                 <div className="step-line"></div>
-                <div className="step">
-                  <div className="step-number">3</div>
-                  <div className="step-label">Shipped</div>
+              </div>
+
+              <div className="timeline-step">
+                <div className="step-circle">3</div>
+                <div className="step-info">
+                  <span className="step-label">Shipped</span>
+                  <span className="step-time">Estimated: 24 hours</span>
+                </div>
+                <div className="step-line"></div>
+              </div>
+
+              <div className="timeline-step">
+                <div className="step-circle">4</div>
+                <div className="step-info">
+                  <span className="step-label">Delivered</span>
+                  <span className="step-time">3-5 days</span>
                 </div>
               </div>
             </div>
-
           </div>
 
-          {/* Confetti Effect */}
-          <div className="confetti-container">
-            {[...Array(50)].map((_, i) => (
-              <div key={i} className="confetti" style={{
-                left: `${Math.random() * 100}%`,
-                animationDelay: `${Math.random() * 3}s`,
-                backgroundColor: ['#4CAF50', '#2196F3', '#FF9800', '#E91E63'][Math.floor(Math.random() * 4)]
-              }} />
-            ))}
+          {/* Thank You Note */}
+          <div className="thank-you-note">
+            <p>✨ Thank you for shopping with us! We've sent a confirmation to your email.</p>
           </div>
         </div>
+
+        {/* Confetti Animation */}
+        <div className="confetti-container">
+          {[...Array(100)].map((_, i) => (
+            <div key={i} className="confetti" style={{
+              left: `${Math.random() * 100}%`,
+              animationDelay: `${Math.random() * 2}s`,
+              backgroundColor: ['#4CAF50', '#2196F3', '#FF9800', '#E91E63', '#9C27B0'][Math.floor(Math.random() * 5)],
+              width: `${Math.random() * 10 + 5}px`,
+              height: `${Math.random() * 10 + 5}px`
+            }} />
+          ))}
+        </div>
+      </div>
       </div>
     );
   };
@@ -1715,567 +1787,522 @@ class CheckoutForm extends Component {
   object-fit: cover;
   display: block;
 }
-  //success------------------------------------
-  /* Main Container */
-.checkout-success-container {
-  min-height: 100vh;
-  background: linear-gradient(135deg, #f8f9ff 0%, #f0f2ff 100%);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 20px;
-  font-family: 'Segoe UI', 'Inter', -apple-system, system-ui, sans-serif;
-}
-.checkout-success-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh; 
-  padding: 20px;       
-  }
+  // ---------------------------------success css start---------------------------------
+       
+        /* Enhanced Success Styles */
+        .checkout-success-container {
+          min-height: 100vh;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          padding: 20px;
+          font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
 
-.checkout-success-wrapper {
-  position: relative;
-  width: 100%;
-  max-width: 550px;
-  background: white;
-  border-radius: 24px;
-  box-shadow: 0 20px 60px rgba(76, 95, 255, 0.15);
-  padding: 40px 30px;
-  overflow: hidden;
-  border: 1px solid rgba(76, 175, 80, 0.1);
-  animation: fadeIn 0.8s ease-out;
-}
+        .checkout-success-wrapper {
+          position: relative;
+          max-width: 800px;
+          width: 100%;
+          background: white;
+          border-radius: 24px;
+          overflow: hidden;
+          box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+          animation: slideUp 0.6s ease;
+        }
 
-/* Success Icon */
-.success-icon-wrapper {
-  position: relative;
-  width: 120px;
-  height: 120px;
-  margin: 0 auto 30px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
+        .success-content {
+          padding: 40px;
+          position: relative;
+          z-index: 2;
+          background: white;
+        }
 
-.success-icon-circle {
-  width: 80px;
-  height: 80px;
-  background: linear-gradient(135deg, #4CAF50 0%, #43a047 100%);
-  border-radius: 50%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 2;
-  position: relative;
-  animation: scaleIn 0.6s ease-out 0.3s both;
-  box-shadow: 0 10px 30px rgba(76, 175, 80, 0.4);
-}
+        /* Success Icon */
+        .success-icon-wrapper {
+          position: relative;
+          width: 120px;
+          height: 120px;
+          margin: 0 auto 30px;
+        }
 
-.success-icon {
-  color: white;
-  font-size: 36px;
-  animation: checkmark 0.5s ease-out 0.8s both;
-}
+        .success-icon-circle {
+          width: 100%;
+          height: 100%;
+          background: linear-gradient(135deg, #4CAF50, #2E7D32);
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          position: relative;
+          z-index: 2;
+          animation: scaleIn 0.5s ease 0.3s both;
+        }
 
-.success-icon-shadow {
-  position: absolute;
-  width: 100px;
-  height: 100px;
-  background: rgba(76, 175, 80, 0.2);
-  border-radius: 50%;
-  filter: blur(10px);
-  animation: pulse 2s infinite ease-in-out;
-}
+        .success-icon {
+          color: white;
+          font-size: 50px;
+          animation: checkmark 0.3s ease 0.6s both;
+        }
 
-/* Success Heading */
-.success-heading {
-  text-align: center;
-  margin-bottom: 30px;
-  position: relative;
-}
+        .success-rings .ring {
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+          border: 2px solid rgba(76, 175, 80, 0.3);
+          border-radius: 50%;
+          animation: ripple 2s infinite;
+        }
 
-.heading-text {
-  font-size: 32px;
-  font-weight: 800;
-  background: linear-gradient(135deg, #4CAF50 0%, #2196F3 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  display: inline-block;
-  margin-bottom: 10px;
-}
+        .ring-1 { width: 140px; height: 140px; animation-delay: 0s; }
+        .ring-2 { width: 160px; height: 160px; animation-delay: 0.5s; }
+        .ring-3 { width: 180px; height: 180px; animation-delay: 1s; }
 
-.heading-decoration {
-  display: block;
-  width: 60px;
-  height: 4px;
-  background: linear-gradient(to right, #4CAF50, #2196F3);
-  margin: 10px auto;
-  border-radius: 2px;
-  animation: widthGrow 1s ease-out 0.5s both;
-}
+        @keyframes ripple {
+          0% { transform: translate(-50%, -50%) scale(0.8); opacity: 1; }
+          100% { transform: translate(-50%, -50%) scale(1.3); opacity: 0; }
+        }
 
-/* Order ID Container */
-.order-id-container {
-  background: linear-gradient(135deg, #f8fff8 0%, #f0f8ff 100%);
-  border: 2px dashed #4CAF50;
-  border-radius: 16px;
-  padding: 20px;
-  text-align: center;
-  margin-bottom: 25px;
-  position: relative;
-  overflow: hidden;
-  animation: slideUp 0.6s ease-out 0.4s both;
-}
+        /* Header */
+        .success-header {
+          text-align: center;
+          margin-bottom: 40px;
+        }
 
-.order-id-container::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(76, 175, 80, 0.1), transparent);
-  animation: shimmer 3s infinite;
-}
+        .success-title {
+          font-size: 2.5rem;
+          font-weight: 800;
+          background: linear-gradient(135deg, #4CAF50, #2196F3);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          margin-bottom: 10px;
+        }
 
-.order-id-label {
-  font-size: 14px;
-  color: #666;
-  margin-bottom: 8px;
-  font-weight: 600;
-  letter-spacing: 1px;
-}
+        .success-subtitle {
+          color: #666;
+          font-size: 1.1rem;
+        }
 
-.order-id-value {
-  font-size: 22px;
-  font-weight: 700;
-  color: #2c3e50;
-  font-family: 'Courier New', monospace;
-  margin-bottom: 8px;
-  letter-spacing: 1px;
-  word-break: break-all;
-}
+        /* Order Details Card */
+        .order-details-card {
+          background: #f8fafc;
+          border-radius: 16px;
+          padding: 30px;
+          margin-bottom: 30px;
+          border: 1px solid #e2e8f0;
+        }
 
-.order-id-hint {
-  font-size: 13px;
-  color: #7f8c8d;
-  font-style: italic;
-}
+        .order-header {
+          display: flex;
+          align-items: center;
+          gap: 15px;
+          margin-bottom: 25px;
+          padding-bottom: 20px;
+          border-bottom: 2px solid #e2e8f0;
+        }
 
-/* Success Message Card */
-.success-message-card {
-  background: white;
-  border-radius: 16px;
-  padding: 25px;
-  margin-bottom: 25px;
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.06);
-  border: 1px solid rgba(76, 175, 80, 0.15);
-  animation: slideUp 0.6s ease-out 0.6s both;
-  position: relative;
-  overflow: hidden;
-}
+        .order-icon {
+          font-size: 2.5rem;
+          background: linear-gradient(135deg, #667eea, #764ba2);
+          width: 60px;
+          height: 60px;
+          border-radius: 12px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: white;
+        }
 
-.success-message-card::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 5px;
-  height: 100%;
-  background: linear-gradient(to bottom, #4CAF50, #2196F3);
-}
+        .order-info h3 {
+          margin: 0;
+          font-size: 1.5rem;
+          color: #1a202c;
+        }
 
-.message-icon {
-  font-size: 24px;
-  margin-bottom: 15px;
-  display: inline-block;
-  animation: bounce 2s infinite;
-}
+        .order-time {
+          margin: 5px 0 0 0;
+          color: #718096;
+          font-size: 0.9rem;
+        }
 
-.success-message {
-  font-size: 16px;
-  color: #2c3e50;
-  margin-bottom: 12px;
-  line-height: 1.6;
-  font-weight: 500;
-}
+        /* Order ID Section */
+        .order-id-section {
+          background: white;
+          padding: 20px;
+          border-radius: 12px;
+          margin-bottom: 25px;
+          border: 1px solid #e2e8f0;
+        }
 
-.shipping-info {
-  font-size: 14px;
-  color: #7f8c8d;
-  line-height: 1.5;
-  font-style: italic;
-}
+        .order-id-label {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          color: #4a5568;
+          font-size: 0.9rem;
+          margin-bottom: 10px;
+        }
 
-/* Contact Information */
-.contact-info {
-  text-align: center;
-  margin-bottom: 30px;
-  animation: fadeIn 0.8s ease-out 0.8s both;
-}
+        .order-id-value {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 10px;
+        }
 
-.contact-text {
-  font-size: 15px;
-  color: #666;
-}
+        .order-id-value code {
+          font-size: 1.5rem;
+          font-weight: 700;
+          color: #2d3748;
+          font-family: 'Courier New', monospace;
+          background: #f7fafc;
+          padding: 8px 16px;
+          border-radius: 8px;
+          flex: 1;
+          margin-right: 15px;
+        }
 
-.support-link {
-  color: #2196F3;
-  text-decoration: none;
-  font-weight: 600;
-  position: relative;
-  transition: color 0.3s;
-}
+        .copy-btn {
+          background: #4CAF50;
+          color: white;
+          border: none;
+          padding: 8px 16px;
+          border-radius: 6px;
+          cursor: pointer;
+          font-size: 0.9rem;
+          transition: background 0.3s;
+        }
 
-.support-link:hover {
-  color: #1976D2;
-}
+        .copy-btn:hover {
+          background: #2E7D32;
+        }
 
-.support-link::after {
-  content: '';
-  position: absolute;
-  bottom: -2px;
-  left: 0;
-  width: 100%;
-  height: 2px;
-  background: #2196F3;
-  transform: scaleX(0);
-  transition: transform 0.3s;
-}
+        .order-id-note {
+          color: #718096;
+          font-size: 0.85rem;
+          text-align: center;
+          margin: 0;
+        }
 
-.support-link:hover::after {
-  transform: scaleX(1);
-}
+        /* Confirmation Message */
+        .confirmation-message {
+          display: flex;
+          align-items: center;
+          gap: 15px;
+          background: linear-gradient(135deg, rgba(76, 175, 80, 0.1), rgba(33, 150, 243, 0.1));
+          padding: 20px;
+          border-radius: 12px;
+          margin-bottom: 25px;
+        }
 
-/* Action Buttons */
-.success-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 15px;
-  justify-content: center;
-  margin-bottom: 40px;
-  animation: slideUp 0.6s ease-out 1s both;
-}
+        .message-icon {
+          font-size: 2rem;
+        }
 
-.btn-primary-custom,
-.btn-secondary-custom,
-.btn-tertiary-custom {
-  padding: 15px 25px;
-  border-radius: 12px;
-  font-size: 15px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  border: none;
-  min-width: 160px;
-  position: relative;
-  overflow: hidden;
-}
+        .message-content h4 {
+          margin: 0 0 5px 0;
+          color: #2d3748;
+        }
 
-.btn-primary-custom {
-  background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
-  color: white;
-  box-shadow: 0 6px 20px rgba(76, 175, 80, 0.3);
-}
+        .message-content p {
+          margin: 0;
+          color: #4a5568;
+        }
 
-.btn-secondary-custom {
-  background: white;
-  color: #2196F3;
-  border: 2px solid #2196F3;
-  box-shadow: 0 4px 15px rgba(33, 150, 243, 0.1);
-}
+        /* Delivery Info */
+        .delivery-info {
+          display: flex;
+          flex-direction: column;
+          gap: 15px;
+        }
 
-.btn-tertiary-custom {
-  background: #f8f9fa;
-  color: #666;
-  border: 2px solid #e0e0e0;
-}
+        .info-item {
+          display: flex;
+          align-items: center;
+          gap: 15px;
+          padding: 12px;
+          background: white;
+          border-radius: 8px;
+          border: 1px solid #e2e8f0;
+        }
 
-.btn-icon {
-  font-size: 18px;
-}
+        .info-icon {
+          color: #4CAF50;
+          font-size: 1.2rem;
+        }
 
-.btn-primary-custom:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 12px 30px rgba(76, 175, 80, 0.4);
-}
+        .info-content {
+          display: flex;
+          flex-direction: column;
+        }
 
-.btn-secondary-custom:hover {
-  transform: translateY(-3px);
-  background: #2196F3;
-  color: white;
-  box-shadow: 0 12px 30px rgba(33, 150, 243, 0.2);
-}
+        .info-label {
+          font-size: 0.9rem;
+          color: #718096;
+        }
 
-.btn-tertiary-custom:hover {
-  transform: translateY(-3px);
-  border-color: #666;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
-}
+        .info-value {
+          font-size: 1rem;
+          color: #2d3748;
+          font-weight: 500;
+        }
 
-.btn-primary-custom:active,
-.btn-secondary-custom:active,
-.btn-tertiary-custom:active {
-  transform: translateY(-1px);
-}
+        .support-link {
+          color: #2196F3;
+          text-decoration: none;
+          font-weight: 600;
+        }
 
-/* Progress Indicator */
-.order-progress {
-  margin-top: 40px;
-  padding-top: 30px;
-  border-top: 1px solid #eee;
-  animation: fadeIn 1s ease-out 1.2s both;
-}
+        .support-link:hover {
+          text-decoration: underline;
+        }
 
-.progress-steps {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  max-width: 400px;
-  margin: 0 auto;
-}
+        /* Action Buttons */
+        .success-actions {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+          gap: 15px;
+          margin-bottom: 40px;
+        }
 
-.step {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  position: relative;
-  z-index: 2;
-}
+        .success-actions button {
+          padding: 16px 24px;
+          border: none;
+          border-radius: 12px;
+          font-size: 1rem;
+          font-weight: 600;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 10px;
+          transition: all 0.3s ease;
+        }
 
-.step.completed .step-number {
-  background: linear-gradient(135deg, #4CAF50 0%, #43a047 100%);
-  color: white;
-  box-shadow: 0 6px 15px rgba(76, 175, 80, 0.3);
-}
+        .btn-continue {
+          background: linear-gradient(135deg, #4CAF50, #2E7D32);
+          color: white;
+          box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+        }
 
-.step.active .step-number {
-  background: #2196F3;
-  color: white;
-  box-shadow: 0 6px 15px rgba(33, 150, 243, 0.3);
-}
+        .btn-orders {
+          background: linear-gradient(135deg, #2196F3, #1976D2);
+          color: white;
+          box-shadow: 0 4px 15px rgba(33, 150, 243, 0.3);
+        }
 
-.step:not(.completed):not(.active) .step-number {
-  background: #f0f0f0;
-  color: #999;
-}
+        .btn-print {
+          background: linear-gradient(135deg, #9C27B0, #7B1FA2);
+          color: white;
+          box-shadow: 0 4px 15px rgba(156, 39, 176, 0.3);
+        }
 
-.step-number {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 700;
-  font-size: 16px;
-  transition: all 0.4s ease;
-  margin-bottom: 10px;
-}
+        .success-actions button:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+        }
 
-.step-label {
-  font-size: 13px;
-  color: #666;
-  font-weight: 600;
-  text-align: center;
-  white-space: nowrap;
-}
+        /* Order Timeline */
+        .order-timeline {
+          background: #f8fafc;
+          padding: 25px;
+          border-radius: 16px;
+          margin-bottom: 25px;
+        }
 
-.step-line {
-  flex: 1;
-  height: 3px;
-  background: #e0e0e0;
-  position: relative;
-  margin: 0 10px;
-}
+        .timeline-title {
+          font-size: 1.2rem;
+          font-weight: 600;
+          color: #2d3748;
+          margin-bottom: 20px;
+        }
 
-.step-line.active {
-  background: linear-gradient(to right, #4CAF50, #2196F3);
-  animation: lineProgress 1.5s ease-out 1.4s both;
-}
+        .timeline-steps {
+          display: grid;
+          grid-template-columns: repeat(4, 1fr);
+          position: relative;
+        }
 
-/* Confetti */
-.confetti-container {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-  z-index: 1;
-}
+        .timeline-step {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          position: relative;
+        }
 
-.confetti {
-  position: absolute;
-  width: 12px;
-  height: 12px;
-  opacity: 0;
-  border-radius: 2px;
-  animation: confettiFall 5s linear infinite;
-}
+        .step-circle {
+          width: 40px;
+          height: 40px;
+          border-radius: 50%;
+          background: #e2e8f0;
+          color: #718096;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-weight: 600;
+          margin-bottom: 10px;
+          position: relative;
+          z-index: 2;
+        }
 
-/* Animations */
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
+        .timeline-step.active .step-circle {
+          background: linear-gradient(135deg, #4CAF50, #2196F3);
+          color: white;
+        }
 
-@keyframes scaleIn {
-  from {
-    transform: scale(0);
-    opacity: 0;
-  }
-  to {
-    transform: scale(1);
-    opacity: 1;
-  }
-}
+        .timeline-step.completed .step-circle {
+          background: #4CAF50;
+        }
 
-@keyframes checkmark {
-  0% {
-    transform: scale(0);
-    opacity: 0;
-  }
-  50% {
-    transform: scale(1.2);
-  }
-  100% {
-    transform: scale(1);
-    opacity: 1;
-  }
-}
+        .step-circle.pulse {
+          animation: pulse 2s infinite;
+        }
 
-@keyframes pulse {
-  0%, 100% {
-    transform: scale(0.9);
-    opacity: 0.7;
-  }
-  50% {
-    transform: scale(1.1);
-    opacity: 0.4;
-  }
-}
+        .step-info {
+          text-align: center;
+        }
 
-@keyframes widthGrow {
-  from {
-    width: 0;
-  }
-  to {
-    width: 60px;
-  }
-}
+        .step-label {
+          display: block;
+          font-size: 0.9rem;
+          color: #4a5568;
+          font-weight: 500;
+        }
 
-@keyframes slideUp {
-  from {
-    transform: translateY(30px);
-    opacity: 0;
-  }
-  to {
-    transform: translateY(0);
-    opacity: 1;
-  }
-}
+        .step-time {
+          display: block;
+          font-size: 0.8rem;
+          color: #718096;
+        }
 
-@keyframes bounce {
-  0%, 100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-5px);
-  }
-}
+        .step-line {
+          position: absolute;
+          top: 20px;
+          right: -50%;
+          width: 100%;
+          height: 3px;
+          background: #e2e8f0;
+          z-index: 1;
+        }
 
-@keyframes shimmer {
-  0% {
-    left: -100%;
-  }
-  100% {
-    left: 100%;
-  }
-}
+        .step-line.active {
+          background: #4CAF50;
+        }
 
-@keyframes lineProgress {
-  from {
-    width: 0;
-  }
-  to {
-    width: 100%;
-  }
-}
+        /* Thank You Note */
+        .thank-you-note {
+          text-align: center;
+          padding: 20px;
+          background: linear-gradient(135deg, rgba(76, 175, 80, 0.1), rgba(33, 150, 243, 0.1));
+          border-radius: 12px;
+          color: #2d3748;
+        }
 
-@keyframes confettiFall {
-  0% {
-    transform: translateY(-100px) rotate(0deg);
-    opacity: 1;
-  }
-  100% {
-    transform: translateY(1000px) rotate(720deg);
-    opacity: 0;
-  }
-}
+        .thank-you-note p {
+          margin: 0;
+          font-size: 1rem;
+        }
 
-/* Responsive Design */
-@media (max-width: 768px) {
-  .checkout-success-wrapper {
-    padding: 30px 20px;
-    margin: 20px;
-    border-radius: 20px;
-  }
-  
-  .heading-text {
-    font-size: 26px;
-  }
-  
-  .success-actions {
-    flex-direction: column;
-    align-items: stretch;
-  }
-  
-  .btn-primary-custom,
-  .btn-secondary-custom,
-  .btn-tertiary-custom {
-    width: 100%;
-    min-width: auto;
-  }
-  
-  .progress-steps {
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 20px;
-  }
-  
-  .step-line {
-    display: none;
-  }
-}
+        /* Confetti */
+        .confetti-container {
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          pointer-events: none;
+          z-index: 1;
+          overflow: hidden;
+        }
 
-@media (max-width: 480px) {
-  .checkout-success-wrapper {
-    padding: 25px 15px;
-  }
-  
-  .heading-text {
-    font-size: 22px;
-  }
-  
-  .order-id-value {
-    font-size: 18px;
-  }
-  
-  .success-message,
-  .shipping-info {
-    font-size: 14px;
-  }
-}
+        .confetti {
+          position: absolute;
+          width: 10px;
+          height: 10px;
+          opacity: 0;
+          animation: confettiFall 3s linear forwards;
+          border-radius: 2px;
+        }
+
+        @keyframes confettiFall {
+          0% {
+            transform: translateY(-100px) rotate(0deg);
+            opacity: 1;
+          }
+          100% {
+            transform: translateY(800px) rotate(720deg);
+            opacity: 0;
+          }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+          .checkout-success-wrapper {
+            margin: 20px;
+          }
+
+          .success-content {
+            padding: 25px;
+          }
+
+          .success-title {
+            font-size: 2rem;
+          }
+
+          .success-actions {
+            grid-template-columns: 1fr;
+          }
+
+          .timeline-steps {
+            grid-template-columns: 1fr;
+            gap: 20px;
+          }
+
+          .step-line {
+            display: none;
+          }
+
+          .order-id-value {
+            flex-direction: column;
+            gap: 10px;
+          }
+
+          .order-id-value code {
+            margin-right: 0;
+            text-align: center;
+            font-size: 1.2rem;
+            overflow-wrap: break-word;
+            word-wrap: break-word;
+          }
+        }
+
+        @keyframes slideUp {
+          from {
+            transform: translateY(30px);
+            opacity: 0;
+          }
+          to {
+            transform: translateY(0);
+            opacity: 1;
+          }
+        }
+
+        @keyframes scaleIn {
+          from { transform: scale(0); }
+          to { transform: scale(1); }
+        }
+
+        @keyframes checkmark {
+          from { transform: scale(0); }
+          to { transform: scale(1); }
+        }
+
+        @keyframes pulse {
+          0%, 100% { transform: scale(1); }
+          50% { transform: scale(1.1); }
+        }
+  // ---------------------------------success css end---------------------------------
   `}
         </style>
       </div>

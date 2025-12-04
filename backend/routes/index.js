@@ -5,8 +5,9 @@ const router = express.Router();
 router.get('/', (req, res) => {
   res.json({ message: 'API is working!' });
 });
+const path = require("path");
 router.use('/public', express.static('public'));
-
+router.use('/images', express.static(path.join(__dirname, 'public/images')));
 // User 
 const Userroutes = require("./userroutes");
 router.use("/UserModel", Userroutes);
@@ -52,7 +53,7 @@ const razorpayRoutes = require('./razorpayRoutes');
 router.use('/payment', razorpayRoutes);
 
 //review
-const reviewRoutes = require('./reviewRoutes');
+const reviewRoutes = require('./ReviewRoutes');
 router.use('/ReviewModel', reviewRoutes);
 // Test route
 router.get("/", (req, res) => {

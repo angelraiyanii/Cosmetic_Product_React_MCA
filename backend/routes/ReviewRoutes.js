@@ -1,23 +1,60 @@
 const express = require('express');
 const router = express.Router();
+const multer = require('multer');
+const path = require('path');
+const fs = require('fs');
 const Review = require('../models/ReviewModel');
 const Order = require('../models/OrderModel');
+
+// Create uploads directory if it doesn't exist
+const uploadsDir = path.join(__dirname, '../public/images/ratingreview_images');
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir, { recursive: true });
+}
+
+// Configure multer for image upload
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, uploadsDir);
+  },
+  filename: function (req, file, cb) {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    cb(null, 'review-' + uniqueSuffix + path.extname(file.originalname));
+  }
+});
+
+const fileFilter = (req, file, cb) => {
+  // Accept images only
+  if (file.mimetype.startsWith('image/')) {
+    cb(null, true);
+  } else {
+    cb(new Error('Only image files are allowed!'), false);
+  }
+};
+
+const upload = multer({
+  storage: storage,
+  fileFilter: fileFilter,
+  limits: {
+    fileSize: 5 * 1024 * 1024 // 5MB limit per image
+  }
+});
 
 // Get all reviews for a product
 router.get('/product/:productId', async (req, res) => {
   try {
     const { productId } = req.params;
-    const reviews = await Review.find({ 
-      productId, 
-      status: 'approved' 
+    const reviews = await Review.find({
+      productId,
+      status: 'approved'
     })
-    .sort({ createdAt: -1 })
-    .populate('userId', 'fullname email');
+      .sort({ createdAt: -1 })
+      .populate('userId', 'fullname email');
 
     // Calculate average rating
     const totalReviews = reviews.length;
-    const averageRating = totalReviews > 0 
-      ? reviews.reduce((sum, review) => sum + review.rating, 0) / totalReviews 
+    const averageRating = totalReviews > 0
+      ? reviews.reduce((sum, review) => sum + review.rating, 0) / totalReviews
       : 0;
 
     // Rating distribution
@@ -43,19 +80,17 @@ router.get('/product/:productId', async (req, res) => {
   }
 });
 
-// Check if user has purchased the product - FIXED FOR YOUR ORDER SCHEMA
+// Check if user has purchased the product
 router.get('/check-purchase/:userId/:productId', async (req, res) => {
   try {
     const { userId, productId } = req.params;
-    
+
     console.log('🔍 Checking purchase for userId:', userId, 'productId:', productId);
-    
-    // YOUR ORDER SCHEMA USES 'products' NOT 'items'
-    // Check if user has any completed order with this product
+
     const hasPurchased = await Order.findOne({
       userId,
       'products.productId': productId,
-      paymentStatus: 'paid' // Your schema uses 'paid' status
+      paymentStatus: 'paid'
     });
 
     console.log('✅ Purchase check result:', !!hasPurchased);
@@ -71,10 +106,10 @@ router.get('/check-purchase/:userId/:productId', async (req, res) => {
 router.get('/check-review/:userId/:productId', async (req, res) => {
   try {
     const { userId, productId } = req.params;
-    
+
     const existingReview = await Review.findOne({ userId, productId });
 
-    res.json({ 
+    res.json({
       hasReviewed: !!existingReview,
       review: existingReview
     });
@@ -84,33 +119,46 @@ router.get('/check-review/:userId/:productId', async (req, res) => {
   }
 });
 
-// Add a new review - FIXED FOR YOUR ORDER SCHEMA
-router.post('/add', async (req, res) => {
+// Add a new review with optional images (max 5 images)
+router.post('/add', upload.array('images', 5), async (req, res) => {
   try {
     const { userId, productId, rating, title, comment, userName, userEmail } = req.body;
 
     console.log('📝 Adding review:', { userId, productId, rating, title });
+    console.log('📸 Images uploaded:', req.files?.length || 0);
 
     // Validate required fields
     if (!userId || !productId || !rating || !title || !comment) {
+      // Delete uploaded files if validation fails
+      if (req.files) {
+        req.files.forEach(file => fs.unlinkSync(file.path));
+      }
       return res.status(400).json({ error: 'All fields are required' });
     }
 
     // Check if user already reviewed this product
     const existingReview = await Review.findOne({ userId, productId });
     if (existingReview) {
+      // Delete uploaded files
+      if (req.files) {
+        req.files.forEach(file => fs.unlinkSync(file.path));
+      }
       return res.status(400).json({ error: 'You have already reviewed this product' });
     }
 
-    // Check if user has purchased the product - FIXED FOR YOUR SCHEMA
+    // Check if user has purchased the product
     const hasPurchased = await Order.findOne({
       userId,
-      'products.productId': productId, // YOUR SCHEMA USES 'products'
-      paymentStatus: 'paid' // YOUR SCHEMA USES 'paid'
+      'products.productId': productId,
+      paymentStatus: 'paid'
     });
 
     console.log('💳 Purchase verification:', !!hasPurchased);
 
+    // Get image URLs
+    const imageUrls = req.files
+      ? req.files.map(file => `/images/ratingreview_images/${file.filename}`)
+      : [];
     const review = new Review({
       userId,
       productId,
@@ -119,19 +167,32 @@ router.post('/add', async (req, res) => {
       comment,
       userName,
       userEmail,
+      images: imageUrls,
       isVerifiedPurchase: !!hasPurchased
     });
 
     await review.save();
 
-    console.log('✅ Review saved successfully');
+    console.log('✅ Review saved successfully with', imageUrls.length, 'images');
 
-    res.status(201).json({ 
-      message: 'Review added successfully', 
-      review 
+    res.status(201).json({
+      message: 'Review added successfully',
+      review
     });
   } catch (error) {
     console.error('❌ Error adding review:', error);
+
+    // Delete uploaded files on error
+    if (req.files) {
+      req.files.forEach(file => {
+        try {
+          fs.unlinkSync(file.path);
+        } catch (err) {
+          console.error('Error deleting file:', err);
+        }
+      });
+    }
+
     if (error.code === 11000) {
       res.status(400).json({ error: 'You have already reviewed this product' });
     } else {
@@ -140,30 +201,70 @@ router.post('/add', async (req, res) => {
   }
 });
 
-// Update a review
-router.put('/update/:reviewId', async (req, res) => {
+// Update a review with optional images
+router.put('/update/:reviewId', upload.array('images', 5), async (req, res) => {
   try {
     const { reviewId } = req.params;
-    const { userId, rating, title, comment } = req.body;
+    const { userId, rating, title, comment, imagesToKeep } = req.body; // imagesToKeep will be JSON string
 
     const review = await Review.findOne({ _id: reviewId, userId });
-
     if (!review) {
+      if (req.files) req.files.forEach(f => fs.unlinkSync(f.path));
       return res.status(404).json({ error: 'Review not found or unauthorized' });
     }
 
-    review.rating = rating;
-    review.title = title;
-    review.comment = comment;
+    let imageUrls = [];
+
+    // Parse images to keep (sent from frontend as JSON string)
+    let imagesToKeepArray = [];
+    if (imagesToKeep) {
+      try {
+        imagesToKeepArray = JSON.parse(imagesToKeep);
+      } catch (e) {
+        console.error('Failed to parse imagesToKeep');
+      }
+    }
+
+    // If user sends imagesToKeep → use only those from existing
+    if (Array.isArray(imagesToKeepArray) && imagesToKeepArray.length > 0) {
+      imageUrls = review.images.filter(img => imagesToKeepArray.includes(img));
+    } else if (!req.files || req.files.length === 0) {
+      // No new files & no imagesToKeep → keep all old images
+      imageUrls = [...review.images];
+    }
+    // Delete images that are no longer used
+    const finalImageSet = new Set(imageUrls);
+    review.images.forEach(oldImg => {
+      if (!finalImageSet.has(oldImg)) {
+        const imagePath = path.join(__dirname, '..', 'public', oldImg);
+        if (fs.existsSync(imagePath)) {
+          fs.unlinkSync(imagePath);
+        }
+      }
+    });
+
+    // Add new uploaded images
+    if (req.files && req.files.length > 0) {
+      const newImageUrls = req.files.map(file => `/images/ratingreview_images/${file.filename}`);
+      imageUrls = [...imageUrls, ...newImageUrls];
+    }
+
+    // Update review
+    review.rating = rating || review.rating;
+    review.title = title || review.title;
+    review.comment = comment || review.comment;
+    review.images = imageUrls;
 
     await review.save();
 
-    res.json({ 
-      message: 'Review updated successfully', 
-      review 
-    });
+    res.json({ message: 'Review updated successfully', review });
   } catch (error) {
     console.error('Error updating review:', error);
+    if (req.files) {
+      req.files.forEach(file => {
+        try { fs.unlinkSync(file.path); } catch (err) { }
+      });
+    }
     res.status(500).json({ error: 'Failed to update review' });
   }
 });
@@ -173,11 +274,28 @@ router.delete('/delete/:reviewId/:userId', async (req, res) => {
   try {
     const { reviewId, userId } = req.params;
 
-    const review = await Review.findOneAndDelete({ _id: reviewId, userId });
+    const review = await Review.findOne({ _id: reviewId, userId });
 
     if (!review) {
       return res.status(404).json({ error: 'Review not found or unauthorized' });
     }
+
+    // Delete associated images
+    if (review.images && review.images.length > 0) {
+      review.images.forEach(imageUrl => {
+        const imagePath = path.join(__dirname, '..', imageUrl);
+        if (fs.existsSync(imagePath)) {
+          try {
+            fs.unlinkSync(imagePath);
+            console.log('🗑️ Deleted image:', imagePath);
+          } catch (err) {
+            console.error('Error deleting image:', err);
+          }
+        }
+      });
+    }
+
+    await Review.findOneAndDelete({ _id: reviewId, userId });
 
     res.json({ message: 'Review deleted successfully' });
   } catch (error) {
@@ -201,9 +319,9 @@ router.post('/helpful/:reviewId', async (req, res) => {
       return res.status(404).json({ error: 'Review not found' });
     }
 
-    res.json({ 
-      message: 'Review marked as helpful', 
-      helpful: review.helpful 
+    res.json({
+      message: 'Review marked as helpful',
+      helpful: review.helpful
     });
   } catch (error) {
     console.error('Error marking review as helpful:', error);
@@ -215,7 +333,7 @@ router.post('/helpful/:reviewId', async (req, res) => {
 router.get('/user/:userId', async (req, res) => {
   try {
     const { userId } = req.params;
-    
+
     const reviews = await Review.find({ userId })
       .sort({ createdAt: -1 })
       .populate('productId', 'name image');

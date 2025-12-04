@@ -198,12 +198,14 @@ export default function Ct_product() {
           prevLiked.map((likedState, i) => (i === index ? true : likedState))
         );
         alert("Added to wishlist!");
+        window.location.reload();
       } else {
         await axios.delete(`http://localhost:5000/api/WishlistModel/${userId}/${productId}`);
         setLiked((prevLiked) =>
           prevLiked.map((likedState, i) => (i === index ? false : likedState))
         );
         alert("Removed from wishlist!");
+        window.location.reload();
       }
     } catch (error) {
       console.error(
@@ -244,6 +246,7 @@ export default function Ct_product() {
 
       console.log("Added to cart response:", response.data);
       alert("Product added to cart successfully!");
+      window.location.reload();
     } catch (error) {
       console.error(
         "Error adding to cart:",

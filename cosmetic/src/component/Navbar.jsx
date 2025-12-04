@@ -230,11 +230,10 @@ function Navbar() {
           name: category.categoryName,
           type: 'category',
           icon: getCategoryIcon(category.categoryName),
-          color: getCategoryColor(category.categoryName),
+          color: getCategoryColor(category.categoryName), // This applies the color
           action: () => handleCategoryClick(category.categoryName)
         });
       });
-
       // Search in static pages
       const matchingPages = staticPages.filter(page =>
         page.name.toLowerCase().includes(queryLower)
@@ -430,52 +429,57 @@ function Navbar() {
   };
 
   const isAdmin = user && user.role === "admin";
-
-  const getCategoryIcon = (categoryName) => {
-    switch (categoryName.toLowerCase()) {
-      case 'skincare': return 'fa-spray-can';
-      case 'makeup': return 'fa-palette';
-      case 'haircare': return 'fa-spa';
-      case 'fragrance': return 'fa-wind';
-      case 'bath & body': return 'fa-bath';
-      case 'face': return 'fa-smile';
-      case 'lips': return 'fa-kiss';
-      case 'eyes': return 'fa-eye';
-      case 'nails': return 'fa-hand-paper';
-      case 'gift sets': return 'fa-gift';
-      case 'luxury collection': return 'fa-crown';
-      default: return 'fa-shopping-bag';
-    }
+const getCategoryIcon = (categoryName) => {
+  const categoryMap = {
+    'skincare': 'fa-spray-can',
+    'makeup': 'fa-palette',
+    'haircare': 'fa-spa',
+    'fragrance': 'fa-wind',
+    'bath & body': 'fa-bath',
+    'body & bath': 'fa-bath',
+    'organic beauty': 'fa-leaf',
+    'organic': 'fa-leaf',
+    'tools & accessories': 'fa-brush', // Changed from fa-tools to fa-brush
+    'tools': 'fa-brush', // Changed from fa-tools to fa-brush
+    'accessories': 'fa-brush', // Changed from fa-tools to fa-brush
+    'face': 'fa-smile',
+    'lips': 'fa-kiss',
+    'eyes': 'fa-eye',
+    'nails': 'fa-hand-paper',
+    'gift sets': 'fa-gift',
+    'gift': 'fa-gift',
+    'luxury collection': 'fa-crown',
+    'luxury': 'fa-crown'
   };
+  
+  return categoryMap[categoryName.toLowerCase()] || 'fa-shopping-bag';
+};
 
-  const getCategoryColor = (categoryName) => {
-    switch (categoryName.toLowerCase()) {
-      case 'skincare': return 'text-info';
-      case 'makeup': return 'text-danger';
-      case 'haircare': return 'text-success';
-      case 'fragrance': return 'text-warning';
-      case 'bath & body': return 'text-primary';
-      case 'face': return 'text-info';
-      case 'lips': return 'text-danger';
-      case 'eyes': return 'text-purple';
-      case 'nails': return 'text-pink';
-      case 'gift sets': return 'text-success';
-      case 'luxury collection': return 'text-warning';
-      default: return 'text-secondary';
-    }
-  };
 
-  const getResultTypeLabel = (type) => {
-    switch (type) {
-      case 'category': return 'Category';
-      case 'product': return 'Product';
-      case 'page': return 'Page';
-      case 'special': return 'Collection';
-      case 'price': return 'Price Filter';
-      default: return 'Result';
-    }
-  };
 
+const getCategoryColor = (categoryName) => {
+  switch (categoryName.toLowerCase()) {
+    case 'skincare': return 'text-info';
+    case 'makeup': return 'text-danger';
+    case 'haircare': return 'text-success';
+    case 'fragrance': return 'text-warning';
+    case 'bath & body': return 'text-primary';
+    case 'body & bath': return 'text-primary'; // Added this
+    case 'organic beauty': return 'text-success'; // Added this - green for organic
+    case 'tools & accessories': return 'text-secondary'; // Added this
+    case 'face': return 'text-info';
+    case 'lips': return 'text-danger';
+    case 'eyes': return 'text-purple';
+    case 'nails': return 'text-pink';
+    case 'gift sets': return 'text-success';
+    case 'gift': return 'text-success';
+    case 'luxury collection': return 'text-warning';
+    case 'organic': return 'text-success'; // Added this
+    case 'tools': return 'text-secondary'; // Added this
+    case 'accessories': return 'text-secondary'; // Added this
+    default: return 'text-secondary';
+  }
+};
   return (
     <>
       {/* External CSS and JS */}

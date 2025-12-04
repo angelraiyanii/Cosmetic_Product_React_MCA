@@ -37,6 +37,11 @@ const reviewSchema = new mongoose.Schema({
     type: String,
     required: true
   },
+  // NEW: Array of image URLs
+  images: [{
+    type: String,
+    trim: true
+  }],
   isVerifiedPurchase: {
     type: Boolean,
     default: false
