@@ -114,11 +114,11 @@ class Rating_Review extends Component {
       this.setState({ error: 'Please select a rating' });
       return false;
     }
-    if (title.trim().length < 5) {
+    if (title.trim().length < 2) {
       this.setState({ error: 'Title must be at least 5 characters' });
       return false;
     }
-    if (comment.trim().length < 20) {
+    if (comment.trim().length < 5) {
       this.setState({ error: 'Review must be at least 20 characters' });
       return false;
     }

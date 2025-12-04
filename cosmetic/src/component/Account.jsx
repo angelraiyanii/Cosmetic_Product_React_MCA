@@ -37,12 +37,13 @@ function Account() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [passwordErrors, setPasswordErrors] = useState({});
   const [isUpdatingPassword, setIsUpdatingPassword] = useState(false);
-  const [isRedirecting, setIsRedirecting] = useState(false); // ✅ Add redirect state
+  const [isRedirecting, setIsRedirecting] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (!token) {
-      setIsRedirecting(true); // ✅ Set redirecting state
+      setIsRedirecting(true);
       navigate("/login");
       return;
     }
@@ -64,7 +65,7 @@ function Account() {
 
       if (response.status === 401) {
         localStorage.removeItem("token");
-        setIsRedirecting(true); // ✅ Set redirecting state
+        setIsRedirecting(true);
         navigate("/login");
         return;
       }
@@ -72,8 +73,17 @@ function Account() {
       if (!response.ok) throw new Error("Failed to fetch user data");
 
       const data = await response.json();
-      setUser(data.user);
-      setEditedUser(data.user);
+      
+      // ✅ FIX: Ensure _id is set properly
+      const userData = {
+        ...data.user,
+        _id: data.user._id || data.user.id // Use _id if exists, fallback to id
+      };
+      
+      console.log("Fetched user data:", userData); // Debug log
+      
+      setUser(userData);
+      setEditedUser(userData);
       setLoading(false);
     } catch (err) {
       setError(err.message);
@@ -88,33 +98,78 @@ function Account() {
     setEditedUser(user);
     setProfilePicPreview(null);
     setSelectedFile(null);
+    setFormErrors({});
   };
 
   const handleSave = async () => {
+    // ✅ Check if user exists with proper _id
+    if (!user) {
+      setError("User data not loaded. Please refresh the page.");
+      return;
+    }
+
+    // ✅ Get the ID (try both _id and id)
+    const userId = user._id || user.id;
+    
+    if (!userId) {
+      setError("User ID not found. Please refresh the page.");
+      console.error("User object:", user);
+      return;
+    }
+
     try {
+      setIsSaving(true);
+      setError(null);
+      
       const formData = new FormData();
-      Object.keys(editedUser).forEach((key) => {
-        if (key !== "profilePic") {
-          formData.append(key, editedUser[key]);
-        }
-      });
+      
+      // ✅ Add all user fields to formData
+      if (editedUser.fullname) formData.append("fullname", editedUser.fullname);
+      if (editedUser.email) formData.append("email", editedUser.email);
+      if (editedUser.mobile) formData.append("mobile", editedUser.mobile);
+      if (editedUser.gender) formData.append("gender", editedUser.gender);
+      if (editedUser.pincode) formData.append("pincode", editedUser.pincode);
+      if (editedUser.address) formData.append("address", editedUser.address);
 
       if (selectedFile) formData.append("profilePic", selectedFile);
 
+      console.log("Updating user with ID:", userId); // ✅ Debug log
+
       const response = await fetch(
-        `http://localhost:5000/api/Usermodel/${user._id}`,
-        { method: "PUT", body: formData }
+        `http://localhost:5000/api/Usermodel/${userId}`,
+        { 
+          method: "PUT", 
+          body: formData 
+        }
       );
 
-      if (!response.ok) throw new Error("Failed to update user");
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to update user");
+      }
 
       const data = await response.json();
-      setUser(data.Usermodel);
+      console.log("Update response:", data); // Debug log
+      
+      // ✅ Ensure the updated user has _id
+      const updatedUserData = {
+        ...data.Usermodel,
+        _id: data.Usermodel._id || data.Usermodel.id || userId
+      };
+      
+      setUser(updatedUserData);
+      setEditedUser(updatedUserData);
       setIsEditing(false);
       setProfilePicPreview(null);
       setSelectedFile(null);
+      
+      alert("Profile updated successfully!");
+      
     } catch (err) {
-      setError(err.message);
+      console.error("Update error:", err);
+      setError(err.message || "Failed to update profile");
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -127,6 +182,8 @@ function Account() {
 
     if (!newPassword.trim()) {
       errors.newPassword = "New password is required";
+    } else if (newPassword.length < 6) {
+      errors.newPassword = "Password must be at least 6 characters";
     }
 
     if (!confirmPassword.trim()) {
@@ -144,6 +201,19 @@ function Account() {
       return;
     }
 
+    if (!user) {
+      setPasswordErrors({ general: "User data not loaded properly. Please refresh the page." });
+      return;
+    }
+
+    // ✅ Get the ID (try both _id and id)
+    const userId = user._id || user.id;
+    
+    if (!userId) {
+      setPasswordErrors({ general: "User ID not found. Please refresh the page." });
+      return;
+    }
+
     try {
       setIsUpdatingPassword(true);
       setPasswordErrors({});
@@ -151,7 +221,7 @@ function Account() {
       const token = localStorage.getItem("token");
 
       const response = await fetch(
-        `http://localhost:5000/api/Usermodel/change-password/${user._id}`,
+        `http://localhost:5000/api/Usermodel/change-password/${userId}`,
         {
           method: "PUT",
           headers: {
@@ -165,9 +235,6 @@ function Account() {
       const data = await response.json();
 
       if (!response.ok) {
-        console.log("Response status:", response.status);
-        console.log("Response data:", data);
-
         if (response.status === 400 &&
           (data.message?.toLowerCase().includes("old password is incorrect") ||
             data.message?.toLowerCase().includes("incorrect") ||
@@ -214,10 +281,21 @@ function Account() {
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (file) {
+      if (file.size > 5 * 1024 * 1024) {
+        setError("Image size should be less than 5MB");
+        return;
+      }
+      
+      if (!file.type.startsWith('image/')) {
+        setError("Please select a valid image file");
+        return;
+      }
+      
       setSelectedFile(file);
       const reader = new FileReader();
       reader.onloadend = () => setProfilePicPreview(reader.result);
       reader.readAsDataURL(file);
+      setError(null);
     }
   };
 
@@ -228,7 +306,6 @@ function Account() {
       day: "numeric",
     });
 
-  // ✅ Show redirecting message instead of account page
   if (isRedirecting) {
     return (
       <div className="min-vh-100 d-flex justify-content-center align-items-center bg-light">
@@ -256,9 +333,22 @@ function Account() {
       <div className="min-vh-100 d-flex justify-content-center align-items-center text-danger bg-light">
         <div className="alert alert-danger" role="alert">
           {error}
+          <button onClick={() => window.location.reload()} className="btn btn-sm btn-danger ms-3">
+            Reload Page
+          </button>
         </div>
       </div>
     );
+
+  if (!user) {
+    return (
+      <div className="min-vh-100 d-flex justify-content-center align-items-center bg-light">
+        <div className="alert alert-warning" role="alert">
+          User data not available. Please refresh the page.
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-vh-100 bg-light py-4">
@@ -294,6 +384,7 @@ function Account() {
                       <button
                         onClick={handleCancel}
                         className="btn btn-light d-flex align-items-center gap-2 shadow-sm"
+                        disabled={isSaving}
                       >
                         <X size={16} />
                         <span>Cancel</span>
@@ -301,9 +392,19 @@ function Account() {
                       <button
                         onClick={handleSave}
                         className="btn btn-primary d-flex align-items-center gap-2 shadow-sm"
+                        disabled={isSaving}
                       >
-                        <Save size={16} />
-                        <span>Save Changes</span>
+                        {isSaving ? (
+                          <>
+                            <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                            Saving...
+                          </>
+                        ) : (
+                          <>
+                            <Save size={16} />
+                            <span>Save Changes</span>
+                          </>
+                        )}
                       </button>
                     </div>
                   )}
@@ -325,6 +426,7 @@ function Account() {
                             }
                             alt="Profile"
                             className="w-100 h-100 object-cover rounded-circle"
+                            style={{ objectFit: 'cover' }}
                           />
                         ) : (
                           <div className="w-100 h-100 rounded-circle bg-light d-flex align-items-center justify-content-center">
@@ -426,7 +528,7 @@ function Account() {
                       <div className="card-body d-flex align-items-center">
                         <div className="flex-grow-1">
                           <h6 className="card-title text-muted">Status</h6>
-                          <p className="card-text fw-bold text-success">{user.status}</p>
+                          <p className="card-text fw-bold text-success">{user.status || 'Active'}</p>
                         </div>
                         <div className="flex-shrink-0">
                           <CheckCircle size={24} className="text-success" />
@@ -439,7 +541,7 @@ function Account() {
                       <div className="card-body d-flex align-items-center">
                         <div className="flex-grow-1">
                           <h6 className="card-title text-muted">Role</h6>
-                          <p className="card-text fw-bold text-primary">{user.role}</p>
+                          <p className="card-text fw-bold text-primary">{user.role || 'User'}</p>
                         </div>
                         <div className="flex-shrink-0">
                           <Shield size={24} className="text-primary" />
@@ -452,7 +554,9 @@ function Account() {
                       <div className="card-body d-flex align-items-center">
                         <div className="flex-grow-1">
                           <h6 className="card-title text-muted">Member Since</h6>
-                          <p className="card-text fw-bold text-info">{formatDate(user.createdAt)}</p>
+                          <p className="card-text fw-bold text-info">
+                            {user.createdAt ? formatDate(user.createdAt) : 'N/A'}
+                          </p>
                         </div>
                         <div className="flex-shrink-0">
                           <Calendar size={24} className="text-info" />
@@ -477,7 +581,6 @@ function Account() {
                 <button type="button" className="btn-close" onClick={handlePasswordFormClose}></button>
               </div>
               <div className="modal-body">
-                {/* General Error */}
                 {passwordErrors.general && (
                   <div className="alert alert-danger d-flex align-items-center mb-3" role="alert">
                     <AlertCircle size={18} className="me-2" />
@@ -485,7 +588,6 @@ function Account() {
                   </div>
                 )}
 
-                {/* Old Password */}
                 <div className="mb-3">
                   <label className="form-label">Old Password</label>
                   <div className="input-group">
@@ -517,7 +619,6 @@ function Account() {
                   )}
                 </div>
 
-                {/* New Password */}
                 <div className="mb-3">
                   <label className="form-label">New Password</label>
                   <div className="input-group">
@@ -549,7 +650,6 @@ function Account() {
                   )}
                 </div>
 
-                {/* Confirm Password */}
                 <div className="mb-3">
                   <label className="form-label">Confirm New Password</label>
                   <div className="input-group">
@@ -612,7 +712,6 @@ function Account() {
   );
 }
 
-// Field Component
 const Field = ({ label, icon, value, editing, onChange, type }) => (
   <div className="mb-3">
     <label className="form-label fw-semibold">{label}</label>

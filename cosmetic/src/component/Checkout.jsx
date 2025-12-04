@@ -144,7 +144,7 @@ class CheckoutForm extends Component {
       window.location.href = "/cart";
     }
   };
-  
+
   prepareBuyNowCheckout = (data) => {
     // Create cart item structure similar to cart items
     const cartItem = {
@@ -727,6 +727,7 @@ class CheckoutForm extends Component {
               <div className="order-id-value">#{orderId || 'Processing...'}</div>
               <div className="order-id-hint">Save this for reference</div>
             </div>
+
             {/* Success Message */}
             <div className="success-message-card">
               <div className="message-icon">📦</div>
@@ -751,24 +752,27 @@ class CheckoutForm extends Component {
                 className="btn-primary-custom"
                 onClick={() => window.location.href = "/"}
               >
-                <span className="btn-icon">🛒</span>
+                <FaShoppingBag className="btn-icon" />
                 Continue Shopping
               </button>
+
               <button
                 className="btn-secondary-custom"
                 onClick={() => window.location.href = "/OrderHistory"}
               >
-                <span className="btn-icon">📋</span>
+                <FaBox className="btn-icon" />
                 View Orders
               </button>
+
               <button
                 className="btn-tertiary-custom"
                 onClick={() => window.print()}
               >
-                <span className="btn-icon">🖨️</span>
+                <FaCheck className="btn-icon" />
                 Print Receipt
               </button>
             </div>
+
 
             {/* Progress Indicator */}
             <div className="order-progress">
@@ -1722,6 +1726,13 @@ class CheckoutForm extends Component {
   padding: 20px;
   font-family: 'Segoe UI', 'Inter', -apple-system, system-ui, sans-serif;
 }
+.checkout-success-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh; 
+  padding: 20px;       
+  }
 
 .checkout-success-wrapper {
   position: relative;
