@@ -1,7 +1,22 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Phone, Mail, MapPin, Send, MessageCircle, Clock, Users } from "lucide-react";
 import 'bootstrap/dist/css/bootstrap.min.css';
-import axios from 'axios'; // Make sure to install axios
+import axios from 'axios';
+
+// Load Google Maps API
+const loadGoogleMapsScript = (callback) => {
+  if (window.google && window.google.maps) {
+    callback();
+    return;
+  }
+
+  const script = document.createElement('script');
+  script.src = `https://maps.googleapis.com/maps/api/js?key=YOUR_GOOGLE_MAPS_API_KEY&libraries=places`;
+  script.async = true;
+  script.defer = true;
+  script.onload = () => callback();
+  document.head.appendChild(script);
+};
 
 const ContactUs = () => {
   const [formData, setFormData] = useState({
@@ -15,11 +30,116 @@ const ContactUs = () => {
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
+  const [mapLoaded, setMapLoaded] = useState(false);
+
+  const mapRef = useRef(null);
+  const mapInstanceRef = useRef(null);
+  const markerRef = useRef(null);
+
+  // Company location coordinates (GlowCosmetics New York)
+  const companyLocation = {
+    lat: 40.7128, // New York latitude
+    lng: -74.0060, // New York longitude
+    address: "Rk University, Rajkot, Gujarat, India"
+  };
+
+  // Initialize map
+  const initMap = () => {
+    if (!mapRef.current || mapInstanceRef.current) return;
+
+    const mapOptions = {
+      center: companyLocation,
+      zoom: 15,
+      mapTypeControl: true,
+      streetViewControl: true,
+      fullscreenControl: true,
+      zoomControl: true,
+      styles: [
+        {
+          featureType: "all",
+          elementType: "labels.text.fill",
+          stylers: [{ color: "#7c3aed" }]
+        },
+        {
+          featureType: "poi",
+          elementType: "all",
+          stylers: [{ visibility: "off" }]
+        },
+        {
+          featureType: "road",
+          elementType: "geometry",
+          stylers: [{ color: "#f5f5f5" }]
+        },
+        {
+          featureType: "water",
+          elementType: "geometry",
+          stylers: [{ color: "#e0e7ff" }]
+        }
+      ]
+    };
+
+    // Create map instance
+    mapInstanceRef.current = new window.google.maps.Map(mapRef.current, mapOptions);
+
+    // Create marker
+    markerRef.current = new window.google.maps.Marker({
+      position: companyLocation,
+      map: mapInstanceRef.current,
+      title: "GlowCosmetics Headquarters",
+      animation: window.google.maps.Animation.DROP,
+      icon: {
+        url: "data:image/svg+xml;charset=UTF-8," + encodeURIComponent(`
+          <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40">
+            <circle cx="20" cy="20" r="18" fill="#4f46e5" opacity="0.9"/>
+            <circle cx="20" cy="20" r="14" fill="#818cf8"/>
+            <path d="M20,10 C25.5228475,10 30,14.4771525 30,20 C30,25.5228475 25.5228475,30 20,30 C14.4771525,30 10,25.5228475 10,20 C10,14.4771525 14.4771525,10 20,10 Z M20,15 C17.2385763,15 15,17.2385763 15,20 C15,22.7614237 17.2385763,25 20,25 C22.7614237,25 25,22.7614237 25,20 C25,17.2385763 22.7614237,15 20,15 Z" fill="white"/>
+          </svg>
+        `),
+        scaledSize: new window.google.maps.Size(40, 40),
+      }
+    });
+
+    // Create info window
+    const infoWindow = new window.google.maps.InfoWindow({
+      content: `
+        <div style="padding: 10px;">
+          <h3 style="margin: 0 0 8px 0; color: #4f46e5;">GlowCosmetics</h3>
+          <p style="margin: 0; color: #666;">${companyLocation.address}</p>
+          <p style="margin: 8px 0 0 0; color: #666;">
+            <strong>Hours:</strong> Mon-Fri 9AM-6PM<br>
+            <strong>Phone:</strong> +1 (555) 123-4567
+          </p>
+        </div>
+      `
+    });
+
+    // Add click listener to marker
+    markerRef.current.addListener("click", () => {
+      infoWindow.open(mapInstanceRef.current, markerRef.current);
+    });
+
+    // Open info window by default
+    infoWindow.open(mapInstanceRef.current, markerRef.current);
+    setMapLoaded(true);
+  };
+
+  // Load Google Maps on component mount
+  useEffect(() => {
+    loadGoogleMapsScript(() => {
+      initMap();
+    });
+
+    // Cleanup
+    return () => {
+      if (markerRef.current) {
+        markerRef.current.setMap(null);
+      }
+    };
+  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
-    // Clear error when user starts typing
     if (errors[name]) {
       setErrors({ ...errors, [name]: "" });
     }
@@ -40,7 +160,7 @@ const ContactUs = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     const newErrors = validateForm(formData);
-    
+
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
       return;
@@ -50,12 +170,11 @@ const ContactUs = () => {
     setErrors({});
 
     try {
-      // Send data to your backend API
       const response = await axios.post('http://localhost:5000/api/ContactModel/submit', {
         name: formData.name,
         email: formData.email,
         phone: formData.phone,
-        message: `${formData.subject}: ${formData.message}` // Combine subject and message
+        message: `${formData.subject}: ${formData.message}`
       });
 
       if (response.data.success) {
@@ -72,7 +191,7 @@ const ContactUs = () => {
       }
     } catch (error) {
       console.error('Submission error:', error);
-      if (error.response && error.response.data && error.response.data.message) {
+      if (error.response?.data?.message) {
         setErrors({ submit: error.response.data.message });
       } else {
         setErrors({ submit: 'Failed to send message. Please try again later.' });
@@ -82,23 +201,35 @@ const ContactUs = () => {
     }
   };
 
+  // Function to open in Google Maps app
+  const openInGoogleMaps = () => {
+    const url = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(companyLocation.address)}`;
+    window.open(url, '_blank');
+  };
+
+  // Function to get directions
+  const getDirections = () => {
+    const url = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(companyLocation.address)}`;
+    window.open(url, '_blank');
+  };
+
   return (
-    <div className="min-vh-100" style={{background: "linear-gradient(135deg, #dbeafe 0%, white 50%, #e0e7ff 100%)"}}>
+    <div className="min-vh-100" style={{ background: "linear-gradient(135deg, #dbeafe 0%, white 50%, #e0e7ff 100%)" }}>
       {/* Hero Section */}
-      <div className="position-relative text-white overflow-hidden" style={{background: "linear-gradient(to right, #2563eb, #4338ca)"}}>
+      <div className="position-relative text-white overflow-hidden" style={{ background: "linear-gradient(to right, #2563eb, #4338ca)" }}>
         <div className="position-absolute top-0 start-0 w-100 h-100 bg-dark opacity-20"></div>
-        <div className="position-absolute top-0 end-0 rounded-circle opacity-10" style={{width: "16rem", height: "16rem", background: "white", marginRight: "-8rem", marginTop: "-8rem"}}></div>
-        <div className="position-absolute bottom-0 start-0 rounded-circle opacity-20" style={{width: "12rem", height: "12rem", background: "#93c5fd", marginLeft: "-6rem", marginBottom: "-6rem"}}></div>
-        
+        <div className="position-absolute top-0 end-0 rounded-circle opacity-10" style={{ width: "16rem", height: "16rem", background: "white", marginRight: "-8rem", marginTop: "-8rem" }}></div>
+        <div className="position-absolute bottom-0 start-0 rounded-circle opacity-20" style={{ width: "12rem", height: "12rem", background: "#93c5fd", marginLeft: "-6rem", marginBottom: "-6rem" }}></div>
+
         <div className="container position-relative py-5">
           <div className="text-center">
             <h1 className="display-3 fw-bold mb-4">
               Get In Touch With
-              <span className="d-block" style={{background: "linear-gradient(to right, #bfdbfe, #a5f3fc)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent"}}>
+              <span className="d-block" style={{ background: "linear-gradient(to right, #bfdbfe, #a5f3fc)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
                 GlowCosmetics
               </span>
             </h1>
-            <p className="lead text-light opacity-75 mx-auto" style={{maxWidth: "48rem"}}>
+            <p className="lead text-light opacity-75 mx-auto" style={{ maxWidth: "48rem" }}>
               We're here to answer your questions and help you find the perfect beauty solutions
             </p>
           </div>
@@ -108,12 +239,11 @@ const ContactUs = () => {
       {/* Main Content */}
       <div className="container py-5">
         <div className="row">
-          
           {/* Contact Form */}
           <div className="col-lg-6 mb-5">
             <div className="bg-white rounded-3 shadow p-4 p-md-5 border-top border-primary border-4">
               <div className="text-center mb-4">
-                <div className="d-inline-flex align-items-center justify-content-center rounded-circle mb-3" style={{width: "4rem", height: "4rem", background: "linear-gradient(to right, #3b82f6, #4f46e5)"}}>
+                <div className="d-inline-flex align-items-center justify-content-center rounded-circle mb-3" style={{ width: "4rem", height: "4rem", background: "linear-gradient(to right, #3b82f6, #4f46e5)" }}>
                   <MessageCircle className="text-white" size={24} />
                 </div>
                 <h2 className="fw-bold text-dark mb-2">Send us a Message</h2>
@@ -123,7 +253,7 @@ const ContactUs = () => {
               {successMessage && (
                 <div className="alert alert-success text-center">
                   <div className="d-flex justify-content-center align-items-center mb-2">
-                    <div className="rounded-circle bg-success d-flex align-items-center justify-content-center me-2" style={{width: "1.5rem", height: "1.5rem"}}>
+                    <div className="rounded-circle bg-success d-flex align-items-center justify-content-center me-2" style={{ width: "1.5rem", height: "1.5rem" }}>
                       <svg className="text-white" width="16" height="16" fill="currentColor" viewBox="0 0 20 20">
                         <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                       </svg>
@@ -215,7 +345,7 @@ const ContactUs = () => {
                   type="submit"
                   disabled={loading}
                   className="btn btn-primary btn-lg w-100 py-3 d-flex align-items-center justify-content-center gap-2"
-                  style={{background: "linear-gradient(to right, #2563eb, #4f46e5)", border: "none"}}
+                  style={{ background: "linear-gradient(to right, #2563eb, #4f46e5)", border: "none" }}
                 >
                   {loading ? (
                     <>
@@ -276,8 +406,21 @@ const ContactUs = () => {
                       </div>
                       <div>
                         <h3 className="h5 fw-semibold text-dark mb-1">Visit Us</h3>
-                        <p className="text-muted mb-0">123 Beauty Avenue</p>
-                        <p className="text-muted mb-0">New York, NY 10001</p>
+                        <p className="text-muted mb-0">{companyLocation.address}</p>
+                        <div className="mt-2">
+                          <button
+                            onClick={openInGoogleMaps}
+                            className="btn btn-outline-info btn-sm me-2"
+                          >
+                            View Map
+                          </button>
+                          <button
+                            onClick={getDirections}
+                            className="btn btn-info btn-sm"
+                          >
+                            Get Directions
+                          </button>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -300,28 +443,28 @@ const ContactUs = () => {
               </div>
 
               {/* Why Choose Us */}
-              <div className="rounded-3 p-4 text-white" style={{background: "linear-gradient(135deg, #3b82f6, #4f46e5)"}}>
+              <div className="rounded-3 p-4 text-white" style={{ background: "linear-gradient(135deg, #3b82f6, #4f46e5)" }}>
                 <div className="text-center mb-4">
                   <Users size={48} className="mb-3 mx-auto" />
                   <h3 className="h2 fw-bold mb-2">Why Choose GlowCosmetics?</h3>
                   <p className="text-light opacity-75">We're committed to your beauty journey</p>
                 </div>
-                
+
                 <div className="d-flex flex-column gap-3">
                   <div className="d-flex align-items-center">
-                    <div className="bg-white rounded-circle me-3" style={{width: "8px", height: "8px"}}></div>
+                    <div className="bg-white rounded-circle me-3" style={{ width: "8px", height: "8px" }}></div>
                     <span>Premium Quality Products</span>
                   </div>
                   <div className="d-flex align-items-center">
-                    <div className="bg-white rounded-circle me-3" style={{width: "8px", height: "8px"}}></div>
+                    <div className="bg-white rounded-circle me-3" style={{ width: "8px", height: "8px" }}></div>
                     <span>Expert Beauty Advice</span>
                   </div>
                   <div className="d-flex align-items-center">
-                    <div className="bg-white rounded-circle me-3" style={{width: "8px", height: "8px"}}></div>
+                    <div className="bg-white rounded-circle me-3" style={{ width: "8px", height: "8px" }}></div>
                     <span>Fast & Free Shipping Over $50</span>
                   </div>
                   <div className="d-flex align-items-center">
-                    <div className="bg-white rounded-circle me-3" style={{width: "8px", height: "8px"}}></div>
+                    <div className="bg-white rounded-circle me-3" style={{ width: "8px", height: "8px" }}></div>
                     <span>100% Satisfaction Guarantee</span>
                   </div>
                 </div>
@@ -351,15 +494,35 @@ const ContactUs = () => {
       </div>
 
       {/* Map Section */}
+
       <div className="container pb-5">
         <div className="bg-white rounded-3 shadow-sm p-4">
           <h3 className="h2 fw-bold text-dark mb-4 text-center">Find Us Here</h3>
-          <div className="bg-light rounded-3 d-flex align-items-center justify-content-center" style={{height: "16rem"}}>
-            <div className="text-center text-muted">
-              <MapPin size={48} className="mb-2 mx-auto" />
-              <p>Interactive Map Would Appear Here</p>
-              <p className="small">123 Beauty Avenue, New York, NY 10001</p>
-            </div>
+          <div className="position-relative rounded-3 overflow-hidden" style={{ height: "400px" }}>
+            <iframe
+              title="GlowCosmetics Location"
+              width="100%"
+              height="100%"
+              frameBorder="0"
+              scrolling="no"
+              marginHeight="0"
+              marginWidth="0"
+              src={`https://www.openstreetmap.org/export/embed.html?bbox=${companyLocation.lng - 0.01}%2C${companyLocation.lat - 0.01}%2C${companyLocation.lng + 0.01}%2C${companyLocation.lat + 0.01}&layer=mapnik&marker=${companyLocation.lat}%2C${companyLocation.lng}`}
+              style={{ border: 0 }}
+              allowFullScreen
+            />
+          </div>
+          <div className="text-center mt-3">
+            <small>
+              <a
+                href={`https://www.openstreetmap.org/?mlat=${companyLocation.lat}&mlon=${companyLocation.lng}#map=17/${companyLocation.lat}/${companyLocation.lng}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-decoration-none"
+              >
+                View Larger Map
+              </a>
+            </small>
           </div>
         </div>
       </div>

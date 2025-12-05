@@ -173,12 +173,12 @@ class Rating_Review extends Component {
       this.setState({ error: 'Please select a rating' });
       return false;
     }
-    if (title.trim().length < 5) {
+    if (title.trim().length < 2) {
       this.setState({ error: 'Title must be at least 2 characters' });
       return false;
     }
-    if (comment.trim().length < 20) {
-      this.setState({ error: 'Review must be at least 5 characters' });
+    if (comment.trim().length < 2) {
+      this.setState({ error: 'Review must be at least 2 characters' });
       return false;
     }
 
@@ -565,6 +565,7 @@ renderImageModal = () => {
     </div>
   );
 };
+
   renderImagePreviews = () => {
     const { imagePreviews, selectedImages } = this.state;
 
@@ -847,54 +848,93 @@ renderImageModal = () => {
           )}
 
           {/* Reviews List */}
-          <div className="reviews-list">
-            <h4 className="mb-4">Customer Reviews ({statistics.totalReviews})</h4>
+         <div className="reviews-list">
+          <div className="d-flex justify-content-between align-items-center mb-4">
+            <h4 className="fw-bold mb-0">Customer Reviews</h4>
+            <span className="badge bg-primary bg-gradient rounded-pill px-3 py-2">
+              {statistics.totalReviews || 0} reviews
+            </span>
+          </div>
 
-            {reviews.length === 0 ? (
-              <div className="text-center py-5">
-                <p className="text-muted">No reviews yet. Be the first to review!</p>
+          {reviews.length === 0 ? (
+            <div className="card border-dashed">
+              <div className="card-body text-center py-5">
+                <div className="display-1 text-muted mb-3">
+                  <FaRegStar />
+                </div>
+                <h5 className="mb-3">No reviews yet</h5>
+                <p className="text-muted mb-0">Be the first to review this product!</p>
               </div>
-            ) : (
-              reviews.map((review) => (
-                <div key={review._id} className="review-card mb-4 p-4 bg-light rounded-3">
-                  <div className="d-flex justify-content-between align-items-start mb-3">
-                    <div>
-                      <div className="d-flex align-items-center mb-2">
-                        <strong className="me-2">{review.userName}</strong>
-                        {review.isVerifiedPurchase && (
-                          <span className="badge bg-success badge-sm">
-                            <FaCheckCircle style={{ fontSize: '10px' }} className="me-1" />
-                            Verified
+            </div>
+          ) : (
+            <div className="row">
+              {reviews.map((review, index) => (
+                <div key={review._id} className="col-lg-6 mb-4">
+                  <div className="card h-100 shadow-sm border-hover">
+                    <div className="card-body">
+                      {/* Review Header */}
+                      <div className="d-flex justify-content-between align-items-start mb-3">
+                        <div className="d-flex align-items-center">
+                          <div className="avatar me-3">
+                            <div 
+                              className="bg-primary bg-gradient text-white rounded-circle d-flex align-items-center justify-content-center"
+                              style={{ width: '40px', height: '40px' }}
+                            >
+                              {review.userName?.charAt(0).toUpperCase() || 'U'}
+                            </div>
+                          </div>
+                          <div>
+                            <h6 className="mb-1 fw-bold">{review.userName}</h6>
+                            <div className="d-flex align-items-center">
+                              {this.renderStars(review.rating, false, 'sm')}
+                              {review.isVerifiedPurchase && (
+                                <span className="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 ms-2">
+                                  <FaCheckCircle size={10} className="me-1" />
+                                  Verified
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                        <small className="text-muted text-end">
+                          {new Date(review.createdAt).toLocaleDateString('en-US', {
+                            month: 'short',
+                            day: 'numeric',
+                            year: 'numeric'
+                          })}
+                        </small>
+                      </div>
+
+                      {/* Review Content */}
+                      <h6 className="fw-bold text-primary mb-2">{review.title}</h6>
+                      <p className="card-text mb-3 line-clamp-3">{review.comment}</p>
+
+                      {/* Images */}
+                      {this.renderReviewImages(review.images)}
+
+                      {/* Helpful Button */}
+                      <div className="d-flex justify-content-between align-items-center mt-4 pt-3 border-top">
+                        <button
+                          className="btn btn-outline-secondary btn-sm rounded-pill px-3"
+                          onClick={() => this.handleMarkHelpful(review._id)}
+                        >
+                          <FaThumbsUp className="me-1" />
+                          Helpful ({review.helpful || 0})
+                        </button>
+                        {index === 0 && (
+                          <span className="badge bg-warning bg-gradient text-dark">
+                            <FaStar className="me-1" />
+                            Most Recent
                           </span>
                         )}
                       </div>
-                      {this.renderStars(review.rating, false, 'sm')}
                     </div>
-                    <small className="text-muted">
-                      {new Date(review.createdAt).toLocaleDateString('en-US', {
-                        year: 'numeric',
-                        month: 'long',
-                        day: 'numeric'
-                      })}
-                    </small>
                   </div>
-
-                  <h6 className="fw-bold mb-2">{review.title}</h6>
-                  <p className="mb-3">{review.comment}</p>
-
-                  {this.renderReviewImages(review.images)}
-
-                  <button
-                    className="btn btn-sm btn-outline-secondary mt-3"
-                    onClick={() => this.handleMarkHelpful(review._id)}
-                  >
-                    <FaThumbsUp className="me-1" />
-                    Helpful ({review.helpful})
-                  </button>
                 </div>
-              ))
-            )}
-          </div>
+              ))}
+            </div>
+          )}
+        </div>
         </div>
 
         {this.renderImageModal()}

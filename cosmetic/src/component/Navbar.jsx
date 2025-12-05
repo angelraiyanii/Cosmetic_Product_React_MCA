@@ -50,7 +50,6 @@ function Navbar() {
     }
     return location.pathname.startsWith(path);
   };
-
   useEffect(() => {
     const savedUser = localStorage.getItem("user") || localStorage.getItem("admin");
     if (savedUser) {
@@ -61,8 +60,35 @@ function Navbar() {
     fetchCartCount();
     fetchWishlistCount();
     fetchProducts();
-    fetchDiscountedProducts(); // Add this line
+    fetchDiscountedProducts();
   }, []);
+
+  // Debounced search effect - KEEP ONLY THIS ONE
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (searchQuery.trim()) {
+        performSearch(searchQuery);
+      } else {
+        setSearchResults([]);
+        setShowSearchResults(false);
+      }
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
+  // Debounced search effect
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (searchQuery.trim()) {
+        performSearch(searchQuery);
+      } else {
+        setSearchResults([]);
+        setShowSearchResults(false);
+      }
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
   // Close search results when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -77,7 +103,37 @@ function Navbar() {
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, []);
+  const fetchProductsForSearch = async (query = '') => {
+    try {
+      // If there's a search endpoint, use it; otherwise fall back to filtering
+      const response = await axios.get("http://localhost:5000/api/ProductModel/");
+      const allProducts = response.data || [];
 
+      if (!query.trim()) {
+        return allProducts;
+      }
+
+      const queryLower = query.toLowerCase();
+      // Filter products based on search query
+      return allProducts.filter(product => {
+        const searchFields = [
+          product.name,
+          product.description,
+          product.price?.toString(),
+          product.ml,
+          product.status,
+          product.category?.categoryName || ''
+        ].filter(Boolean);
+
+        return searchFields.some(field =>
+          field.toLowerCase().includes(queryLower)
+        );
+      });
+    } catch (error) {
+      console.error("Error fetching products for search:", error);
+      return [];
+    }
+  };
   // Rest of your existing functions remain the same...
   const fetchCategories = async () => {
     try {
@@ -207,6 +263,7 @@ function Navbar() {
     navigate('/Ct_product?filter=discounted');
     setShowNotifications(false);
   };
+
   const performSearch = async (query) => {
     if (!query.trim()) {
       setSearchResults([]);
@@ -230,10 +287,11 @@ function Navbar() {
           name: category.categoryName,
           type: 'category',
           icon: getCategoryIcon(category.categoryName),
-          color: getCategoryColor(category.categoryName), // This applies the color
+          color: getCategoryColor(category.categoryName),
           action: () => handleCategoryClick(category.categoryName)
         });
       });
+
       // Search in static pages
       const matchingPages = staticPages.filter(page =>
         page.name.toLowerCase().includes(queryLower)
@@ -254,31 +312,21 @@ function Navbar() {
         });
       });
 
-      // Search in products
-      const matchingProducts = products.filter(product => {
-        const searchFields = [
-          product.productName,
-          product.productDescription,
-          product.productPrice?.toString(),
-          product.productCategory,
-          product.productBrand
-        ].filter(Boolean);
-
-        return searchFields.some(field =>
-          field.toLowerCase().includes(queryLower)
-        );
-      }).slice(0, 8);
+      // Search in products using the new function
+      const productResponse = await fetchProductsForSearch(query);
+      const matchingProducts = productResponse.slice(0, 8);
 
       matchingProducts.forEach(product => {
         results.push({
           id: `product-${product._id}`,
-          name: product.productName,
+          name: product.name,
           type: 'product',
           icon: 'fa-box',
           color: 'text-success',
-          price: product.productPrice,
-          category: product.productCategory,
-          image: product.productImage,
+          price: product.price,
+          category: product.category?.categoryName || 'Beauty',
+          image: product.image,
+          discount: product.discount || 0,
           action: () => {
             navigate(`/ProductDetails/${product._id}`);
             setShowSearchResults(false);
@@ -286,6 +334,38 @@ function Navbar() {
           }
         });
       });
+
+      // Search in orders (for users)
+      if (user && (queryLower.includes('order') || queryLower.match(/ord[0-9]/i))) {
+        try {
+          const response = await axios.get(
+            `http://localhost:5000/api/OrderModels/user/${user.id}?q=${query}`
+          );
+          const matchingOrders = response.data.filter(order =>
+            order.orderId?.toLowerCase().includes(queryLower) ||
+            order.status?.toLowerCase().includes(queryLower)
+          ).slice(0, 3);
+
+          matchingOrders.forEach(order => {
+            results.push({
+              id: `order-${order._id}`,
+              name: `Order #${order.orderId}`,
+              type: 'order',
+              icon: 'fa-receipt',
+              color: 'text-warning',
+              status: order.status,
+              total: order.totalAmount,
+              action: () => {
+                navigate(`/OrderDetails/${order._id}`);
+                setShowSearchResults(false);
+                setSearchQuery('');
+              }
+            });
+          });
+        } catch (error) {
+          console.error("Error searching orders:", error);
+        }
+      }
 
       // Add special searches
       if (queryLower.includes('best seller') || queryLower.includes('bestseller')) {
@@ -310,6 +390,18 @@ function Navbar() {
         });
       }
 
+      // Discount searches
+      if (queryLower.includes('discount') || queryLower.includes('sale') || queryLower.includes('offer')) {
+        results.push({
+          id: 'discounted',
+          name: 'Discounted Products',
+          type: 'special',
+          icon: 'fa-tag',
+          color: 'text-danger',
+          action: () => handleDiscountedClick()
+        });
+      }
+
       // Price-based searches
       if (queryLower.includes('under') || queryLower.includes('below')) {
         const priceMatch = query.match(/(\d+)/);
@@ -330,6 +422,18 @@ function Navbar() {
         }
       }
 
+      // Stock searches
+      if (queryLower.includes('in stock') || queryLower.includes('available')) {
+        results.push({
+          id: 'in-stock',
+          name: 'In Stock Products',
+          type: 'stock',
+          icon: 'fa-check-circle',
+          color: 'text-success',
+          action: () => handleInStockClick()
+        });
+      }
+
       setSearchResults(results);
       setShowSearchResults(results.length > 0);
 
@@ -338,6 +442,11 @@ function Navbar() {
     } finally {
       setSearchLoading(false);
     }
+  };
+  const handleDiscountedClick = () => {
+    navigate("/Ct_product?filter=discounted");
+    setShowSearchResults(false);
+    setSearchQuery('');
   };
 
   // Debounced search
@@ -355,7 +464,21 @@ function Navbar() {
   }, []);
 
   const handleSearchInputChange = (e) => {
-    setSearchQuery(e.target.value);
+    const query = e.target.value;
+    setSearchQuery(query);
+
+
+    if (query.trim()) {
+      // Debounce the search
+      const timeoutId = setTimeout(() => {
+        performSearch(query);
+      }, 300);
+
+      return () => clearTimeout(timeoutId);
+    } else {
+      setSearchResults([]);
+      setShowSearchResults(false);
+    }
   };
 
   const handleSearchSubmit = (e) => {
@@ -413,7 +536,11 @@ function Navbar() {
       }
     }
   };
-
+  const handleInStockClick = () => {
+    navigate("/Ct_product?inStock=true");
+    setShowSearchResults(false);
+    setSearchQuery('');
+  };
   const handleNewArrivalsClick = () => {
     navigate("/Ct_product?sort=newest");
     setShowSearchResults(false);
@@ -427,59 +554,71 @@ function Navbar() {
       }
     }
   };
-
-  const isAdmin = user && user.role === "admin";
-const getCategoryIcon = (categoryName) => {
-  const categoryMap = {
-    'skincare': 'fa-spray-can',
-    'makeup': 'fa-palette',
-    'haircare': 'fa-spa',
-    'fragrance': 'fa-wind',
-    'bath & body': 'fa-bath',
-    'body & bath': 'fa-bath',
-    'organic beauty': 'fa-leaf',
-    'organic': 'fa-leaf',
-    'tools & accessories': 'fa-brush', // Changed from fa-tools to fa-brush
-    'tools': 'fa-brush', // Changed from fa-tools to fa-brush
-    'accessories': 'fa-brush', // Changed from fa-tools to fa-brush
-    'face': 'fa-smile',
-    'lips': 'fa-kiss',
-    'eyes': 'fa-eye',
-    'nails': 'fa-hand-paper',
-    'gift sets': 'fa-gift',
-    'gift': 'fa-gift',
-    'luxury collection': 'fa-crown',
-    'luxury': 'fa-crown'
+  // Update the search results type label function
+  const getResultTypeLabel = (type) => {
+    const labels = {
+      'category': 'Category',
+      'product': 'Product',
+      'page': 'Page',
+      'order': 'Order',
+      'special': 'Special',
+      'price': 'Price Range',
+      'stock': 'Stock Status'
+    };
+    return labels[type] || type;
   };
-  
-  return categoryMap[categoryName.toLowerCase()] || 'fa-shopping-bag';
-};
+  const isAdmin = user && user.role === "admin";
+  const getCategoryIcon = (categoryName) => {
+    const categoryMap = {
+      'skincare': 'fa-spray-can',
+      'makeup': 'fa-palette',
+      'haircare': 'fa-spa',
+      'fragrance': 'fa-wind',
+      'bath & body': 'fa-bath',
+      'body & bath': 'fa-bath',
+      'organic beauty': 'fa-leaf',
+      'organic': 'fa-leaf',
+      'tools & accessories': 'fa-brush', // Changed from fa-tools to fa-brush
+      'tools': 'fa-brush', // Changed from fa-tools to fa-brush
+      'accessories': 'fa-brush', // Changed from fa-tools to fa-brush
+      'face': 'fa-smile',
+      'lips': 'fa-kiss',
+      'eyes': 'fa-eye',
+      'nails': 'fa-hand-paper',
+      'gift sets': 'fa-gift',
+      'gift': 'fa-gift',
+      'luxury collection': 'fa-crown',
+      'luxury': 'fa-crown'
+    };
+
+    return categoryMap[categoryName.toLowerCase()] || 'fa-shopping-bag';
+  };
 
 
 
-const getCategoryColor = (categoryName) => {
-  switch (categoryName.toLowerCase()) {
-    case 'skincare': return 'text-info';
-    case 'makeup': return 'text-danger';
-    case 'haircare': return 'text-success';
-    case 'fragrance': return 'text-warning';
-    case 'bath & body': return 'text-primary';
-    case 'body & bath': return 'text-primary'; // Added this
-    case 'organic beauty': return 'text-success'; // Added this - green for organic
-    case 'tools & accessories': return 'text-secondary'; // Added this
-    case 'face': return 'text-info';
-    case 'lips': return 'text-danger';
-    case 'eyes': return 'text-purple';
-    case 'nails': return 'text-pink';
-    case 'gift sets': return 'text-success';
-    case 'gift': return 'text-success';
-    case 'luxury collection': return 'text-warning';
-    case 'organic': return 'text-success'; // Added this
-    case 'tools': return 'text-secondary'; // Added this
-    case 'accessories': return 'text-secondary'; // Added this
-    default: return 'text-secondary';
-  }
-};
+  const getCategoryColor = (categoryName) => {
+    switch (categoryName.toLowerCase()) {
+      case 'skincare': return 'text-info';
+      case 'makeup': return 'text-danger';
+      case 'haircare': return 'text-success';
+      case 'fragrance': return 'text-warning';
+      case 'bath & body': return 'text-primary';
+      case 'body & bath': return 'text-primary'; // Added this
+      case 'organic beauty': return 'text-success'; // Added this - green for organic
+      case 'tools & accessories': return 'text-secondary'; // Added this
+      case 'face': return 'text-info';
+      case 'lips': return 'text-danger';
+      case 'eyes': return 'text-purple';
+      case 'nails': return 'text-pink';
+      case 'gift sets': return 'text-success';
+      case 'gift': return 'text-success';
+      case 'luxury collection': return 'text-warning';
+      case 'organic': return 'text-success'; // Added this
+      case 'tools': return 'text-secondary'; // Added this
+      case 'accessories': return 'text-secondary'; // Added this
+      default: return 'text-secondary';
+    }
+  };
   return (
     <>
       {/* External CSS and JS */}
@@ -841,19 +980,16 @@ const getCategoryColor = (categoryName) => {
                                 </small>
                               </div>
 
-                              {result.type === 'product' && (
-                                <div className="mt-1">
-                                  {result.price && (
-                                    <small className="text-success fw-bold me-2">
-                                      ${result.price}
-                                    </small>
-                                  )}
-                                  {result.category && (
-                                    <small className="text-muted">
-                                      in {result.category}
-                                    </small>
-                                  )}
-                                </div>
+                              {result.type === 'product' && result.image && (
+                                <img
+                                  src={result.image.includes('http') ? result.image : `http://localhost:5000/public/images/product_images/${result.image}`}
+                                  alt={result.name}
+                                  className="ms-2 rounded"
+                                  style={{ width: "40px", height: "40px", objectFit: "cover" }}
+                                  onError={(e) => {
+                                    e.target.style.display = 'none';
+                                  }}
+                                />
                               )}
                             </div>
 
