@@ -848,6 +848,7 @@ renderImageModal = () => {
           )}
 
           {/* Reviews List */}
+          {reviews.length > 0 && (
          <div className="reviews-list">
           <div className="d-flex justify-content-between align-items-center mb-4">
             <h4 className="fw-bold mb-0">Customer Reviews</h4>
@@ -935,8 +936,8 @@ renderImageModal = () => {
             </div>
           )}
         </div>
+        )}
         </div>
-
         {this.renderImageModal()}
 
         {/* Custom Styles */}
