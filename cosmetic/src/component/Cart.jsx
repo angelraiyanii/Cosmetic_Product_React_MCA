@@ -243,7 +243,7 @@ export class Cart extends Component {
             <h2>Your Beauty Cart is Empty</h2>
             <p>Discover amazing cosmetics and skincare products to fill your cart</p>
             <div className="empty-actions">
-              <Link to="/Product" className="btn-primary-custom">
+              <Link to="/Ct_Product" className="btn-primary-custom">
                 <FaShoppingBag className="me-2" />
                 Start Shopping
               </Link>

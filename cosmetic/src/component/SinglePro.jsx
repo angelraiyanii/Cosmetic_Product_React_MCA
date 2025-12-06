@@ -1198,7 +1198,25 @@ class SingleProClass extends Component {
             )}
           </div>
         </div>
-       <style>
+        {/* After Related Products section */}
+        <div className="text-center py-5">
+          <div className="container">
+            <h3 className="mb-4">Want to explore more?</h3>
+            <p className="text-muted mb-4">Check out our complete collection of beauty products</p>
+            <a
+              href="/Ct_product"
+              className="btn btn-dark btn-lg rounded-pill px-5 py-3"
+              style={{
+                background: 'linear-gradient(135deg, #8B5CF6 0%, #D946EF 100%)',
+                border: 'none',
+                fontWeight: '600'
+              }}
+            >
+              Browse All Products
+            </a>
+          </div>
+        </div>
+        <style>
           {`
             .cosmetic-products-container {
               padding-bottom: 80px;

@@ -458,113 +458,113 @@ class Rating_Review extends Component {
       </div>
     );
   };
-renderReviewImages = (images) => {
-  console.log('Review images:', images);
-  if (!images || images.length === 0) return null;
+  renderReviewImages = (images) => {
+    console.log('Review images:', images);
+    if (!images || images.length === 0) return null;
 
-  return (
-    <div className="review-images mt-3">
-      <div className="d-flex flex-wrap gap-2">
-        {images.map((imageUrl, index) => {
-          // FIXED: Use the correct path - images are in /images/ratingreview_images/
-          const fullImageUrl = `http://localhost:5000/images/ratingreview_images/${imageUrl.split('/').pop()}`;
-          
-          return (
-            <div
-              key={index}
-              className="review-image-thumbnail cursor-pointer"
-              onClick={() => this.openImageModal(images, index)}
-            >
-              <img
-                src={fullImageUrl}
-                alt={`Review image ${index + 1}`}
-                className="img-thumbnail"
-                style={{ width: '100px', height: '100px', objectFit: 'cover' }}
-                onError={(e) => {
-                  // Set a fallback image or hide it
-                  e.target.style.display = 'none';
-                  console.warn(`Failed to load review image: ${imageUrl}`);
-                }}
-                onLoad={(e) => {
-                  console.log(`Successfully loaded image: ${imageUrl}`);
-                }}
+    return (
+      <div className="review-images mt-3">
+        <div className="d-flex flex-wrap gap-2">
+          {images.map((imageUrl, index) => {
+            // FIXED: Use the correct path - images are in /images/ratingreview_images/
+            const fullImageUrl = `http://localhost:5000/images/ratingreview_images/${imageUrl.split('/').pop()}`;
+
+            return (
+              <div
+                key={index}
+                className="review-image-thumbnail cursor-pointer"
+                onClick={() => this.openImageModal(images, index)}
+              >
+                <img
+                  src={fullImageUrl}
+                  alt={`Review image ${index + 1}`}
+                  className="img-thumbnail"
+                  style={{ width: '100px', height: '100px', objectFit: 'cover' }}
+                  onError={(e) => {
+                    // Set a fallback image or hide it
+                    e.target.style.display = 'none';
+                    console.warn(`Failed to load review image: ${imageUrl}`);
+                  }}
+                  onLoad={(e) => {
+                    console.log(`Successfully loaded image: ${imageUrl}`);
+                  }}
+                />
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    );
+  };
+
+  renderImageModal = () => {
+    const { showImageModal, modalImages, currentImageIndex } = this.state;
+
+    if (!showImageModal || modalImages.length === 0) return null;
+
+    const currentImage = modalImages[currentImageIndex];
+    // FIXED: Extract just the filename and build correct URL
+    const fileName = currentImage.split('/').pop();
+    const fullImageUrl = `http://localhost:5000/images/ratingreview_images/${fileName}`;
+
+    return (
+      <div
+        className="modal d-block"
+        style={{ backgroundColor: 'rgba(0,0,0,0.9)' }}
+        onClick={this.closeImageModal}
+      >
+        <div className="modal-dialog modal-dialog-centered modal-lg">
+          <div className="modal-content bg-transparent border-0">
+            <div className="modal-header border-0">
+              <button
+                type="button"
+                className="btn-close btn-close-white"
+                onClick={this.closeImageModal}
               />
             </div>
-          );
-        })}
-      </div>
-    </div>
-  );
-};
+            <div className="modal-body text-center position-relative">
+              <img
+                src={fullImageUrl}
+                className="img-fluid"
+                style={{ maxHeight: "80vh" }}
+                alt={`Review image ${currentImageIndex + 1}`}
+                onError={(e) => {
+                  e.target.src = '/placeholder-image.jpg'; // Fallback
+                  console.error(`Failed to load modal image: ${currentImage}`);
+                }}
+              />
 
-renderImageModal = () => {
-  const { showImageModal, modalImages, currentImageIndex } = this.state;
-
-  if (!showImageModal || modalImages.length === 0) return null;
-
-  const currentImage = modalImages[currentImageIndex];
-  // FIXED: Extract just the filename and build correct URL
-  const fileName = currentImage.split('/').pop();
-  const fullImageUrl = `http://localhost:5000/images/ratingreview_images/${fileName}`;
-
-  return (
-    <div
-      className="modal d-block"
-      style={{ backgroundColor: 'rgba(0,0,0,0.9)' }}
-      onClick={this.closeImageModal}
-    >
-      <div className="modal-dialog modal-dialog-centered modal-lg">
-        <div className="modal-content bg-transparent border-0">
-          <div className="modal-header border-0">
-            <button
-              type="button"
-              className="btn-close btn-close-white"
-              onClick={this.closeImageModal}
-            />
-          </div>
-          <div className="modal-body text-center position-relative">
-            <img
-              src={fullImageUrl}
-              className="img-fluid"
-              style={{ maxHeight: "80vh" }}
-              alt={`Review image ${currentImageIndex + 1}`}
-              onError={(e) => {
-                e.target.src = '/placeholder-image.jpg'; // Fallback
-                console.error(`Failed to load modal image: ${currentImage}`);
-              }}
-            />
-
-            {modalImages.length > 1 && (
-              <>
-                <button
-                  className="btn btn-light position-absolute start-0 top-50 translate-middle-y ms-3"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    this.navigateImage(-1);
-                  }}
-                >
-                  ‹
-                </button>
-                <button
-                  className="btn btn-light position-absolute end-0 top-50 translate-middle-y me-3"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    this.navigateImage(1);
-                  }}
-                >
-                  ›
-                </button>
-                <div className="text-white mt-2">
-                  {currentImageIndex + 1} / {modalImages.length}
-                </div>
-              </>
-            )}
+              {modalImages.length > 1 && (
+                <>
+                  <button
+                    className="btn btn-light position-absolute start-0 top-50 translate-middle-y ms-3"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      this.navigateImage(-1);
+                    }}
+                  >
+                    ‹
+                  </button>
+                  <button
+                    className="btn btn-light position-absolute end-0 top-50 translate-middle-y me-3"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      this.navigateImage(1);
+                    }}
+                  >
+                    ›
+                  </button>
+                  <div className="text-white mt-2">
+                    {currentImageIndex + 1} / {modalImages.length}
+                  </div>
+                </>
+              )}
+            </div>
           </div>
         </div>
       </div>
-    </div>
-  );
-};
+    );
+  };
 
   renderImagePreviews = () => {
     const { imagePreviews, selectedImages } = this.state;
@@ -817,12 +817,7 @@ renderImageModal = () => {
                   )}
                 </div>
               ) : !hasReviewed && !showReviewForm ? (
-                <div className="text-center p-4 bg-light rounded-3">
-                  <p className="mb-3">
-                    {hasPurchased
-                      ? "You haven't reviewed this product yet. Share your experience!"
-                      : "Purchase this product to leave a review"}
-                  </p>
+                <div className="text-center bg-light rounded-3">
                   {hasPurchased && (
                     <button
                       className="btn btn-dark px-4"
@@ -838,105 +833,96 @@ renderImageModal = () => {
             </div>
           )}
 
-          {!currentUser && (
-            <div className="text-center p-4 bg-light rounded-3 mb-5">
-              <p className="mb-3">Please log in to write a review</p>
-              <a href="/login" className="btn btn-dark px-4">
-                Log In
-              </a>
-            </div>
-          )}
-
           {/* Reviews List */}
           {reviews.length > 0 && (
-         <div className="reviews-list">
-          <div className="d-flex justify-content-between align-items-center mb-4">
-            <h4 className="fw-bold mb-0">Customer Reviews</h4>
-            <span className="badge bg-primary bg-gradient rounded-pill px-3 py-2">
-              {statistics.totalReviews || 0} reviews
-            </span>
-          </div>
-
-          {reviews.length === 0 ? (
-            <div className="card border-dashed">
-              <div className="card-body text-center py-5">
-                <div className="display-1 text-muted mb-3">
-                  <FaRegStar />
-                </div>
-                <h5 className="mb-3">No reviews yet</h5>
-                <p className="text-muted mb-0">Be the first to review this product!</p>
+            <div className="reviews-list ">
+              <div className="d-flex justify-content-between align-items-center mb-4">
+                <h4 className="fw-bold mb-0">Customer Reviews</h4>
+                <span className="badge bg-primary bg-gradient rounded-pill px-3 py-2">
+                  {statistics.totalReviews || 0} reviews
+                </span>
               </div>
-            </div>
-          ) : (
-            <div className="row">
-              {reviews.map((review, index) => (
-                <div key={review._id} className="col-lg-6 mb-4">
-                  <div className="card h-100 shadow-sm border-hover">
-                    <div className="card-body">
-                      {/* Review Header */}
-                      <div className="d-flex justify-content-between align-items-start mb-3">
-                        <div className="d-flex align-items-center">
-                          <div className="avatar me-3">
-                            <div 
-                              className="bg-primary bg-gradient text-white rounded-circle d-flex align-items-center justify-content-center"
-                              style={{ width: '40px', height: '40px' }}
-                            >
-                              {review.userName?.charAt(0).toUpperCase() || 'U'}
-                            </div>
-                          </div>
-                          <div>
-                            <h6 className="mb-1 fw-bold">{review.userName}</h6>
-                            <div className="d-flex align-items-center">
-                              {this.renderStars(review.rating, false, 'sm')}
-                              {review.isVerifiedPurchase && (
-                                <span className="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 ms-2">
-                                  <FaCheckCircle size={10} className="me-1" />
-                                  Verified
-                                </span>
-                              )}
-                            </div>
-                          </div>
-                        </div>
-                        <small className="text-muted text-end">
-                          {new Date(review.createdAt).toLocaleDateString('en-US', {
-                            month: 'short',
-                            day: 'numeric',
-                            year: 'numeric'
-                          })}
-                        </small>
-                      </div>
 
-                      {/* Review Content */}
-                      <h6 className="fw-bold text-primary mb-2">{review.title}</h6>
-                      <p className="card-text mb-3 line-clamp-3">{review.comment}</p>
-
-                      {/* Images */}
-                      {this.renderReviewImages(review.images)}
-
-                      {/* Helpful Button */}
-                      <div className="d-flex justify-content-between align-items-center mt-4 pt-3 border-top">
-                        <button
-                          className="btn btn-outline-secondary btn-sm rounded-pill px-3"
-                          onClick={() => this.handleMarkHelpful(review._id)}
-                        >
-                          <FaThumbsUp className="me-1" />
-                          Helpful ({review.helpful || 0})
-                        </button>
-                        {index === 0 && (
-                          <span className="badge bg-warning bg-gradient text-dark">
-                            <FaStar className="me-1" />
-                            Most Recent
-                          </span>
-                        )}
-                      </div>
+              {reviews.length === 0 ? (
+                <div className="card border-dashed">
+                  <div className="card-body text-center py-5">
+                    <div className="display-1 text-muted mb-3">
+                      <FaRegStar />
                     </div>
+                    <h5 className="mb-3">No reviews yet</h5>
+                    <p className="text-muted mb-0">Be the first to review this product!</p>
                   </div>
                 </div>
-              ))}
+              ) : (
+                <div className="row">
+                  {reviews.map((review, index) => (
+                    <div key={review._id} className="col-lg-6 mb-4">
+                      <div className="card h-100 shadow-sm border-hover">
+                        <div className="card-body">
+                          {/* Review Header */}
+                          <div className="d-flex justify-content-between align-items-start mb-3">
+                            <div className="d-flex align-items-center">
+                              <div className="avatar me-3">
+                                <div
+                                  className="bg-primary bg-gradient text-white rounded-circle d-flex align-items-center justify-content-center"
+                                  style={{ width: '40px', height: '40px' }}
+                                >
+                                  {review.userName?.charAt(0).toUpperCase() || 'U'}
+                                </div>
+                              </div>
+                              <div>
+                                <h6 className="mb-1 fw-bold">{review.userName}</h6>
+                                <div className="d-flex align-items-center">
+                                  {this.renderStars(review.rating, false, 'sm')}
+                                  {review.isVerifiedPurchase && (
+                                    <span className="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 ms-2">
+                                      <FaCheckCircle size={10} className="me-1" />
+                                      Verified
+                                    </span>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+                            <small className="text-muted text-end">
+                              {new Date(review.createdAt).toLocaleDateString('en-US', {
+                                month: 'short',
+                                day: 'numeric',
+                                year: 'numeric'
+                              })}
+                            </small>
+                          </div>
+
+                          {/* Review Content */}
+                          <h6 className="fw-bold text-primary mb-2">{review.title}</h6>
+                          <p className="card-text mb-3 line-clamp-3">{review.comment}</p>
+
+                          {/* Images */}
+                          {this.renderReviewImages(review.images)}
+
+                          {/* Helpful Button */}
+                          <div className="d-flex justify-content-between align-items-center mt-4 pt-3 border-top">
+                            <button
+                              className="btn btn-outline-secondary btn-sm rounded-pill px-3"
+                              onClick={() => this.handleMarkHelpful(review._id)}
+                            >
+                              <FaThumbsUp className="me-1" />
+                              Helpful ({review.helpful || 0})
+                            </button>
+                            {index === 0 && (
+                              <span className="badge bg-warning bg-gradient text-dark">
+                                <FaStar className="me-1" />
+                                Most Recent
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           )}
-        </div>
-        )}
         </div>
         {this.renderImageModal()}
 
