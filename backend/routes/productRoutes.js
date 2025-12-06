@@ -221,4 +221,25 @@ router.get("/:id", async (req, res) => {
   }
 });
 
+router.get("/category/:categoryId", async (req, res) => {
+  try {
+    const { categoryId } = req.params;
+    
+    // Find products by category ID
+    const products = await Product.find({ 
+      category: categoryId 
+    })
+    .populate("category")
+    .sort({ createdAt: -1 });
+    
+    if (!products || products.length === 0) {
+      return res.status(200).json([]); // Return empty array instead of error
+    }
+
+    res.json(products);
+  } catch (error) {
+    console.error("Error fetching products by category:", error);
+    res.status(500).json({ error: "Server error" });
+  }
+});
 module.exports = router;

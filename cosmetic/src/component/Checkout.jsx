@@ -610,6 +610,7 @@ class CheckoutForm extends Component {
         name: "💎 GlowCosmetic",
         description: `Order Payment - ${actualOrderId}`,
         order_id: razorpayOrder.id,
+
         handler: async (response) => {
           try {
             // Verify payment
@@ -624,6 +625,9 @@ class CheckoutForm extends Component {
             );
 
             if (verificationResponse.data.success) {
+              // Send order confirmation email
+              await this.sendOrderConfirmationEmail(actualOrderId, orderData, selectedAddress);
+
               this.setState({ paymentSuccess: true });
 
               // Clear cart and local storage
@@ -692,7 +696,49 @@ class CheckoutForm extends Component {
       });
     }
   };
+sendOrderConfirmationEmail = async (orderId, orderData, shippingAddress) => {
+  try {
+    const userData = localStorage.getItem("user") || localStorage.getItem("admin");
+    if (!userData) return;
 
+    const user = JSON.parse(userData);
+    const userId = user.id;
+
+    // Prepare email data
+    const emailData = {
+      userId: userId,
+      orderId: orderId,
+      customerName: shippingAddress.name || "Customer",
+      customerEmail: shippingAddress.email,
+      orderDate: new Date().toLocaleDateString(),
+      orderTime: new Date().toLocaleTimeString(),
+      orderTotal: this.state.total.toFixed(2),
+      shippingAddress: shippingAddress,
+      orderItems: this.state.cartItems.map(item => ({
+        name: item.productId.name,
+        quantity: item.quantity,
+        price: item.productId.price,
+        total: (item.productId.price * item.quantity).toFixed(2)
+      }))
+    };
+
+    // Send email request to backend
+    const response = await axios.post(
+      "http://localhost:5000/api/Usermodel/send-order-confirmation",
+      emailData
+    );
+
+    if (response.data.success) {
+      console.log("Order confirmation email sent successfully");
+    } else {
+      console.warn("Failed to send order confirmation email:", response.data.message);
+    }
+
+  } catch (error) {
+    console.error("Error sending order confirmation email:", error);
+    // Don't show error to user - email failure shouldn't affect payment success
+  }
+};
   formatCurrency = (value) => {
     const num = typeof value === "number" ? value : parseFloat(value || 0);
     if (Number.isNaN(num)) return "0.00";
@@ -704,181 +750,985 @@ class CheckoutForm extends Component {
 
     return (
       <div className="checkout-success-container">
-      <div className="checkout-success-wrapper">
-        <div className="success-content">
-          {/* Success Icon with Animation */}
-          <div className="success-icon-wrapper">
-            <div className="success-icon-circle">
-              <FaCheck className="success-icon" />
+        <div className="success-bg-overlay"></div>
+        <div className="checkout-success-wrapper">
+          <div className="success-content">
+            {/* Success Icon with Animation */}
+            <div className="success-icon-wrapper">
+              <div className="success-icon-circle">
+                <FaCheck className="success-icon" />
+              </div>
+              <div className="success-rings">
+                <div className="ring ring-1"></div>
+                <div className="ring ring-2"></div>
+                <div className="ring ring-3"></div>
+              </div>
             </div>
-            <div className="success-rings">
-              <div className="ring ring-1"></div>
-              <div className="ring ring-2"></div>
-              <div className="ring ring-3"></div>
+
+            {/* Success Header */}
+            <div className="success-header">
+              <h1 className="success-title">🎉 Payment Successful!</h1>
+              <p className="success-subtitle">Your order is confirmed</p>
+            </div>
+
+            {/* Order Details Card */}
+            <div className="order-details-card">
+              <div className="order-header">
+                <div className="order-icon">📦</div>
+                <div className="order-info">
+                  <h3>Order Confirmation</h3>
+                  <p className="order-time">Confirmed at {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false })}</p>
+                </div>
+              </div>
+
+              {/* Order ID Section */}
+              <div className="order-id-section">
+                <div className="order-id-label">
+                  <FaTag className="label-icon" />
+                  <span>Order ID</span>
+                </div>
+                <div className="order-id-value">
+                  <code>#{orderId || '6933f37c9b391fc082a1cc0e'}</code>
+                  <button
+                    className="copy-btn"
+                    onClick={() => {
+                      navigator.clipboard.writeText(orderId || '6933f37c9b391fc082a1cc0e');
+                      const btn = document.querySelector('.copy-btn');
+                      if (btn) {
+                        btn.innerHTML = '✅ Copied!';
+                        setTimeout(() => {
+                          btn.innerHTML = '📋 Copy';
+                        }, 2000);
+                      }
+                    }}
+                  >
+                    📋 Copy
+                  </button>
+                </div>
+                <p className="order-id-note">Save this for tracking and reference</p>
+              </div>
+
+              {/* Confirmation Message */}
+              <div className="confirmation-message">
+                <div className="message-icon">✅</div>
+                <div className="message-content">
+                  <h4>Thank you for your purchase!</h4>
+                  <p>Your order has been confirmed and will be shipped soon.</p>
+                </div>
+              </div>
+
+              {/* Delivery Info */}
+              <div className="delivery-info">
+                <div className="info-item">
+                  <div className="info-icon-wrapper">
+                    <FaEnvelope className="info-icon" />
+                  </div>
+                  <div className="info-content">
+                    <span className="info-label">Confirmation Email</span>
+                    <span className="info-value">Will be sent within 5 minutes</span>
+                  </div>
+                </div>
+                <div className="info-item">
+                  <div className="info-icon-wrapper">
+                    <FaTruck className="info-icon" />
+                  </div>
+                  <div className="info-content">
+                    <span className="info-label">Delivery Time</span>
+                    <span className="info-value">3-5 business days</span>
+                  </div>
+                </div>
+                <div className="info-item">
+                  <div className="info-icon-wrapper">
+                    <FaPhone className="info-icon" />
+                  </div>
+                  <div className="info-content">
+                    <span className="info-label">Need Help?</span>
+                    <span className="info-value">
+                      Contact our <a href="/support" className="support-link">customer support</a>
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="success-actions">
+              <button
+                className="btn-continue"
+                onClick={() => window.location.href = "/"}
+              >
+                <FaShoppingBag className="btn-icon" />
+                Continue Shopping
+              </button>
+              <button
+                className="btn-orders"
+                onClick={() => window.location.href = "/OrderHistory"}
+              >
+                <FaBox className="btn-icon" />
+                View My Orders
+              </button>
+              <button
+                className="btn-print"
+                onClick={() => window.print()}
+              >
+                <FaCheck className="btn-icon" />
+                Print Receipt
+              </button>
+            </div>
+
+            {/* Order Timeline */}
+            <div className="order-timeline">
+              <div className="timeline-title">
+                <h4>Order Status</h4>
+              </div>
+              <div className="timeline-steps">
+                <div className="timeline-step active completed">
+                  <div className="step-circle">1</div>
+                  <div className="step-info">
+                    <span className="step-label">Order Placed</span>
+                    <span className="step-time">Just now</span>
+                  </div>
+                  <div className="step-line active"></div>
+                </div>
+
+                <div className="timeline-step active">
+                  <div className="step-circle pulse">2</div>
+                  <div className="step-info">
+                    <span className="step-label">Processing</span>
+                    <span className="step-time">Next step</span>
+                  </div>
+                  <div className="step-line"></div>
+                </div>
+
+                <div className="timeline-step">
+                  <div className="step-circle">3</div>
+                  <div className="step-info">
+                    <span className="step-label">Shipped</span>
+                    <span className="step-time">Estimated: 24 hours</span>
+                  </div>
+                  <div className="step-line"></div>
+                </div>
+
+                <div className="timeline-step">
+                  <div className="step-circle">4</div>
+                  <div className="step-info">
+                    <span className="step-label">Delivered</span>
+                    <span className="step-time">3-5 days</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Thank You Note */}
+            <div className="thank-you-note">
+              <p>✨ Thank you for shopping with us! We've sent a confirmation to your email.</p>
             </div>
           </div>
 
-          {/* Success Header */}
-          <div className="success-header">
-            <h1 className="success-title">🎉 Payment Successful!</h1>
-            <p className="success-subtitle">Your order is confirmed</p>
-          </div>
-
-          {/* Order Details Card */}
-          <div className="order-details-card">
-            <div className="order-header">
-              <div className="order-icon">📦</div>
-              <div className="order-info">
-                <h3>Order Confirmation</h3>
-                <p className="order-time">Confirmed at {new Date().toLocaleTimeString()}</p>
-              </div>
-            </div>
-
-            {/* Order ID Section */}
-            <div className="order-id-section">
-              <div className="order-id-label">
-                <FaTag className="label-icon" />
-                <span>Order ID</span>
-              </div>
-              <div className="order-id-value">
-                <code>#{orderId || '6931531ada7285967ffb5544'}</code>
-                <button 
-                  className="copy-btn"
-                  onClick={() => {
-                    navigator.clipboard.writeText(orderId);
-                    alert('Order ID copied to clipboard!');
-                  }}
-                >
-                  📋 Copy
-                </button>
-              </div>
-              <p className="order-id-note">Save this for tracking and reference</p>
-            </div>
-
-            {/* Confirmation Message */}
-            <div className="confirmation-message">
-              <div className="message-icon">✅</div>
-              <div className="message-content">
-                <h4>Thank you for your purchase!</h4>
-                <p>Your order has been confirmed and will be shipped soon.</p>
-              </div>
-            </div>
-
-            {/* Delivery Info */}
-            <div className="delivery-info">
-              <div className="info-item">
-                <FaEnvelope className="info-icon" />
-                <div className="info-content">
-                  <span className="info-label">Confirmation Email</span>
-                  <span className="info-value">Will be sent within 5 minutes</span>
-                </div>
-              </div>
-              <div className="info-item">
-                <FaTruck className="info-icon" />
-                <div className="info-content">
-                  <span className="info-label">Delivery Time</span>
-                  <span className="info-value">3-5 business days</span>
-                </div>
-              </div>
-              <div className="info-item">
-                <FaPhone className="info-icon" />
-                <div className="info-content">
-                  <span className="info-label">Need Help?</span>
-                  <span className="info-value">
-                    Contact our <a href="/support" className="support-link">customer support</a>
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Action Buttons */}
-          <div className="success-actions">
-            <button
-              className="btn-continue"
-              onClick={() => window.location.href = "/"}
-            >
-              <FaShoppingBag className="btn-icon" />
-              Continue Shopping
-            </button>
-
-            <button
-              className="btn-orders"
-              onClick={() => window.location.href = "/OrderHistory"}
-            >
-              <FaBox className="btn-icon" />
-              View My Orders
-            </button>
-
-            <button
-              className="btn-print"
-              onClick={() => window.print()}
-            >
-              <FaCheck className="btn-icon" />
-              Print Receipt
-            </button>
-          </div>
-
-          {/* Order Timeline */}
-          <div className="order-timeline">
-            <div className="timeline-title">Order Status</div>
-            <div className="timeline-steps">
-              <div className="timeline-step active completed">
-                <div className="step-circle">1</div>
-                <div className="step-info">
-                  <span className="step-label">Order Placed</span>
-                  <span className="step-time">Just now</span>
-                </div>
-                <div className="step-line active"></div>
-              </div>
-
-              <div className="timeline-step active">
-                <div className="step-circle pulse">2</div>
-                <div className="step-info">
-                  <span className="step-label">Processing</span>
-                  <span className="step-time">Next step</span>
-                </div>
-                <div className="step-line"></div>
-              </div>
-
-              <div className="timeline-step">
-                <div className="step-circle">3</div>
-                <div className="step-info">
-                  <span className="step-label">Shipped</span>
-                  <span className="step-time">Estimated: 24 hours</span>
-                </div>
-                <div className="step-line"></div>
-              </div>
-
-              <div className="timeline-step">
-                <div className="step-circle">4</div>
-                <div className="step-info">
-                  <span className="step-label">Delivered</span>
-                  <span className="step-time">3-5 days</span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Thank You Note */}
-          <div className="thank-you-note">
-            <p>✨ Thank you for shopping with us! We've sent a confirmation to your email.</p>
+          {/* Confetti Animation */}
+          <div className="confetti-container">
+            {[...Array(100)].map((_, i) => (
+              <div key={i} className="confetti" style={{
+                left: `${Math.random() * 100}%`,
+                animationDelay: `${Math.random() * 2}s`,
+                backgroundColor: ['#4CAF50', '#2196F3', '#FF9800', '#E91E63', '#9C27B0'][Math.floor(Math.random() * 5)],
+                width: `${Math.random() * 8 + 4}px`,
+                height: `${Math.random() * 8 + 4}px`
+              }} />
+            ))}
           </div>
         </div>
 
-        {/* Confetti Animation */}
-        <div className="confetti-container">
-          {[...Array(100)].map((_, i) => (
-            <div key={i} className="confetti" style={{
-              left: `${Math.random() * 100}%`,
-              animationDelay: `${Math.random() * 2}s`,
-              backgroundColor: ['#4CAF50', '#2196F3', '#FF9800', '#E91E63', '#9C27B0'][Math.floor(Math.random() * 5)],
-              width: `${Math.random() * 10 + 5}px`,
-              height: `${Math.random() * 10 + 5}px`
-            }} />
-          ))}
-        </div>
-      </div>
+        <style>
+          {`
+        /* Success Screen Specific Styles - Compact Version */
+        .checkout-success-container {
+          min-height: 100vh;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          padding: 15px;
+          position: relative;
+          overflow: hidden;
+          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+        }
+        
+        .success-bg-overlay {
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background: 
+            radial-gradient(circle at 20% 50%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
+            radial-gradient(circle at 80% 80%, rgba(255, 255, 255, 0.05) 0%, transparent 50%);
+          pointer-events: none;
+        }
+        
+        .checkout-success-wrapper {
+          position: relative;
+          max-width: 700px;
+          width: 100%;
+          z-index: 10;
+        }
+        
+        .success-content {
+          background: white;
+          border-radius: 18px;
+          padding: 30px;
+          box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+          position: relative;
+          overflow: hidden;
+        }
+        
+        /* Success Icon - Smaller */
+        .success-icon-wrapper {
+          position: relative;
+          width: 90px;
+          height: 90px;
+          margin: 0 auto 20px;
+        }
+        
+        .success-icon-circle {
+          width: 100%;
+          height: 100%;
+          background: linear-gradient(135deg, #4CAF50, #2E7D32);
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          position: relative;
+          z-index: 2;
+          animation: scaleIn 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55) both;
+        }
+        
+        .success-icon {
+          color: white;
+          font-size: 36px;
+          animation: checkmark 0.5s ease 0.3s both;
+        }
+        
+        .success-rings {
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+        }
+        
+        .ring {
+          position: absolute;
+          border: 2px solid rgba(76, 175, 80, 0.3);
+          border-radius: 50%;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          animation: ripple 2s infinite;
+        }
+        
+        .ring-1 { animation-delay: 0s; }
+        .ring-2 { animation-delay: 0.7s; }
+        .ring-3 { animation-delay: 1.4s; }
+        
+        /* Success Header - Smaller Fonts */
+        .success-header {
+          text-align: center;
+          margin-bottom: 25px;
+        }
+        
+        .success-title {
+          font-size: 1.8rem;
+          font-weight: 700;
+          background: linear-gradient(135deg, #4CAF50, #2E7D32);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          margin: 0 0 8px 0;
+          line-height: 1.2;
+        }
+        
+        .success-subtitle {
+          font-size: 1rem;
+          color: #666;
+          margin: 0;
+          font-weight: 500;
+        }
+        
+        /* Order Details Card - More Compact */
+        .order-details-card {
+          background: #f8fafc;
+          border-radius: 14px;
+          padding: 22px;
+          margin-bottom: 25px;
+          border: 1px solid #e2e8f0;
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+        
+        .order-header {
+          display: flex;
+          align-items: center;
+          gap: 15px;
+          margin-bottom: 20px;
+          padding-bottom: 15px;
+          border-bottom: 1px solid #e2e8f0;
+        }
+        
+        .order-icon {
+          font-size: 1.8rem;
+          background: linear-gradient(135deg, #667eea, #764ba2);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+        }
+        
+        .order-info h3 {
+          margin: 0 0 5px 0;
+          font-size: 1.2rem;
+          color: #1a202c;
+          font-weight: 600;
+        }
+        
+        .order-time {
+          color: #718096;
+          margin: 0;
+          font-size: 0.85rem;
+          font-weight: 500;
+        }
+        
+        /* Order ID Section - More Compact */
+        .order-id-section {
+          background: white;
+          border-radius: 10px;
+          padding: 18px;
+          margin: 18px 0;
+          border: 1px solid #e3f2fd;
+          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+        
+        .order-id-label {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          color: #4a5568;
+          font-size: 0.8rem;
+          font-weight: 600;
+          text-transform: uppercase;
+          letter-spacing: 0.3px;
+          margin-bottom: 12px;
+        }
+        
+        .label-icon {
+          color: #4CAF50;
+          font-size: 0.95rem;
+        }
+        
+        .order-id-value {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 15px;
+          margin: 15px 0;
+        }
+        
+        .order-id-value code {
+          font-size: 1.1rem;
+          font-weight: 600;
+          color: #3182ce;
+          font-family: 'Courier New', 'SF Mono', Monaco, monospace;
+          background: #edf2f7;
+          padding: 10px 15px;
+          border-radius: 8px;
+          letter-spacing: 0.5px;
+          flex: 1;
+          text-align: center;
+          border: 1px solid #e2e8f0;
+          word-break: break-all;
+        }
+        
+        .copy-btn {
+          background: linear-gradient(135deg, #3182ce, #2c5282);
+          color: white;
+          border: none;
+          padding: 10px 18px;
+          border-radius: 8px;
+          font-weight: 600;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          transition: all 0.2s ease;
+          font-size: 0.85rem;
+          white-space: nowrap;
+          box-shadow: 0 1px 3px rgba(49, 130, 206, 0.2);
+        }
+        
+        .copy-btn:hover {
+          transform: translateY(-1px);
+          box-shadow: 0 3px 8px rgba(49, 130, 206, 0.3);
+          background: linear-gradient(135deg, #2c5282, #2a4365);
+        }
+        
+        .order-id-note {
+          color: #718096;
+          font-size: 0.8rem;
+          margin: 12px 0 0 0;
+          text-align: center;
+          font-style: italic;
+        }
+        
+        /* Confirmation Message - Compact */
+        .confirmation-message {
+          display: flex;
+          align-items: center;
+          gap: 15px;
+          background: linear-gradient(135deg, #e8f5e9, #f1f8e9);
+          padding: 18px;
+          border-radius: 10px;
+          margin: 20px 0;
+          border-left: 4px solid #4CAF50;
+          box-shadow: 0 1px 4px rgba(76, 175, 80, 0.1);
+        }
+        
+        .message-icon {
+          font-size: 1.8rem;
+          color: #4CAF50;
+          flex-shrink: 0;
+        }
+        
+        .message-content h4 {
+          margin: 0 0 6px 0;
+          color: #2d3748;
+          font-size: 1.1rem;
+          font-weight: 600;
+        }
+        
+        .message-content p {
+          margin: 0;
+          color: #4a5568;
+          font-size: 0.9rem;
+          line-height: 1.4;
+        }
+        
+        /* Delivery Info - Compact */
+        .delivery-info {
+          display: flex;
+          flex-direction: column;
+          gap: 12px;
+          margin-top: 20px;
+        }
+        
+        .info-item {
+          display: flex;
+          align-items: center;
+          gap: 15px;
+          padding: 15px;
+          background: white;
+          border-radius: 10px;
+          transition: all 0.2s ease;
+          border: 1px solid #e2e8f0;
+        }
+        
+        .info-item:hover {
+          transform: translateX(3px);
+          box-shadow: 0 3px 8px rgba(0, 0, 0, 0.06);
+          border-color: #cbd5e0;
+        }
+        
+        .info-icon-wrapper {
+          width: 40px;
+          height: 40px;
+          background: linear-gradient(135deg, #667eea, #764ba2);
+          border-radius: 10px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          flex-shrink: 0;
+        }
+        
+        .info-icon {
+          color: white;
+          font-size: 1.1rem;
+        }
+        
+        .info-content {
+          display: flex;
+          flex-direction: column;
+          flex: 1;
+        }
+        
+        .info-label {
+          font-weight: 600;
+          color: #2d3748;
+          font-size: 0.9rem;
+          margin-bottom: 3px;
+        }
+        
+        .info-value {
+          color: #718096;
+          font-size: 0.85rem;
+        }
+        
+        .support-link {
+          color: #3182ce;
+          text-decoration: none;
+          font-weight: 600;
+          transition: color 0.2s;
+          font-size: 0.85rem;
+        }
+        
+        .support-link:hover {
+          color: #2c5282;
+          text-decoration: underline;
+        }
+        
+        /* Action Buttons - Smaller */
+        .success-actions {
+          display: grid;
+          grid-template-columns: repeat(3, 1fr);
+          gap: 12px;
+          margin: 30px 0;
+        }
+        
+        .btn-continue,
+        .btn-orders,
+        .btn-print {
+          padding: 14px 18px;
+          border-radius: 10px;
+          border: none;
+          font-size: 0.9rem;
+          font-weight: 600;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 8px;
+          transition: all 0.2s ease;
+          min-height: 50px;
+          box-shadow: 0 2px 5px rgba(0, 0, 0, 0.08);
+        }
+        
+        .btn-continue {
+          background: linear-gradient(135deg, #4CAF50, #2E7D32);
+          color: white;
+        }
+        
+        .btn-continue:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 5px 12px rgba(76, 175, 80, 0.25);
+          background: linear-gradient(135deg, #43a047, #1b5e20);
+        }
+        
+        .btn-orders {
+          background: linear-gradient(135deg, #3182ce, #2c5282);
+          color: white;
+        }
+        
+        .btn-orders:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 5px 12px rgba(49, 130, 206, 0.25);
+          background: linear-gradient(135deg, #2c5282, #2a4365);
+        }
+        
+        .btn-print {
+          background: linear-gradient(135deg, #9C27B0, #7B1FA2);
+          color: white;
+        }
+        
+        .btn-print:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 5px 12px rgba(156, 39, 176, 0.25);
+          background: linear-gradient(135deg, #8e24aa, #6a1b9a);
+        }
+        
+        .btn-icon {
+          font-size: 1rem;
+        }
+        
+        /* Order Timeline - Compact */
+        .order-timeline {
+          background: #f8fafc;
+          border-radius: 14px;
+          padding: 22px;
+          margin: 25px 0;
+          border: 1px solid #e2e8f0;
+        }
+        
+        .timeline-title h4 {
+          margin: 0 0 20px 0;
+          font-size: 1.2rem;
+          color: #1a202c;
+          text-align: center;
+          font-weight: 600;
+        }
+        
+        .timeline-steps {
+          display: flex;
+          justify-content: space-between;
+          position: relative;
+          padding: 0 15px;
+        }
+        
+        .timeline-step {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          position: relative;
+          flex: 1;
+          z-index: 1;
+        }
+        
+        .step-circle {
+          width: 40px;
+          height: 40px;
+          border-radius: 50%;
+          background: #e2e8f0;
+          color: #718096;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-weight: 600;
+          font-size: 1rem;
+          margin-bottom: 10px;
+          position: relative;
+          z-index: 2;
+          border: 3px solid white;
+          box-shadow: 0 2px 5px rgba(0, 0, 0, 0.08);
+        }
+        
+        .timeline-step.active .step-circle {
+          background: #4CAF50;
+          color: white;
+        }
+        
+        .timeline-step.completed .step-circle {
+          background: #2E7D32;
+          color: white;
+        }
+        
+        .step-circle.pulse {
+          animation: pulse 2s infinite;
+        }
+        
+        .step-info {
+          text-align: center;
+        }
+        
+        .step-label {
+          display: block;
+          font-weight: 600;
+          color: #2d3748;
+          margin-bottom: 4px;
+          font-size: 0.85rem;
+          white-space: nowrap;
+        }
+        
+        .step-time {
+          display: block;
+          color: #718096;
+          font-size: 0.75rem;
+          font-weight: 500;
+        }
+        
+        .step-line {
+          position: absolute;
+          top: 20px;
+          left: 50px;
+          right: 0;
+          height: 3px;
+          background: #e2e8f0;
+          z-index: 0;
+          border-radius: 2px;
+        }
+        
+        .step-line.active {
+          background: linear-gradient(90deg, #4CAF50, #2E7D32);
+          animation: lineProgress 1.5s ease;
+        }
+        
+        /* Thank You Note - Smaller */
+        .thank-you-note {
+          text-align: center;
+          padding: 18px;
+          background: linear-gradient(135deg, #e8f5e9, #f1f8e9);
+          border-radius: 10px;
+          margin-top: 20px;
+          border: 2px dashed #4CAF50;
+        }
+        
+        .thank-you-note p {
+          color: #2E7D32;
+          font-size: 0.95rem;
+          font-weight: 600;
+          margin: 0;
+          line-height: 1.4;
+        }
+        
+        /* Confetti Animation */
+        .confetti-container {
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          pointer-events: none;
+          z-index: 1;
+          overflow: hidden;
+        }
+        
+        .confetti {
+          position: absolute;
+          opacity: 0;
+          animation: confettiFall 3s linear forwards;
+          border-radius: 2px;
+        }
+        
+        /* Animations */
+        @keyframes scaleIn {
+          from {
+            transform: scale(0);
+            opacity: 0;
+          }
+          to {
+            transform: scale(1);
+            opacity: 1;
+          }
+        }
+        
+        @keyframes checkmark {
+          from {
+            transform: scale(0) rotate(-45deg);
+          }
+          to {
+            transform: scale(1) rotate(0);
+          }
+        }
+        
+        @keyframes ripple {
+          0% {
+            transform: scale(0.8);
+            opacity: 0.6;
+          }
+          100% {
+            transform: scale(1.4);
+            opacity: 0;
+          }
+        }
+        
+        @keyframes pulse {
+          0%, 100% {
+            transform: scale(1);
+            box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.6);
+          }
+          50% {
+            transform: scale(1.03);
+            box-shadow: 0 0 0 6px rgba(76, 175, 80, 0);
+          }
+        }
+        
+        @keyframes lineProgress {
+          from {
+            width: 0;
+          }
+          to {
+            width: calc(100% - 50px);
+          }
+        }
+        
+        @keyframes confettiFall {
+          0% {
+            transform: translateY(-100px) rotate(0deg);
+            opacity: 1;
+          }
+          100% {
+            transform: translateY(800px) rotate(720deg);
+            opacity: 0;
+          }
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 768px) {
+          .checkout-success-container {
+            padding: 12px;
+          }
+          
+          .success-content {
+            padding: 22px 16px;
+            border-radius: 16px;
+          }
+          
+          .success-title {
+            font-size: 1.5rem;
+          }
+          
+          .success-subtitle {
+            font-size: 0.9rem;
+          }
+          
+          .order-id-value {
+            flex-direction: column;
+            align-items: stretch;
+            gap: 12px;
+          }
+          
+          .order-id-value code {
+            font-size: 1rem;
+            padding: 8px 12px;
+          }
+          
+          .copy-btn {
+            width: 100%;
+            justify-content: center;
+            padding: 9px 16px;
+          }
+          
+          .success-actions {
+            grid-template-columns: 1fr;
+            gap: 10px;
+          }
+          
+          .btn-continue,
+          .btn-orders,
+          .btn-print {
+            min-height: 46px;
+            font-size: 0.85rem;
+            padding: 12px 16px;
+          }
+          
+          .timeline-steps {
+            flex-direction: column;
+            gap: 20px;
+            padding: 0;
+          }
+          
+          .timeline-step {
+            flex-direction: row;
+            align-items: flex-start;
+            width: 100%;
+            gap: 15px;
+          }
+          
+          .step-circle {
+            margin-bottom: 0;
+            margin-right: 12px;
+            width: 36px;
+            height: 36px;
+            font-size: 0.9rem;
+          }
+          
+          .step-info {
+            text-align: left;
+            flex: 1;
+          }
+          
+          .step-label {
+            font-size: 0.85rem;
+          }
+          
+          .step-time {
+            font-size: 0.75rem;
+          }
+          
+          .step-line {
+            display: none;
+          }
+          
+          .delivery-info {
+            gap: 10px;
+          }
+          
+          .info-item {
+            padding: 12px;
+            gap: 12px;
+          }
+          
+          .info-icon-wrapper {
+            width: 36px;
+            height: 36px;
+          }
+          
+          .info-icon {
+            font-size: 1rem;
+          }
+          
+          .info-label {
+            font-size: 0.85rem;
+          }
+          
+          .info-value {
+            font-size: 0.8rem;
+          }
+        }
+        
+        @media (max-width: 480px) {
+          .success-content {
+            padding: 20px 14px;
+          }
+          
+          .success-title {
+            font-size: 1.4rem;
+          }
+          
+          .order-id-value code {
+            font-size: 0.95rem;
+            padding: 7px 10px;
+          }
+          
+          .confirmation-message {
+            flex-direction: column;
+            text-align: center;
+            gap: 12px;
+            padding: 16px;
+          }
+          
+          .message-icon {
+            font-size: 1.6rem;
+          }
+          
+          .message-content h4 {
+            font-size: 1rem;
+          }
+          
+          .message-content p {
+            font-size: 0.85rem;
+          }
+          
+          .order-header {
+            flex-direction: column;
+            text-align: center;
+            gap: 12px;
+          }
+          
+          .order-icon {
+            font-size: 1.6rem;
+          }
+          
+          .order-info h3 {
+            font-size: 1.1rem;
+          }
+          
+          .thank-you-note p {
+            font-size: 0.9rem;
+          }
+        }
+        
+        @media (max-width: 360px) {
+          .success-title {
+            font-size: 1.3rem;
+          }
+          
+          .btn-icon {
+            font-size: 0.9rem;
+          }
+          
+          .btn-continue,
+          .btn-orders,
+          .btn-print {
+            font-size: 0.8rem;
+            padding: 10px 14px;
+          }
+        }
+        `}
+        </style>
       </div>
     );
   };

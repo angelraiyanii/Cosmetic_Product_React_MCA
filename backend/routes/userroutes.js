@@ -284,4 +284,169 @@ router.put("/change-password/:userId", async (req, res) => {
     });
   }
 });
+
+// Send Order Confirmation Email Route
+router.post("/send-order-confirmation", async (req, res) => {
+  try {
+    const {
+      userId,
+      orderId,
+      customerName,
+      customerEmail,
+      orderDate,
+      orderTime,
+      orderTotal,
+      shippingAddress,
+      orderItems
+    } = req.body;
+
+    // Validate required fields
+    if (!customerEmail || !orderId) {
+      return res.status(400).json({ 
+        success: false, 
+        message: "Customer email and order ID are required" 
+      });
+    }
+
+    // Format order items HTML
+    const orderItemsHtml = orderItems.map(item => `
+      <tr style="border-bottom: 1px solid #e0e0e0;">
+        <td style="padding: 12px; text-align: left;">${item.name}</td>
+        <td style="padding: 12px; text-align: center;">${item.quantity}</td>
+        <td style="padding: 12px; text-align: right;">₹${item.price}</td>
+        <td style="padding: 12px; text-align: right;">₹${item.total}</td>
+      </tr>
+    `).join('');
+
+    // Calculate subtotal
+    const subtotal = orderItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    const tax = subtotal * 0.10; // 10% tax
+    const shipping = subtotal > 50 ? 0 : 5.99;
+
+    // Send email
+    await transporter.sendMail({
+      from: process.env.EMAIL_USER,
+      to: customerEmail,
+      subject: `Order Confirmation - #${orderId}`,
+      html: `
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>Order Confirmation</title>
+          <style>
+            body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f5f5f5; }
+            .container { background: white; border-radius: 10px; padding: 30px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+            .header { text-align: center; margin-bottom: 30px; border-bottom: 2px solid #4CAF50; padding-bottom: 20px; }
+            .success-icon { color: #4CAF50; font-size: 48px; margin-bottom: 10px; }
+            h1 { color: #2E7D32; margin: 10px 0; }
+            h2 { color: #333; margin: 20px 0 10px; }
+            .order-id { background: #f8f9fa; padding: 10px; border-radius: 5px; text-align: center; margin: 15px 0; font-family: monospace; font-size: 18px; color: #2196F3; }
+            .info-box { background: #f8f9fa; border-left: 4px solid #4CAF50; padding: 15px; margin: 15px 0; border-radius: 0 5px 5px 0; }
+            table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+            th { background: #4CAF50; color: white; padding: 12px; text-align: left; }
+            td { padding: 12px; border-bottom: 1px solid #e0e0e0; }
+            .total-section { text-align: right; margin-top: 20px; }
+            .total-row { display: flex; justify-content: space-between; margin: 5px 0; }
+            .grand-total { font-size: 20px; font-weight: bold; color: #2E7D32; border-top: 2px solid #4CAF50; padding-top: 10px; margin-top: 10px; }
+            .footer { text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #e0e0e0; color: #666; font-size: 14px; }
+            .contact-info { background: #e8f5e9; padding: 15px; border-radius: 5px; margin: 20px 0; }
+          </style>
+        </head>
+        <body>
+          <div class="container">
+            <div class="header">
+              <div class="success-icon">✅</div>
+              <h1>Payment Successful!</h1>
+              <p>Your order has been confirmed and will be shipped soon.</p>
+            </div>
+            
+            <h2>Order Details</h2>
+            <p><strong>Order ID:</strong> <span class="order-id">#${orderId}</span></p>
+            <p><strong>Order Date:</strong> ${orderDate}</p>
+            <p><strong>Order Time:</strong> ${orderTime}</p>
+            
+            <div class="info-box">
+              <p><strong>Customer:</strong> ${customerName}</p>
+              <p><strong>Email:</strong> ${customerEmail}</p>
+            </div>
+            
+            <h2>Shipping Address</h2>
+            <div class="info-box">
+              <p>${shippingAddress.address}</p>
+              <p>${shippingAddress.city}, ${shippingAddress.state} - ${shippingAddress.zip}</p>
+              <p>${shippingAddress.country}</p>
+              <p><strong>Phone:</strong> ${shippingAddress.phone}</p>
+            </div>
+            
+            <h2>Order Items</h2>
+            <table>
+              <thead>
+                <tr>
+                  <th>Product</th>
+                  <th>Quantity</th>
+                  <th>Price</th>
+                  <th>Total</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${orderItemsHtml}
+              </tbody>
+            </table>
+            
+            <div class="total-section">
+              <div class="total-row">
+                <span>Subtotal:</span>
+                <span>₹${subtotal.toFixed(2)}</span>
+              </div>
+              <div class="total-row">
+                <span>Shipping:</span>
+                <span>${shipping === 0 ? 'FREE' : `₹${shipping.toFixed(2)}`}</span>
+              </div>
+              <div class="total-row">
+                <span>Tax (10%):</span>
+                <span>₹${tax.toFixed(2)}</span>
+              </div>
+              <div class="total-row grand-total">
+                <span>Grand Total:</span>
+                <span>₹${orderTotal}</span>
+              </div>
+            </div>
+            
+            <div class="contact-info">
+              <h3>Need Help?</h3>
+              <p>If you have any questions about your order, please contact our customer support.</p>
+              <p><strong>Email:</strong> support@glowcosmetic.com</p>
+              <p><strong>Phone:</strong> +91 83474 87892</p>
+            </div>
+            
+            <div class="footer">
+              <p>Thank you for shopping with <strong>💎 GlowCosmetic</strong>!</p>
+              <p>We've sent a confirmation to your email.</p>
+              <p>© ${new Date().getFullYear()} GlowCosmetic. All rights reserved.</p>
+              <p><a href="http://www.glowcosmetic.com" style="color: #2196F3; text-decoration: none;">www.glowcosmetic.com</a></p>
+              <p>Please do not reply to this automated email.</p>
+              <p>-- Angel Raiyani,MCA Student, RK University</p>
+            </div>
+          </div>
+        </body>
+        </html>
+      `
+    });
+
+    res.status(200).json({
+      success: true,
+      message: "Order confirmation email sent successfully"
+    });
+
+  } catch (error) {
+    console.error("Error sending order confirmation email:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to send order confirmation email",
+      error: error.message
+    });
+  }
+});
 module.exports = router;
