@@ -32,7 +32,8 @@ import AdBanner from "./component/Admin/AdBanner";
 import AdContact from './component/Admin/AdContact'
 import AdUser from './component/Admin/AdUser'
 import AdOffers from './component/Admin/AdOffers';
-import AdOrder from './component/Admin/AdOrder'
+import AdOrder from './component/Admin/AdOrder';
+import AdReviews from './component/Admin/AdReviews';
 
 // import OfferBanner from './component/OfferBanner'
 
@@ -98,6 +99,7 @@ function App() {
         <Route path="/Admin/AdUser" element={<AdUser />} />
         <Route path="/Admin/AdOffers" element={<AdOffers />} />
         <Route path="/Admin/AdOrder" element={<AdOrder />} />
+        <Route path="/Admin/AdReviews" element={<AdReviews />} />
       </Routes>
 
       {/* Always visible */}

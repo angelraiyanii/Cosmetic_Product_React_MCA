@@ -344,5 +344,69 @@ router.get('/user/:userId', async (req, res) => {
     res.status(500).json({ error: 'Failed to fetch user reviews' });
   }
 });
+// Get all reviews
+router.get('/all-reviews', async (req, res) => {
+  try {
+    const reviews = await Review.find()
+      .sort({ createdAt: -1 })
+      .lean();
+    
+    res.json({ reviews });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Get review by ID
+router.get('/:id', async (req, res) => {
+  try {
+    const review = await Review.findById(req.params.id);
+    if (!review) {
+      return res.status(404).json({ error: 'Review not found' });
+    }
+    res.json(review);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Update review status
+router.patch('/:id/status', async (req, res) => {
+  try {
+    const { status } = req.body;
+    const validStatuses = ['pending', 'approved', 'rejected'];
+    
+    if (!validStatuses.includes(status)) {
+      return res.status(400).json({ error: 'Invalid status' });
+    }
+
+    const review = await Review.findByIdAndUpdate(
+      req.params.id,
+      { status },
+      { new: true }
+    );
+
+    if (!review) {
+      return res.status(404).json({ error: 'Review not found' });
+    }
+
+    res.json(review);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Delete review
+router.delete('/:id', async (req, res) => {
+  try {
+    const review = await Review.findByIdAndDelete(req.params.id);
+    if (!review) {
+      return res.status(404).json({ error: 'Review not found' });
+    }
+    res.json({ message: 'Review deleted successfully' });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
 
 module.exports = router;
