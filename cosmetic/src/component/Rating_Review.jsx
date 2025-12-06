@@ -45,7 +45,7 @@ class Rating_Review extends Component {
   }
 
   loadUserData = () => {
-    const userData = localStorage.getItem('user') || localStorage.getItem('admin');
+    const userData = localStorage.getItem('user');
     if (userData) {
       const user = JSON.parse(userData);
       this.setState({ currentUser: user }, () => {
