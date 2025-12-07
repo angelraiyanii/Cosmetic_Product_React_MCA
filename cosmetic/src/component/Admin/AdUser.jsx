@@ -39,7 +39,11 @@ export class AdUser extends Component {
   };
 
   componentDidMount() {
-    
+    const userData = localStorage.getItem("user") || localStorage.getItem("admin");
+    if (!userData) {
+      window.location.href = "/Login";
+      return;
+    }
     axios
       .get("http://localhost:5000/api/UserModel/all-Usermodel")
       .then((res) => {

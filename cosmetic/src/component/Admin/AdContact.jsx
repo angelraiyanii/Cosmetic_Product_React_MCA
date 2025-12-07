@@ -68,6 +68,11 @@ const AdContact = () => {
 
   // Initial load
   useEffect(() => {
+    const userData = localStorage.getItem("user") || localStorage.getItem("admin");
+    if (!userData) {
+      window.location.href = "/Login";
+      return;
+    }
     fetchInquiries(currentPage, searchQuery, statusFilter);
   }, [currentPage, statusFilter]);
 

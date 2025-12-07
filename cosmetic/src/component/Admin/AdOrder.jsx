@@ -37,6 +37,11 @@ const AdOrder = () => {
 
   // Fetch orders on mount
   useEffect(() => {
+    const userData = localStorage.getItem("user") || localStorage.getItem("admin");
+    if (!userData) {
+      window.location.href = "/Login";
+      return;
+    }
     const fetchOrders = async () => {
       try {
         setLoading(true);

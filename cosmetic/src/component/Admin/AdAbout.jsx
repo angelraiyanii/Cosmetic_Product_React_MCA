@@ -26,6 +26,12 @@ const AdAbout = () => {
 
   // Fetch About data on mount
   useEffect(() => {
+    const userData = localStorage.getItem("user") || localStorage.getItem("admin");
+    if (!userData) {
+      window.location.href = "/Login";
+      return;
+    }
+
     const fetchAboutData = async () => {
       try {
         const response = await axios.get("http://localhost:5000/api/AboutModel/about");
@@ -59,7 +65,7 @@ const AdAbout = () => {
   useEffect(() => {
     if (aboutData && aboutData.banners && aboutData.banners.length > 1) {
       const interval = setInterval(() => {
-        setActiveBannerIndex((prevIndex) => 
+        setActiveBannerIndex((prevIndex) =>
           (prevIndex + 1) % aboutData.banners.length
         );
       }, 5000);
@@ -77,8 +83,8 @@ const AdAbout = () => {
   // Handle video type change
   const handleVideoTypeChange = (e) => {
     const videoType = e.target.value;
-    setFormData({ 
-      ...formData, 
+    setFormData({
+      ...formData,
       videoType,
       videoFile: null,
       videoUrl: videoType === "url" ? formData.videoUrl : ""
@@ -118,7 +124,7 @@ const AdAbout = () => {
   const handleVideoFileChange = (e) => {
     const file = e.target.files[0];
     const videoTypes = ["video/mp4", "video/avi", "video/mov", "video/wmv", "video/webm", "video/mkv"];
-    
+
     if (file && videoTypes.includes(file.type)) {
       const videoUrl = URL.createObjectURL(file);
       setFormData({ ...formData, videoFile: { file, url: videoUrl } });
@@ -131,20 +137,20 @@ const AdAbout = () => {
   // Handle multiple banner uploads
   const handleBannerChange = (e) => {
     const files = Array.from(e.target.files);
-    const validFiles = files.filter(file => 
+    const validFiles = files.filter(file =>
       ["image/png", "image/jpeg", "image/jpg"].includes(file.type)
     );
-    
+
     if (validFiles.length !== files.length) {
       setErrors({ ...errors, banners: "Only JPG, JPEG, and PNG allowed" });
       return;
     }
-    
+
     const bannerPreviews = validFiles.map(file => ({
       file,
       url: URL.createObjectURL(file)
     }));
-    
+
     setFormData({ ...formData, banners: [...formData.banners, ...bannerPreviews] });
     setErrors({ ...errors, banners: "" });
   };
@@ -164,12 +170,12 @@ const AdAbout = () => {
     if (!formData.mission.trim()) tempErrors.mission = "Mission statement is required.";
     if (formData.values.length === 0) tempErrors.values = "At least one value is required.";
     if (formData.values.some(v => !v.trim())) tempErrors.values = "All values must be filled.";
-    
+
     // Video validation
     if (formData.videoType === "url" && formData.videoUrl && !isValidUrl(formData.videoUrl)) {
       tempErrors.videoUrl = "Please enter a valid URL";
     }
-    
+
     setErrors(tempErrors);
     return Object.keys(tempErrors).length === 0;
   };
@@ -189,28 +195,28 @@ const AdAbout = () => {
     if (!validateForm(true)) return;
 
     const data = new FormData();
-    
+
     // Add banner images with indexed field names
     formData.banners.forEach((banner, index) => {
       data.append(`bannerImage${index}`, banner.file);
     });
-    
+
     data.append("content", formData.content);
     data.append("section1Text", formData.section1Text);
     data.append("section2Text", formData.section2Text);
     data.append("videoType", formData.videoType);
     data.append("mission", formData.mission);
-    
+
     // Handle video based on type
     if (formData.videoType === "file" && formData.videoFile?.file) {
       data.append("videoFile", formData.videoFile.file);
     } else if (formData.videoType === "url") {
       data.append("videoUrl", formData.videoUrl);
     }
-    
+
     // Add values array
     data.append("values", JSON.stringify(formData.values));
-    
+
     // Add section images if provided
     if (formData.section1Image?.file) {
       data.append("section1Image", formData.section1Image.file);
@@ -257,21 +263,21 @@ const AdAbout = () => {
     data.append("videoType", formData.videoType);
     data.append("mission", formData.mission);
     data.append("values", JSON.stringify(formData.values));
-    
+
     // Handle video based on type
     if (formData.videoType === "file" && formData.videoFile?.file) {
       data.append("videoFile", formData.videoFile.file);
     } else if (formData.videoType === "url") {
       data.append("videoUrl", formData.videoUrl);
     }
-    
+
     // Add banner images with indexed field names if provided
     formData.banners.forEach((banner, index) => {
       if (banner.file) {
         data.append(`bannerImage${index}`, banner.file);
       }
     });
-    
+
     // Add section images if provided
     if (formData.section1Image?.file) {
       data.append("section1Image", formData.section1Image.file);
@@ -333,8 +339,8 @@ const AdAbout = () => {
             <div id="aboutBannerCarousel" className="carousel slide" data-bs-ride="carousel">
               <div className="carousel-inner">
                 {aboutData.banners.map((banner, index) => (
-                  <div 
-                    key={index} 
+                  <div
+                    key={index}
                     className={`carousel-item ${index === activeBannerIndex ? 'active' : ''}`}
                   >
                     <img
@@ -347,12 +353,12 @@ const AdAbout = () => {
                   </div>
                 ))}
               </div>
-              
+
               {aboutData.banners.length > 1 && (
                 <>
-                  <button 
-                    className="carousel-control-prev" 
-                    type="button" 
+                  <button
+                    className="carousel-control-prev"
+                    type="button"
                     onClick={() => setActiveBannerIndex(
                       (activeBannerIndex - 1 + aboutData.banners.length) % aboutData.banners.length
                     )}
@@ -360,9 +366,9 @@ const AdAbout = () => {
                     <span className="carousel-control-prev-icon" aria-hidden="true"></span>
                     <span className="visually-hidden">Previous</span>
                   </button>
-                  <button 
-                    className="carousel-control-next" 
-                    type="button" 
+                  <button
+                    className="carousel-control-next"
+                    type="button"
                     onClick={() => setActiveBannerIndex(
                       (activeBannerIndex + 1) % aboutData.banners.length
                     )}
@@ -436,21 +442,21 @@ const AdAbout = () => {
                 <h3 className="text-center mb-4">Discover Our World</h3>
                 <div className="ratio ratio-16x9 video-container">
                   {aboutData.videoType === 'file' && aboutData.videoFile ? (
-                    <video 
-                      controls 
+                    <video
+                      controls
                       className="w-100"
                       style={{ borderRadius: "10px" }}
                     >
-                      <source 
-                        src={`http://localhost:5000/public/videos/about_videos/${aboutData.videoFile}`} 
-                        type="video/mp4" 
+                      <source
+                        src={`http://localhost:5000/public/videos/about_videos/${aboutData.videoFile}`}
+                        type="video/mp4"
                       />
                       Your browser does not support the video tag.
                     </video>
                   ) : aboutData.videoUrl ? (
-                    <iframe 
-                      src={aboutData.videoUrl} 
-                      title="About our brand" 
+                    <iframe
+                      src={aboutData.videoUrl}
+                      title="About our brand"
                       allowFullScreen
                       frameBorder="0"
                     ></iframe>
@@ -534,7 +540,7 @@ const AdAbout = () => {
                 onChange={handleBannerChange}
               />
               {errors.banners && <small className="text-danger">{errors.banners}</small>}
-              
+
               <div className="d-flex flex-wrap mt-3">
                 {formData.banners.map((banner, index) => (
                   <div key={index} className="position-relative me-2 mb-2">

@@ -28,6 +28,11 @@ function AdProduct() {
   const itemsPerPage = 5;
 
   useEffect(() => {
+    const userData = localStorage.getItem("user") || localStorage.getItem("admin");
+    if (!userData) {
+      window.location.href = "/Login";
+      return;
+    }
     console.log("Component mounted - fetching data");
     fetchProducts();
     fetchCategories();

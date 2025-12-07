@@ -22,6 +22,11 @@ function AdCategory() {
   const itemsPerPage = 3;
 
   useEffect(() => {
+    const userData = localStorage.getItem("user") || localStorage.getItem("admin");
+    if (!userData) {
+      window.location.href = "/Login";
+      return;
+    }
     fetchCategories();
   }, []);
 

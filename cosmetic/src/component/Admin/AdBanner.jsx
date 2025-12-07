@@ -18,6 +18,11 @@ const AdBanner = () => {
 
   // Fetch banners on mount
   useEffect(() => {
+    const userData = localStorage.getItem("user") || localStorage.getItem("admin");
+    if (!userData) {
+      window.location.href = "/Login";
+      return;
+    }
     const fetchBanners = async () => {
       try {
         const response = await axios.get(

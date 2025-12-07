@@ -24,6 +24,11 @@ export class AdReviews extends Component {
   }
 
   fetchReviews = () => {
+    const userData = localStorage.getItem("user") || localStorage.getItem("admin");
+    if (!userData) {
+      window.location.href = "/Login";
+      return;
+    }
     axios
       .get("http://localhost:5000/api/ReviewModel/all-reviews")
       .then((res) => {
