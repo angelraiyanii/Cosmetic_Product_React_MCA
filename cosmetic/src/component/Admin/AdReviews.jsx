@@ -1,6 +1,5 @@
 import React, { Component } from "react";
 import axios from "axios";
-import { Link } from "react-router-dom";
 
 export class AdReviews extends Component {
   constructor(props) {
@@ -15,7 +14,7 @@ export class AdReviews extends Component {
       successMessage: null,
       searchQuery: "",
       currentPage: 1,
-      itemsPerPage: 10,
+      itemsPerPage: 5,
       filterStatus: "all", // "all", "pending", "approved", "rejected"
     };
   }
@@ -65,41 +64,45 @@ export class AdReviews extends Component {
 
   showReviewView = async (review) => {
     try {
-      // Fetch product details (if available)
+      // Fetch product details
       if (review.productId) {
         try {
           const productRes = await axios.get(
             `http://localhost:5000/api/products/${review.productId}`
           );
+
           this.setState({
             selectedProduct: productRes.data.product || productRes.data,
           });
-        } catch (productError) {
-          console.log("Product fetch failed, continuing without product data");
-        }
-      }
-      
-      // Fetch user details (if available)
-      if (review.userId) {
-        try {
-          const userRes = await axios.get(
-            `http://localhost:5000/api/UserModel/${review.userId}`
-          );
-          this.setState({
-            selectedUser: userRes.data.Login || userRes.data,
-          });
-        } catch (userError) {
-          console.log("User fetch failed, continuing without user data");
+        } catch (error) {
+          console.log("Product fetch failed");
         }
       }
 
+      // Fetch user details
+      if (review.userId) {
+        try {
+          const userRes = await axios.get(
+            `http://localhost:5000/api/Usermodel/user-details/${review.userId}`
+          );
+
+          this.setState({
+            selectedUser: userRes.data.user,
+          });
+        } catch (error) {
+          console.log("User fetch failed, continuing without user");
+        }
+      }
+
+      // Always show review
       this.setState({
         selectedReview: review,
         showReviewView: true,
       });
+
     } catch (error) {
       console.error("Error in showReviewView:", error);
-      // Still show review even if product/user fetch fails
+
       this.setState({
         selectedReview: review,
         selectedProduct: null,
@@ -108,6 +111,7 @@ export class AdReviews extends Component {
       });
     }
   };
+
 
   hideReviewView = () => {
     this.setState({
@@ -195,16 +199,45 @@ export class AdReviews extends Component {
   };
 
   // Beautiful Review Details Modal
+  // Beautiful Review Details Modal
   renderReviewDetails = () => {
     const { selectedReview, selectedProduct, selectedUser } = this.state;
     if (!selectedReview) return null;
+
+    // Helper function to construct correct image URLs
+    const getImageUrl = (imagePath) => {
+      if (!imagePath) return null;
+
+      // If it's already a full URL
+      if (imagePath.startsWith('http')) {
+        return imagePath;
+      }
+
+      // If it's a relative path starting with / or ./
+      if (imagePath.startsWith('/') || imagePath.startsWith('./')) {
+        return `http://localhost:5000${imagePath.startsWith('/') ? imagePath : imagePath.replace('.', '')}`;
+      }
+
+      // Default path for user profile pictures
+      if (imagePath.includes('profile') || imagePath.includes('user')) {
+        return `http://localhost:5000/profile_pictures/${imagePath}`;
+      }
+
+      // Default path for review images
+      return `http://localhost:5000/images/reviews/${imagePath}`;
+    };
+
+    // Construct user profile image URL
+    const userProfilePic = selectedUser?.profilePic
+      ? getImageUrl(selectedUser.profilePic)
+      : null;
 
     return (
       <div className="modal fade show d-block" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
         <div className="modal-dialog modal-lg modal-dialog-centered">
           <div className="modal-content border-0 shadow-lg">
             {/* Header */}
-            <div className="modal-header border-0" style={{ 
+            <div className="modal-header border-0" style={{
               background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
               borderRadius: '0.5rem 0.5rem 0 0'
             }}>
@@ -220,9 +253,9 @@ export class AdReviews extends Component {
                   </div>
                 </div>
               </div>
-              <button 
-                type="button" 
-                className="btn-close btn-close-white" 
+              <button
+                type="button"
+                className="btn-close btn-close-white"
                 onClick={this.hideReviewView}
               ></button>
             </div>
@@ -248,20 +281,19 @@ export class AdReviews extends Component {
                         <small className="text-muted">Email</small>
                         <div className="fw-bold">{selectedReview.userEmail}</div>
                       </div>
-                      {selectedUser && selectedUser.profilePic && (
+                      {selectedUser?.profilePic && (
                         <div className="text-center mt-3">
                           <img
                             src={`http://localhost:5000/public/images/profile_pictures/${selectedUser.profilePic}`}
-                            alt="User Profile"
                             className="rounded-circle"
-                            style={{
-                              width: '80px',
-                              height: '80px',
-                              objectFit: 'cover'
-                            }}
+                            width="70"
+                            height="70"
+                            style={{ objectFit: "cover" }}
+                            alt="User"
                           />
                         </div>
                       )}
+
                     </div>
                   </div>
                 </div>
@@ -281,10 +313,30 @@ export class AdReviews extends Component {
                         <div className="fw-bold text-truncate">{selectedReview.productId}</div>
                       </div>
                       {selectedProduct && (
-                        <div className="info-item">
-                          <small className="text-muted">Product Name</small>
-                          <div className="fw-bold">{selectedProduct.name || "Unknown"}</div>
-                        </div>
+                        <>
+                          <div className="info-item mb-3">
+                            <small className="text-muted">Product Name</small>
+                            <div className="fw-bold">{selectedProduct.name || "Unknown"}</div>
+                          </div>
+                          {selectedProduct.images && selectedProduct.images.length > 0 && (
+                            <div className="text-center mt-3">
+                              <img
+                                src={getImageUrl(selectedProduct.images[0])}
+                                alt="Product"
+                                className="img-thumbnail"
+                                style={{
+                                  maxWidth: '100px',
+                                  maxHeight: '100px',
+                                  objectFit: 'cover'
+                                }}
+                                onError={(e) => {
+                                  e.target.onerror = null;
+                                  e.target.src = "https://via.placeholder.com/100x100?text=No+Image";
+                                }}
+                              />
+                            </div>
+                          )}
+                        </>
                       )}
                     </div>
                   </div>
@@ -312,19 +364,31 @@ export class AdReviews extends Component {
                     Review Images ({selectedReview.images.length})
                   </h6>
                   <div className="row g-2">
-                    {selectedReview.images.map((image, index) => (
-                      <div key={index} className="col-md-3 col-6">
-                        <img
-                          src={image}
-                          alt={`Review ${index + 1}`}
-                          className="img-thumbnail w-100"
-                          style={{ height: '100px', objectFit: 'cover' }}
-                          onError={(e) => {
-                            e.target.src = "https://via.placeholder.com/100x100?text=Image+Not+Found";
-                          }}
-                        />
-                      </div>
-                    ))}
+                    {selectedReview.images.map((image, index) => {
+                      const imageUrl = getImageUrl(image);
+                      return (
+                        <div key={index} className="col-md-3 col-6">
+                          <img
+                            src={imageUrl}
+                            alt={`Review ${index + 1}`}
+                            className="img-thumbnail w-100 cursor-pointer"
+                            style={{
+                              height: '100px',
+                              objectFit: 'cover',
+                              cursor: 'pointer'
+                            }}
+                            onClick={() => window.open(imageUrl, '_blank')}
+                            onError={(e) => {
+                              e.target.onerror = null;
+                              e.target.src = "https://via.placeholder.com/100x100?text=Image+Error";
+                            }}
+                          />
+                          <small className="text-center d-block text-muted mt-1">
+                            Image {index + 1}
+                          </small>
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
               )}
@@ -382,9 +446,9 @@ export class AdReviews extends Component {
                   Reject
                 </button>
               </div>
-              <button 
-                type="button" 
-                className="btn btn-secondary" 
+              <button
+                type="button"
+                className="btn btn-secondary"
                 onClick={this.hideReviewView}
               >
                 Close
@@ -395,7 +459,6 @@ export class AdReviews extends Component {
       </div>
     );
   };
-
   render() {
     const {
       reviews,
@@ -432,7 +495,7 @@ export class AdReviews extends Component {
       <center>
         <div className="container mt-4">
           <h2 className="text-center mb-4">Manage Reviews</h2>
-          
+
           {/* Stats Cards */}
           <div className="row mb-4">
             <div className="col-md-3 col-6 mb-3">
@@ -510,7 +573,7 @@ export class AdReviews extends Component {
                 <option value="rejected">Rejected</option>
               </select>
             </div>
-            <button 
+            <button
               className="btn btn-outline-primary mb-2"
               onClick={this.fetchReviews}
               title="Refresh reviews"
@@ -557,7 +620,7 @@ export class AdReviews extends Component {
                     <td colSpan="7" className="text-center py-4">
                       <i className="fas fa-comment-slash fa-2x text-muted mb-3"></i>
                       <p className="text-muted">No reviews found.</p>
-                      <button 
+                      <button
                         className="btn btn-primary"
                         onClick={this.fetchReviews}
                       >
@@ -650,7 +713,7 @@ export class AdReviews extends Component {
                         &laquo; Prev
                       </button>
                     </li>
-                    
+
                     {Array.from({ length: totalPages }, (_, i) => i + 1).map((number) => (
                       <li
                         key={number}

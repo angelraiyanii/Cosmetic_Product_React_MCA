@@ -1,7 +1,6 @@
 import React, { Component } from "react";
 import axios from "axios";
 import u1 from "../images/pro1.jpeg";
-import { Link } from "react-router-dom";
 
 export class AdUser extends Component {
   constructor(props) {
@@ -27,6 +26,7 @@ export class AdUser extends Component {
       },
       errors: {},
       imagePreview: null,
+
       currentPage: 1,
       itemsPerPage: 3,
     };
@@ -39,6 +39,7 @@ export class AdUser extends Component {
   };
 
   componentDidMount() {
+    
     axios
       .get("http://localhost:5000/api/UserModel/all-Usermodel")
       .then((res) => {
@@ -395,7 +396,7 @@ export class AdUser extends Component {
         <div className="modal-dialog modal-lg modal-dialog-centered">
           <div className="modal-content border-0 shadow-lg">
             {/* Header with gradient */}
-            <div className="modal-header border-0 position-relative" style={{ 
+            <div className="modal-header border-0 position-relative" style={{
               background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
               borderRadius: '0.5rem 0.5rem 0 0'
             }}>
@@ -416,9 +417,8 @@ export class AdUser extends Component {
                       boxShadow: '0 4px 15px rgba(0,0,0,0.2)'
                     }}
                   />
-                  <span className={`position-absolute bottom-0 end-0 badge rounded-pill ${
-                    selectedUser.status === 'Active' ? 'bg-success' : 'bg-danger'
-                  }`} style={{ fontSize: '0.7rem' }}>
+                  <span className={`position-absolute bottom-0 end-0 badge rounded-pill ${selectedUser.status === 'Active' ? 'bg-success' : 'bg-danger'
+                    }`} style={{ fontSize: '0.7rem' }}>
                     {selectedUser.status === 'Active' ? '●' : '●'}
                   </span>
                 </div>
@@ -430,9 +430,9 @@ export class AdUser extends Component {
                   </p>
                 </div>
               </div>
-              <button 
-                type="button" 
-                className="btn-close btn-close-white position-absolute end-0 top-0 m-3" 
+              <button
+                type="button"
+                className="btn-close btn-close-white position-absolute end-0 top-0 m-3"
                 onClick={this.hideUserView}
                 style={{ fontSize: '1.2rem' }}
               ></button>
@@ -502,11 +502,10 @@ export class AdUser extends Component {
 
               {/* Status Badge */}
               <div className="text-center mt-4">
-                <span className={`badge fs-6 px-4 py-2 ${
-                  selectedUser.status === 'Active' 
-                    ? 'bg-success-subtle text-success border border-success' 
-                    : 'bg-danger-subtle text-danger border border-danger'
-                }`}>
+                <span className={`badge fs-6 px-4 py-2 ${selectedUser.status === 'Active'
+                  ? 'bg-success-subtle text-success border border-success'
+                  : 'bg-danger-subtle text-danger border border-danger'
+                  }`}>
                   <i className={`fas ${selectedUser.status === 'Active' ? 'fa-check-circle' : 'fa-times-circle'} me-2`}></i>
                   {selectedUser.status}
                 </span>
@@ -515,8 +514,8 @@ export class AdUser extends Component {
 
             {/* Footer with action buttons */}
             <div className="modal-footer border-0 bg-light">
-              <button 
-                type="button" 
+              <button
+                type="button"
                 className="btn btn-outline-primary"
                 onClick={() => {
                   this.hideUserView();
@@ -526,9 +525,9 @@ export class AdUser extends Component {
                 <i className="fas fa-edit me-1"></i>
                 Edit User
               </button>
-              <button 
-                type="button" 
-                className="btn btn-secondary" 
+              <button
+                type="button"
+                className="btn btn-secondary"
                 onClick={this.hideUserView}
               >
                 Close
@@ -659,18 +658,18 @@ export class AdUser extends Component {
                               width: "40px",
                               height: "40px",
                               objectFit: "cover",
+                              border: "2px solid #ddd",
                             }}
                           />
-                          {user.fullname}
+                          <span>{user.fullname}</span>
                         </div>
                       </td>
                       <td>{user.email}</td>
                       <td>
-                        <span className={`badge ${
-                          user.status === "Active"
-                            ? "bg-success"
-                            : "bg-danger"
-                        }`}>
+                        <span className={`badge ${user.status === "Active"
+                          ? "bg-success"
+                          : "bg-danger"
+                          }`}>
                           {user.status}
                         </span>
                       </td>
@@ -684,7 +683,7 @@ export class AdUser extends Component {
                           >
                             <i className="fas fa-eye"></i>
                           </button>
-                          
+
                           {/* Update Icon */}
                           <button
                             className="btn btn-outline-warning btn-sm"
@@ -693,7 +692,7 @@ export class AdUser extends Component {
                           >
                             <i className="fas fa-edit"></i>
                           </button>
-                          
+
                           {/* Delete Icon */}
                           <button
                             className="btn btn-outline-danger btn-sm"

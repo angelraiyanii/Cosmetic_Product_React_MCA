@@ -1,10 +1,5 @@
 import React from "react";
 import { Carousel } from "react-bootstrap";
-// import img1 from "../images/slide1.png";
-// import img2 from "../images/slide2.png";
-// import img3 from "../images/slide3.png";
-// import img from "../images/category2.png";
-
 const ASlider = () => {
   return (
     <div className="container-fluid p-3">
