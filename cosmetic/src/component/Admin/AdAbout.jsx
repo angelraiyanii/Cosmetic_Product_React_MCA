@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import defaultBanner from "../images/about1.jpeg";
-import section1Default from "../images/about2.jpeg";
-import section2Default from "../images/about3.jpeg";
+import defaultBanner from "../Images/about1.jpeg";
+import section1Default from "../Images/about2.jpeg";
+import section2Default from "../Images/about3.jpeg";
 import "../../App.css";
 
 const AdAbout = () => {
