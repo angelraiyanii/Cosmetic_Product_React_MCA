@@ -6,7 +6,9 @@ import { useParams } from "react-router-dom";
 import { FaHeart, FaShoppingCart, FaStar, FaCheck, FaTruck, FaShieldAlt, FaUndo, FaShare, FaFilter, FaEye, FaBolt } from "react-icons/fa";
 import placeholder from "./Images/c1.jpeg"; // Default cosmetic image
 import Rating_Review from "./Rating_Review";
-
+ const url = window.location.hostname.includes("localhost")
+    ? "http://localhost:5000" 
+    : "https://gowcosmetic-backed.onrender.com";
 class SingleProClass extends Component {
   constructor(props) {
     super(props);

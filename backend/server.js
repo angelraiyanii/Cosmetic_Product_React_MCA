@@ -6,8 +6,16 @@ require("dotenv").config();
 
 const app = express();
 
+// ✅ CORS Configuration (ADD THIS PART)
+app.use(
+  cors({
+    origin: "https://cosmetic-frontend-n8im.onrender.com",  // your frontend URL
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
+    credentials: true
+  })
+);
+
 // Middleware
-app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static("public"));

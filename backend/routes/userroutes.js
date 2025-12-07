@@ -115,18 +115,19 @@ router.get("/verify-email/:token", async (req, res) => {
     const user = await User.findOne({ email: decoded.email });
 
     if (!user) {
-      return res.redirect("http://localhost:5173/Usermodel?status=error&message=Invalid or expired token.");
+      return res.redirect("https://cosmetic-frontend-n8im.onrender.com/Usermodel?status=error&message=Invalid or expired token.");
     }
 
     user.status = "Active";
     user.verificationToken = null;
     await user.save();
 
-    return res.redirect("http://localhost:5173/Usermodel?status=success&message=Email verified successfully! You can now log in.");
+    return res.redirect("https://cosmetic-frontend-n8im.onrender.com/Usermodel?status=success&message=Email verified successfully! You can now log in.");
   } catch (error) {
-    return res.redirect("http://localhost:5173/Usermodel?status=error&message=Verification failed or token expired.");
+    return res.redirect("https://cosmetic-frontend-n8im.onrender.com/Usermodel?status=error&message=Verification failed or token expired.");
   }
 });
+;
 
 // Retrieve all Users
 router.get("/all-Usermodel", async (req, res) => {
@@ -425,7 +426,7 @@ router.post("/send-order-confirmation", async (req, res) => {
               <p>Thank you for shopping with <strong>💎 GlowCosmetic</strong>!</p>
               <p>We've sent a confirmation to your email.</p>
               <p>© ${new Date().getFullYear()} GlowCosmetic. All rights reserved.</p>
-              <p><a href="http://www.glowcosmetic.com" style="color: #2196F3; text-decoration: none;">www.glowcosmetic.com</a></p>
+              <p><a href="https://cosmetic-frontend-n8im.onrender.com"  style="color: #2196F3; text-decoration: none;">www.glowcosmetic.com</a></p>
               <p>Please do not reply to this automated email.</p>
               <p>-- Angel Raiyani,MCA Student, RK University</p>
             </div>
