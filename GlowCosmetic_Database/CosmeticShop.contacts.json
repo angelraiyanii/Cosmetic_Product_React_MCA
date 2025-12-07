@@ -1,0 +1,32 @@
+[{
+  "_id": {
+    "$oid": "68caea6ce584e10f28a0000e"
+  },
+  "name": "Angel ",
+  "email": "angelraiyanii@gmail.com",
+  "phone": "6576543256",
+  "message": "product : Your product is very helpful ",
+  "reply": "Thank you for visiting our website.",
+  "status": "In Progress",
+  "seen": false,
+  "createdAt": {
+    "$date": "2025-09-17T17:05:48.642Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "69317b4cde850e46a49cde17"
+  },
+  "name": "Dipaxi Vekariya",
+  "email": "angelraiyanii@gmail.com",
+  "phone": "08475650567",
+  "message": "product : test demo",
+  "reply": "",
+  "status": "New",
+  "seen": false,
+  "createdAt": {
+    "$date": "2025-12-04T12:15:08.787Z"
+  },
+  "__v": 0
+}]

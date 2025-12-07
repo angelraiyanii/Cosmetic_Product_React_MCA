@@ -1,0 +1,741 @@
+[{
+  "_id": {
+    "$oid": "692eaf8954275b2909837d3a"
+  },
+  "userId": {
+    "$oid": "68c6bd8c89216c17c44d9fdc"
+  },
+  "productId": {
+    "$oid": "68c9207f46a2428edd9f2412"
+  },
+  "rating": 5,
+  "title": "Body Glitter",
+  "comment": "It Very Beautiful and product is nice for skin",
+  "userName": "Angel Raiyani",
+  "userEmail": "angelraiyanii@gmail.com",
+  "isVerifiedPurchase": true,
+  "helpful": 12,
+  "status": "approved",
+  "createdAt": {
+    "$date": "2025-12-02T09:21:13.170Z"
+  },
+  "updatedAt": {
+    "$date": "2025-12-02T09:22:31.626Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "692eca0054275b29098386b9"
+  },
+  "userId": {
+    "$oid": "68c6bd8c89216c17c44d9fdc"
+  },
+  "productId": {
+    "$oid": "68c9201146a2428edd9f240b"
+  },
+  "rating": 4,
+  "title": "Lip Oil",
+  "comment": "very nice product and smell of lip oil is elegant",
+  "userName": "Angel Raiyani",
+  "userEmail": "angelraiyanii@gmail.com",
+  "isVerifiedPurchase": true,
+  "helpful": 4,
+  "status": "approved",
+  "createdAt": {
+    "$date": "2025-12-02T11:14:08.121Z"
+  },
+  "updatedAt": {
+    "$date": "2025-12-04T11:55:16.267Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "69313f05f40e4d72446bada9"
+  },
+  "userId": {
+    "$oid": "68c6bd8c89216c17c44d9fdc"
+  },
+  "productId": {
+    "$oid": "68c84b20fa85e1a3fd724334"
+  },
+  "rating": 2,
+  "title": "Kérastase Discipline",
+  "comment": "It very beautiful product",
+  "userName": "Angel Raiyani",
+  "userEmail": "angelraiyanii@gmail.com",
+  "isVerifiedPurchase": true,
+  "helpful": 0,
+  "status": "approved",
+  "createdAt": {
+    "$date": "2025-12-04T07:57:57.033Z"
+  },
+  "updatedAt": {
+    "$date": "2025-12-04T07:57:57.033Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6931438df40e4d72446bb0ff"
+  },
+  "userId": {
+    "$oid": "690c23baf1ee12e5c1e321d3"
+  },
+  "productId": {
+    "$oid": "692dcf33d0b8470e80f2c519"
+  },
+  "rating": 5,
+  "title": "Women Body Gel Wash",
+  "comment": "perfect product for woman Body , it has No abrasion, only exfoliation Aqua, Cocamidopropy",
+  "userName": "Kunden Raiyani",
+  "userEmail": "kundenraiyani7892@gmail.com",
+  "isVerifiedPurchase": true,
+  "helpful": 0,
+  "status": "approved",
+  "createdAt": {
+    "$date": "2025-12-04T08:17:17.033Z"
+  },
+  "updatedAt": {
+    "$date": "2025-12-04T08:17:17.033Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "693143ddf40e4d72446bb13b"
+  },
+  "userId": {
+    "$oid": "690c23baf1ee12e5c1e321d3"
+  },
+  "productId": {
+    "$oid": "692dda29d0b8470e80f2c5fc"
+  },
+  "rating": 2,
+  "title": "Organic Oil",
+  "comment": "Okay Okay product....",
+  "userName": "Kunden Raiyani",
+  "userEmail": "kundenraiyani7892@gmail.com",
+  "isVerifiedPurchase": true,
+  "helpful": 2,
+  "status": "approved",
+  "createdAt": {
+    "$date": "2025-12-04T08:18:37.890Z"
+  },
+  "updatedAt": {
+    "$date": "2025-12-04T09:15:45.257Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "69314420f40e4d72446bb1b4"
+  },
+  "userId": {
+    "$oid": "690c23baf1ee12e5c1e321d3"
+  },
+  "productId": {
+    "$oid": "68c9207f46a2428edd9f2412"
+  },
+  "rating": 4,
+  "title": "Body Glitter",
+  "comment": "It Glow my skin , very beautiful Product",
+  "userName": "Kunden Raiyani",
+  "userEmail": "kundenraiyani7892@gmail.com",
+  "isVerifiedPurchase": true,
+  "helpful": 4,
+  "status": "approved",
+  "createdAt": {
+    "$date": "2025-12-04T08:19:44.174Z"
+  },
+  "updatedAt": {
+    "$date": "2025-12-06T05:11:36.001Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "69314466f40e4d72446bb276"
+  },
+  "userId": {
+    "$oid": "68c6bd8c89216c17c44d9fdc"
+  },
+  "productId": {
+    "$oid": "68c84d87fa85e1a3fd724360"
+  },
+  "rating": 5,
+  "title": "Gift Set",
+  "comment": "it colors and product Quality is very nice",
+  "userName": "Angel Raiyani",
+  "userEmail": "angelraiyanii@gmail.com",
+  "isVerifiedPurchase": true,
+  "helpful": 0,
+  "status": "approved",
+  "createdAt": {
+    "$date": "2025-12-04T08:20:54.955Z"
+  },
+  "updatedAt": {
+    "$date": "2025-12-04T08:20:54.955Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6931449af40e4d72446bb318"
+  },
+  "userId": {
+    "$oid": "68c6bd8c89216c17c44d9fdc"
+  },
+  "productId": {
+    "$oid": "68c84c86fa85e1a3fd724350"
+  },
+  "rating": 2,
+  "title": "Gift Set",
+  "comment": "Product is okay but color is very light",
+  "userName": "Angel Raiyani",
+  "userEmail": "angelraiyanii@gmail.com",
+  "isVerifiedPurchase": true,
+  "helpful": 0,
+  "status": "approved",
+  "createdAt": {
+    "$date": "2025-12-04T08:21:46.429Z"
+  },
+  "updatedAt": {
+    "$date": "2025-12-04T08:21:46.429Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "693144f5f40e4d72446bb3c6"
+  },
+  "userId": {
+    "$oid": "68c6bd8c89216c17c44d9fdc"
+  },
+  "productId": {
+    "$oid": "68c84c26fa85e1a3fd724349"
+  },
+  "rating": 1,
+  "title": "Perfume",
+  "comment": "it not good Product",
+  "userName": "Angel Raiyani",
+  "userEmail": "angelraiyanii@gmail.com",
+  "isVerifiedPurchase": true,
+  "helpful": 0,
+  "status": "rejected",
+  "createdAt": {
+    "$date": "2025-12-04T08:23:17.952Z"
+  },
+  "updatedAt": {
+    "$date": "2025-12-06T10:04:04.535Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6931455af40e4d72446bb4e9"
+  },
+  "userId": {
+    "$oid": "68cbc963aea7d1d6cb4e19e7"
+  },
+  "productId": {
+    "$oid": "68c84c26fa85e1a3fd724349"
+  },
+  "rating": 4,
+  "title": "Perfume",
+  "comment": "it small is very nice",
+  "userName": "Nirali Raiyani",
+  "userEmail": "nirupatel7892@gmail.com",
+  "isVerifiedPurchase": true,
+  "helpful": 0,
+  "status": "approved",
+  "createdAt": {
+    "$date": "2025-12-04T08:24:58.794Z"
+  },
+  "updatedAt": {
+    "$date": "2025-12-04T08:24:58.794Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "693145acf40e4d72446bb535"
+  },
+  "userId": {
+    "$oid": "68cbc963aea7d1d6cb4e19e7"
+  },
+  "productId": {
+    "$oid": "692dd9dcd0b8470e80f2c5f5"
+  },
+  "rating": 3,
+  "title": "Body Wash",
+  "comment": "it nice to skin but product Quantity it not as i Expected",
+  "userName": "Nirali Raiyani",
+  "userEmail": "nirupatel7892@gmail.com",
+  "isVerifiedPurchase": true,
+  "helpful": 0,
+  "status": "approved",
+  "createdAt": {
+    "$date": "2025-12-04T08:26:20.508Z"
+  },
+  "updatedAt": {
+    "$date": "2025-12-04T08:26:20.508Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "693145cbf40e4d72446bb583"
+  },
+  "userId": {
+    "$oid": "68cbc963aea7d1d6cb4e19e7"
+  },
+  "productId": {
+    "$oid": "692dd592d0b8470e80f2c57e"
+  },
+  "rating": 5,
+  "title": "Brush",
+  "comment": "very beautiful",
+  "userName": "Nirali Raiyani",
+  "userEmail": "nirupatel7892@gmail.com",
+  "isVerifiedPurchase": true,
+  "helpful": 0,
+  "status": "approved",
+  "createdAt": {
+    "$date": "2025-12-04T08:26:51.757Z"
+  },
+  "updatedAt": {
+    "$date": "2025-12-04T08:26:51.757Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "693145fbf40e4d72446bb5d3"
+  },
+  "userId": {
+    "$oid": "68cbc963aea7d1d6cb4e19e7"
+  },
+  "productId": {
+    "$oid": "692dceaed0b8470e80f2c512"
+  },
+  "rating": 3,
+  "title": "Body Location",
+  "comment": "That small is very nice",
+  "userName": "Nirali Raiyani",
+  "userEmail": "nirupatel7892@gmail.com",
+  "isVerifiedPurchase": true,
+  "helpful": 0,
+  "status": "approved",
+  "createdAt": {
+    "$date": "2025-12-04T08:27:39.252Z"
+  },
+  "updatedAt": {
+    "$date": "2025-12-04T08:27:39.252Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6931461cf40e4d72446bb629"
+  },
+  "userId": {
+    "$oid": "68cbc963aea7d1d6cb4e19e7"
+  },
+  "productId": {
+    "$oid": "68c9207f46a2428edd9f2412"
+  },
+  "rating": 1,
+  "title": "Body Glitter",
+  "comment": "very bed",
+  "userName": "Nirali Raiyani",
+  "userEmail": "nirupatel7892@gmail.com",
+  "isVerifiedPurchase": true,
+  "helpful": 2,
+  "status": "pending",
+  "createdAt": {
+    "$date": "2025-12-04T08:28:12.153Z"
+  },
+  "updatedAt": {
+    "$date": "2025-12-06T10:03:54.720Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "69314650f40e4d72446bb67b"
+  },
+  "userId": {
+    "$oid": "68cbc963aea7d1d6cb4e19e7"
+  },
+  "productId": {
+    "$oid": "68c920f546a2428edd9f2419"
+  },
+  "rating": 3,
+  "title": "Shadow",
+  "comment": "colors is very nice",
+  "userName": "Nirali Raiyani",
+  "userEmail": "nirupatel7892@gmail.com",
+  "isVerifiedPurchase": true,
+  "helpful": 0,
+  "status": "approved",
+  "createdAt": {
+    "$date": "2025-12-04T08:29:04.267Z"
+  },
+  "updatedAt": {
+    "$date": "2025-12-04T08:29:04.267Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6931553cda7285967ffb563c"
+  },
+  "userId": {
+    "$oid": "693146f7f40e4d72446bb6dd"
+  },
+  "productId": {
+    "$oid": "692dd526d0b8470e80f2c577"
+  },
+  "rating": 1,
+  "title": "Blender",
+  "comment": "hight cost and color is good",
+  "userName": "Dipaxi ",
+  "userEmail": "araiyani764@rku.ac.in",
+  "images": [
+    "/uploads/reviews/review-1764840764460-140089433.jpeg"
+  ],
+  "isVerifiedPurchase": true,
+  "helpful": 5,
+  "status": "approved",
+  "createdAt": {
+    "$date": "2025-12-04T09:32:44.645Z"
+  },
+  "updatedAt": {
+    "$date": "2025-12-04T10:38:33.749Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "69317649de850e46a49cdd56"
+  },
+  "userId": {
+    "$oid": "693146f7f40e4d72446bb6dd"
+  },
+  "productId": {
+    "$oid": "68c9207f46a2428edd9f2412"
+  },
+  "rating": 2,
+  "title": "Glitter",
+  "comment": "okay okay product",
+  "userName": "Dipaxi ",
+  "userEmail": "araiyani764@rku.ac.in",
+  "images": [
+    "/images/ratingreview_images/review-1764849225296-214758237.jpeg"
+  ],
+  "isVerifiedPurchase": true,
+  "helpful": 5,
+  "status": "approved",
+  "createdAt": {
+    "$date": "2025-12-04T11:53:45.522Z"
+  },
+  "updatedAt": {
+    "$date": "2025-12-06T05:11:33.542Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6931769dde850e46a49cdd94"
+  },
+  "userId": {
+    "$oid": "693146f7f40e4d72446bb6dd"
+  },
+  "productId": {
+    "$oid": "68c9201146a2428edd9f240b"
+  },
+  "rating": 5,
+  "title": "lip oil",
+  "comment": "very Good Product",
+  "userName": "Dipaxi ",
+  "userEmail": "araiyani764@rku.ac.in",
+  "images": [],
+  "isVerifiedPurchase": true,
+  "helpful": 2,
+  "status": "approved",
+  "createdAt": {
+    "$date": "2025-12-04T11:55:09.055Z"
+  },
+  "updatedAt": {
+    "$date": "2025-12-06T10:03:46.905Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "69340166b80954e83dc1e639"
+  },
+  "userId": {
+    "$oid": "693146f7f40e4d72446bb6dd"
+  },
+  "productId": {
+    "$oid": "68c705b7b977f639482ad5ce"
+  },
+  "rating": 4,
+  "title": "Hyaluronic",
+  "comment": "very Nice product",
+  "userName": "Dipaxi vekariya",
+  "userEmail": "araiyani764@rku.ac.in",
+  "images": [
+    "/images/ratingreview_images/review-1765015910332-601166682.jpeg",
+    "/images/ratingreview_images/review-1765015910335-93044159.jpeg"
+  ],
+  "isVerifiedPurchase": true,
+  "helpful": 14,
+  "status": "approved",
+  "createdAt": {
+    "$date": "2025-12-06T10:11:50.511Z"
+  },
+  "updatedAt": {
+    "$date": "2025-12-06T10:12:00.752Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "69344b3387208cf352538c7e"
+  },
+  "userId": {
+    "$oid": "68cbc963aea7d1d6cb4e19e7"
+  },
+  "productId": {
+    "$oid": "692dd62dd0b8470e80f2c597"
+  },
+  "rating": 5,
+  "title": "SKY Women Basic Makeup Brushes Set",
+  "comment": "Brush is very nice and smooth",
+  "userName": "Nirali Raiyani",
+  "userEmail": "nirupatel7892@gmail.com",
+  "images": [
+    "/images/ratingreview_images/review-1765034803130-381499732.jpeg",
+    "/images/ratingreview_images/review-1765034803131-133096829.jpeg"
+  ],
+  "isVerifiedPurchase": true,
+  "helpful": 0,
+  "status": "approved",
+  "createdAt": {
+    "$date": "2025-12-06T15:26:43.433Z"
+  },
+  "updatedAt": {
+    "$date": "2025-12-06T15:26:43.433Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "69344c0787208cf352538d60"
+  },
+  "userId": {
+    "$oid": "68cbc963aea7d1d6cb4e19e7"
+  },
+  "productId": {
+    "$oid": "692dce39d0b8470e80f2c50b"
+  },
+  "rating": 5,
+  "title": "PLUM Vanilla Vibes Sugar Body Scrub",
+  "comment": "good product it work good",
+  "userName": "Nirali Raiyani",
+  "userEmail": "nirupatel7892@gmail.com",
+  "images": [
+    "/images/ratingreview_images/review-1765035015683-764751137.jpeg",
+    "/images/ratingreview_images/review-1765035015683-730114741.jpeg",
+    "/images/ratingreview_images/review-1765035015683-743407938.jpeg"
+  ],
+  "isVerifiedPurchase": true,
+  "helpful": 6,
+  "status": "approved",
+  "createdAt": {
+    "$date": "2025-12-06T15:30:15.868Z"
+  },
+  "updatedAt": {
+    "$date": "2025-12-06T15:30:28.957Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "69344c5c87208cf352538e5e"
+  },
+  "userId": {
+    "$oid": "68cbc963aea7d1d6cb4e19e7"
+  },
+  "productId": {
+    "$oid": "692dd4e2d0b8470e80f2c570"
+  },
+  "rating": 2,
+  "title": "GLAM 21 Easy-Grip Handle Blusher Brush",
+  "comment": "it good product but price is very high",
+  "userName": "Nirali Raiyani",
+  "userEmail": "nirupatel7892@gmail.com",
+  "images": [
+    "/images/ratingreview_images/review-1765035100421-381634640.jpeg"
+  ],
+  "isVerifiedPurchase": true,
+  "helpful": 0,
+  "status": "approved",
+  "createdAt": {
+    "$date": "2025-12-06T15:31:40.586Z"
+  },
+  "updatedAt": {
+    "$date": "2025-12-06T15:31:40.586Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "69344cd287208cf352538f4a"
+  },
+  "userId": {
+    "$oid": "68cbc963aea7d1d6cb4e19e7"
+  },
+  "productId": {
+    "$oid": "68c84c86fa85e1a3fd724350"
+  },
+  "rating": 1,
+  "title": "Kimirica Love Story Luxury Bath and Body Care Gift Set Box",
+  "comment": "okay okay product",
+  "userName": "Nirali Raiyani",
+  "userEmail": "nirupatel7892@gmail.com",
+  "images": [
+    "/images/ratingreview_images/review-1765035218183-628030836.jpeg"
+  ],
+  "isVerifiedPurchase": true,
+  "helpful": 0,
+  "status": "approved",
+  "createdAt": {
+    "$date": "2025-12-06T15:33:38.345Z"
+  },
+  "updatedAt": {
+    "$date": "2025-12-06T15:33:38.345Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "69344d6187208cf352539030"
+  },
+  "userId": {
+    "$oid": "68cbc963aea7d1d6cb4e19e7"
+  },
+  "productId": {
+    "$oid": "68c84b7dfa85e1a3fd72433b"
+  },
+  "rating": 3,
+  "title": "Nexxus Promend",
+  "comment": "very nice product for hair",
+  "userName": "Nirali Raiyani",
+  "userEmail": "nirupatel7892@gmail.com",
+  "images": [
+    "/images/ratingreview_images/review-1765035361330-725009140.jpeg",
+    "/images/ratingreview_images/review-1765035361331-516551806.jpeg",
+    "/images/ratingreview_images/review-1765035361332-658883522.jpeg"
+  ],
+  "isVerifiedPurchase": true,
+  "helpful": 0,
+  "status": "approved",
+  "createdAt": {
+    "$date": "2025-12-06T15:36:01.556Z"
+  },
+  "updatedAt": {
+    "$date": "2025-12-06T15:36:01.556Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "69344dd287208cf35253925e"
+  },
+  "userId": {
+    "$oid": "693146f7f40e4d72446bb6dd"
+  },
+  "productId": {
+    "$oid": "68c84d08fa85e1a3fd724357"
+  },
+  "rating": 4,
+  "title": "5 Senses Co.",
+  "comment": "very beautiful product",
+  "userName": "Dipaxi vekariya",
+  "userEmail": "araiyani764@rku.ac.in",
+  "images": [],
+  "isVerifiedPurchase": true,
+  "helpful": 0,
+  "status": "approved",
+  "createdAt": {
+    "$date": "2025-12-06T15:37:54.948Z"
+  },
+  "updatedAt": {
+    "$date": "2025-12-06T15:37:54.948Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "69344e2d87208cf35253931e"
+  },
+  "userId": {
+    "$oid": "693146f7f40e4d72446bb6dd"
+  },
+  "productId": {
+    "$oid": "692ddb35d0b8470e80f2c603"
+  },
+  "rating": 1,
+  "title": "NATURAL AND HERBAL PRODUCTS Mulethi Powder",
+  "comment": "good product",
+  "userName": "Dipaxi vekariya",
+  "userEmail": "araiyani764@rku.ac.in",
+  "images": [
+    "/images/ratingreview_images/review-1765035565180-907926055.jpeg"
+  ],
+  "isVerifiedPurchase": true,
+  "helpful": 0,
+  "status": "approved",
+  "createdAt": {
+    "$date": "2025-12-06T15:39:25.663Z"
+  },
+  "updatedAt": {
+    "$date": "2025-12-06T15:39:25.663Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "69344ec787208cf3525393ec"
+  },
+  "userId": {
+    "$oid": "693146f7f40e4d72446bb6dd"
+  },
+  "productId": {
+    "$oid": "692dd5e5d0b8470e80f2c589"
+  },
+  "rating": 3,
+  "title": "SWISS BEAUTY Makeup Brush Set",
+  "comment": "good quality",
+  "userName": "Dipaxi vekariya",
+  "userEmail": "araiyani764@rku.ac.in",
+  "images": [
+    "/images/ratingreview_images/review-1765035719049-594914060.jpeg",
+    "/images/ratingreview_images/review-1765035719050-444105984.jpeg"
+  ],
+  "isVerifiedPurchase": true,
+  "helpful": 0,
+  "status": "approved",
+  "createdAt": {
+    "$date": "2025-12-06T15:41:59.264Z"
+  },
+  "updatedAt": {
+    "$date": "2025-12-06T15:41:59.264Z"
+  },
+  "__v": 0
+}]

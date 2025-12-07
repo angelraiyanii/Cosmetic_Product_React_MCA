@@ -1,0 +1,72 @@
+[{
+  "_id": {
+    "$oid": "68c852ca45344581f05d9b17"
+  },
+  "name": "Cosmetics",
+  "image": "1757958858342.jpeg",
+  "status": "Active",
+  "createdAt": {
+    "$date": "2025-09-15T17:54:18.363Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68c8530445344581f05d9b19"
+  },
+  "name": "Fragrances",
+  "image": "1757958916845.jpg",
+  "status": "Active",
+  "createdAt": {
+    "$date": "2025-09-15T17:55:16.851Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68c8531a45344581f05d9b1b"
+  },
+  "name": "SkinCare",
+  "image": "1757958938377.jpg",
+  "status": "Active",
+  "createdAt": {
+    "$date": "2025-09-15T17:55:38.382Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68c8533145344581f05d9b1d"
+  },
+  "name": "Gift Sets",
+  "image": "1757958961220.jpeg",
+  "status": "Active",
+  "createdAt": {
+    "$date": "2025-09-15T17:56:01.224Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68c8534045344581f05d9b1f"
+  },
+  "name": "HairCare",
+  "image": "1757958976810.jpeg",
+  "status": "Active",
+  "createdAt": {
+    "$date": "2025-09-15T17:56:16.816Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68c853ff45344581f05d9b21"
+  },
+  "name": "Luxury Cosmetics ",
+  "image": "1757959167013.jpeg",
+  "status": "Active",
+  "createdAt": {
+    "$date": "2025-09-15T17:59:27.037Z"
+  },
+  "__v": 0
+}]

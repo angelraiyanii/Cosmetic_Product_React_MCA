@@ -1,0 +1,1475 @@
+[{
+  "_id": {
+    "$oid": "692bebf3e0fb3d29353b2af8"
+  },
+  "userId": {
+    "$oid": "68c6bd8c89216c17c44d9fdc"
+  },
+  "products": [
+    {
+      "productId": {
+        "$oid": "68c84d87fa85e1a3fd724360"
+      },
+      "name": "BodyHerbals De-Stress Lavender Skincare Gift Set",
+      "price": 1896,
+      "quantity": 2,
+      "_id": {
+        "$oid": "692bebf3e0fb3d29353b2af9"
+      }
+    },
+    {
+      "productId": {
+        "$oid": "68c84c86fa85e1a3fd724350"
+      },
+      "name": "Kimirica Love Story Luxury Bath and Body Care Gift Set Box",
+      "price": 1146,
+      "quantity": 1,
+      "_id": {
+        "$oid": "692bebf3e0fb3d29353b2afa"
+      }
+    },
+    {
+      "productId": {
+        "$oid": "68c9207f46a2428edd9f2412"
+      },
+      "name": "White Body Glitter",
+      "price": 451,
+      "quantity": 1,
+      "_id": {
+        "$oid": "692bebf3e0fb3d29353b2afb"
+      }
+    },
+    {
+      "productId": {
+        "$oid": "68c84c26fa85e1a3fd724349"
+      },
+      "name": "Dopamine Unisex Perfume",
+      "price": 1445,
+      "quantity": 2,
+      "_id": {
+        "$oid": "692bebf3e0fb3d29353b2afc"
+      }
+    }
+  ],
+  "shippingAddress": {
+    "name": "Home",
+    "email": "angelraiyanii@gmail.com",
+    "phone": "8475650567",
+    "address": "Rajkot Movdi rode shiv hospital opp., ramnager society \"Navratan",
+    "city": "Rajkot",
+    "state": "Gujarat",
+    "zip": "223345",
+    "country": "India"
+  },
+  "subtotal": 8279,
+  "tax": 662.32,
+  "shipping": 0,
+  "discount": 0,
+  "totalAmount": 8941.32,
+  "paymentStatus": "pending",
+  "createdAt": {
+    "$date": "2025-11-30T07:02:11.469Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "692c671ba0c03f17b2ab3dbd"
+  },
+  "orderId": "GLOW-20251130-382427",
+  "userId": {
+    "$oid": "68c6bd8c89216c17c44d9fdc"
+  },
+  "products": [
+    {
+      "productId": "68c84d87fa85e1a3fd724360",
+      "name": "BodyHerbals De-Stress Lavender Skincare Gift Set",
+      "price": 1896,
+      "quantity": 2
+    },
+    {
+      "productId": "68c84c86fa85e1a3fd724350",
+      "name": "Kimirica Love Story Luxury Bath and Body Care Gift Set Box",
+      "price": 1146,
+      "quantity": 1
+    },
+    {
+      "productId": "68c9207f46a2428edd9f2412",
+      "name": "White Body Glitter",
+      "price": 451,
+      "quantity": 1
+    },
+    {
+      "productId": "68c84c26fa85e1a3fd724349",
+      "name": "Dopamine Unisex Perfume",
+      "price": 1445,
+      "quantity": 2
+    }
+  ],
+  "shippingAddress": {
+    "name": "Home",
+    "email": "angelraiyanii@gmail.com",
+    "phone": "8475650567",
+    "address": "Rajkot Movdi rode shiv hospital opp., ramnager society \"Navratan",
+    "city": "Rajkot",
+    "state": "Gujarat",
+    "zip": "223345",
+    "country": "India"
+  },
+  "subtotal": 8279,
+  "tax": 662.32,
+  "shipping": 0,
+  "discount": 0,
+  "totalAmount": 8941.32,
+  "paymentStatus": "pending",
+  "razorpayOrderId": "dummy_1764517659389",
+  "createdAt": {
+    "$date": "2025-11-30T15:47:39.405Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-30T15:47:39.405Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "692c6be682bce14ff8314341"
+  },
+  "orderId": "GLOW-20251130-833003",
+  "userId": {
+    "$oid": "68c6bd8c89216c17c44d9fdc"
+  },
+  "products": [
+    {
+      "productId": "68c84d87fa85e1a3fd724360",
+      "name": "BodyHerbals De-Stress Lavender Skincare Gift Set",
+      "price": 1896,
+      "quantity": 2
+    },
+    {
+      "productId": "68c84c86fa85e1a3fd724350",
+      "name": "Kimirica Love Story Luxury Bath and Body Care Gift Set Box",
+      "price": 1146,
+      "quantity": 1
+    },
+    {
+      "productId": "68c9207f46a2428edd9f2412",
+      "name": "White Body Glitter",
+      "price": 451,
+      "quantity": 1
+    },
+    {
+      "productId": "68c84c26fa85e1a3fd724349",
+      "name": "Dopamine Unisex Perfume",
+      "price": 1445,
+      "quantity": 2
+    }
+  ],
+  "shippingAddress": {
+    "name": "Home",
+    "email": "angelraiyanii@gmail.com",
+    "phone": "8475650567",
+    "address": "Rajkot Movdi rode shiv hospital opp., ramnager society \"Navratan",
+    "city": "Rajkot",
+    "state": "Gujarat",
+    "zip": "223345",
+    "country": "India"
+  },
+  "subtotal": 8279,
+  "tax": 662.32,
+  "shipping": 0,
+  "discount": 0,
+  "totalAmount": 8941.32,
+  "paymentStatus": "pending",
+  "razorpayOrderId": "dummy_1764518886975",
+  "createdAt": {
+    "$date": "2025-11-30T16:08:06.982Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-30T16:08:06.982Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "692c6dd17b69e6e71b964f5e"
+  },
+  "orderId": "GLOW-20251130-529612",
+  "userId": {
+    "$oid": "68c6bd8c89216c17c44d9fdc"
+  },
+  "products": [
+    {
+      "productId": "68c84d87fa85e1a3fd724360",
+      "name": "BodyHerbals De-Stress Lavender Skincare Gift Set",
+      "price": 1896,
+      "quantity": 2
+    },
+    {
+      "productId": "68c84c86fa85e1a3fd724350",
+      "name": "Kimirica Love Story Luxury Bath and Body Care Gift Set Box",
+      "price": 1146,
+      "quantity": 1
+    },
+    {
+      "productId": "68c9207f46a2428edd9f2412",
+      "name": "White Body Glitter",
+      "price": 451,
+      "quantity": 1
+    },
+    {
+      "productId": "68c84c26fa85e1a3fd724349",
+      "name": "Dopamine Unisex Perfume",
+      "price": 1445,
+      "quantity": 2
+    }
+  ],
+  "shippingAddress": {
+    "name": "Home",
+    "email": "angelraiyanii@gmail.com",
+    "phone": "8475650567",
+    "address": "Rajkot Movdi rode shiv hospital opp., ramnager society \"Navratan",
+    "city": "Rajkot",
+    "state": "Gujarat",
+    "zip": "223345",
+    "country": "India"
+  },
+  "subtotal": 8279,
+  "tax": 662.32,
+  "shipping": 0,
+  "discount": 0,
+  "totalAmount": 8941.32,
+  "paymentStatus": "paid",
+  "razorpayOrderId": "order_Rm0w1ZDvLgjt7U",
+  "createdAt": {
+    "$date": "2025-11-30T16:16:17.372Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-30T16:17:13.206Z"
+  },
+  "__v": 0,
+  "razorpayPaymentId": "pay_Rm0whad78ptYdo"
+},
+{
+  "_id": {
+    "$oid": "692c701899c01766505bc6c5"
+  },
+  "orderId": "GLOW-20251130-681636",
+  "userId": {
+    "$oid": "68c6bd8c89216c17c44d9fdc"
+  },
+  "products": [
+    {
+      "productId": "68c84d87fa85e1a3fd724360",
+      "name": "BodyHerbals De-Stress Lavender Skincare Gift Set",
+      "price": 1896,
+      "quantity": 2
+    },
+    {
+      "productId": "68c84c86fa85e1a3fd724350",
+      "name": "Kimirica Love Story Luxury Bath and Body Care Gift Set Box",
+      "price": 1146,
+      "quantity": 1
+    },
+    {
+      "productId": "68c9207f46a2428edd9f2412",
+      "name": "White Body Glitter",
+      "price": 451,
+      "quantity": 1
+    },
+    {
+      "productId": "68c84c26fa85e1a3fd724349",
+      "name": "Dopamine Unisex Perfume",
+      "price": 1445,
+      "quantity": 2
+    }
+  ],
+  "shippingAddress": {
+    "name": "Home",
+    "email": "angelraiyanii@gmail.com",
+    "phone": "8475650567",
+    "address": "Rajkot Movdi rode shiv hospital opp., ramnager society \"Navratan",
+    "city": "Rajkot",
+    "state": "Gujarat",
+    "zip": "223345",
+    "country": "India"
+  },
+  "subtotal": 8279,
+  "tax": 662.32,
+  "shipping": 0,
+  "discount": 0,
+  "totalAmount": 8941.32,
+  "paymentStatus": "paid",
+  "createdAt": {
+    "$date": "2025-11-30T16:26:00.502Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-30T16:26:30.168Z"
+  },
+  "__v": 0,
+  "razorpayOrderId": "order_Rm16H4FAyo5vpD",
+  "razorpayPaymentId": "pay_Rm16WF8EYFzFbp"
+},
+{
+  "_id": {
+    "$oid": "692c7504b729392c59c91d1f"
+  },
+  "orderId": "GLOW-20251130-299569",
+  "userId": {
+    "$oid": "68c6bd8c89216c17c44d9fdc"
+  },
+  "products": [
+    {
+      "productId": "68c9201146a2428edd9f240b",
+      "name": "Lip Oil",
+      "price": 110,
+      "quantity": 1
+    }
+  ],
+  "shippingAddress": {
+    "name": "Office ",
+    "email": "angelraiyanii@gmail.com",
+    "phone": "5566778898",
+    "address": "Jamnagar Punit Nager mera medical after ramanujan Society \"Shree Ram Footware\" opp. Decent Infoways PVT. Manage Department  ",
+    "city": "Rajkot",
+    "state": "Gujarat",
+    "zip": "223345",
+    "country": "India"
+  },
+  "subtotal": 110,
+  "tax": 8.8,
+  "shipping": 0,
+  "discount": 0,
+  "totalAmount": 118.8,
+  "paymentStatus": "paid",
+  "createdAt": {
+    "$date": "2025-11-30T16:47:00.812Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-30T16:47:24.679Z"
+  },
+  "__v": 0,
+  "razorpayOrderId": "order_Rm1SRW0SOsRizC",
+  "razorpayPaymentId": "pay_Rm1SbV5U5OPHUj"
+},
+{
+  "_id": {
+    "$oid": "692c76fb9fb0e6e5f1ba1da9"
+  },
+  "orderId": "GLOW-20251130-369459",
+  "userId": {
+    "$oid": "68cbc963aea7d1d6cb4e19e7"
+  },
+  "products": [
+    {
+      "productId": "68c920f546a2428edd9f2419",
+      "name": "Eye Shadow",
+      "price": 547,
+      "quantity": 1
+    },
+    {
+      "productId": "68c84c26fa85e1a3fd724349",
+      "name": "Dopamine Unisex Perfume",
+      "price": 1445,
+      "quantity": 1
+    }
+  ],
+  "shippingAddress": {
+    "name": "Home",
+    "email": "",
+    "phone": "8475650567",
+    "address": "Rajkot Movdi rode shiv hospital opp., ramnager society \"Navratan",
+    "city": "Rajkot",
+    "state": "Gujarat",
+    "zip": "223345",
+    "country": "India"
+  },
+  "subtotal": 1992,
+  "tax": 159.36,
+  "shipping": 0,
+  "discount": 0,
+  "totalAmount": 2151.36,
+  "paymentStatus": "paid",
+  "createdAt": {
+    "$date": "2025-11-30T16:55:23.829Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-30T16:55:47.381Z"
+  },
+  "__v": 0,
+  "razorpayOrderId": "order_Rm1bHWrLB5LquT",
+  "razorpayPaymentId": "pay_Rm1bShG3BKVjiG"
+},
+{
+  "_id": {
+    "$oid": "692c7ba925fcb96456f9b7e8"
+  },
+  "orderId": "GLOW-20251130-190244",
+  "userId": {
+    "$oid": "68cbc963aea7d1d6cb4e19e7"
+  },
+  "products": [
+    {
+      "productId": "68c9207f46a2428edd9f2412",
+      "name": "White Body Glitter",
+      "price": 451,
+      "quantity": 1
+    }
+  ],
+  "shippingAddress": {
+    "name": "Home",
+    "email": "",
+    "phone": "8475650567",
+    "address": "Rajkot Movdi rode shiv hospital opp., ramnager society \"Navratan",
+    "city": "Rajkot",
+    "state": "Gujarat",
+    "zip": "223345",
+    "country": "India"
+  },
+  "subtotal": 451,
+  "tax": 36.08,
+  "shipping": 0,
+  "discount": 0,
+  "totalAmount": 487.08,
+  "paymentStatus": "paid",
+  "createdAt": {
+    "$date": "2025-11-30T17:15:21.149Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-30T17:15:44.081Z"
+  },
+  "__v": 0,
+  "razorpayOrderId": "order_Rm1wMaxTCEfibu",
+  "razorpayPaymentId": "pay_Rm1wX3niMEqzmT"
+},
+{
+  "_id": {
+    "$oid": "692d51aaafa072ef2a9103a7"
+  },
+  "orderId": "GLOW-20251201-999299",
+  "userId": {
+    "$oid": "690c23baf1ee12e5c1e321d3"
+  },
+  "products": [
+    {
+      "productId": "68c9207f46a2428edd9f2412",
+      "name": "White Body Glitter",
+      "price": 451,
+      "quantity": 1
+    }
+  ],
+  "shippingAddress": {
+    "name": "Home",
+    "email": "kundenraiyani7892@gmail.com",
+    "phone": "4454567677",
+    "address": "Rajkot om nagar mina bazar ram seri no. 3 \"Shree\"",
+    "city": "Rajkot",
+    "state": "Gujarat",
+    "zip": "554434",
+    "country": "India"
+  },
+  "subtotal": 451,
+  "tax": 36.08,
+  "shipping": 0,
+  "discount": 0,
+  "totalAmount": 487.08,
+  "paymentStatus": "paid",
+  "createdAt": {
+    "$date": "2025-12-01T08:28:26.459Z"
+  },
+  "updatedAt": {
+    "$date": "2025-12-01T08:28:53.177Z"
+  },
+  "__v": 0,
+  "razorpayOrderId": "order_RmHUsGnOETr3hn",
+  "razorpayPaymentId": "pay_RmHV5sgO3obGCb"
+},
+{
+  "_id": {
+    "$oid": "692db05bebe920174239d2bd"
+  },
+  "orderId": "GLOW-20251201-217480",
+  "userId": {
+    "$oid": "68c6bd8c89216c17c44d9fdc"
+  },
+  "products": [
+    {
+      "productId": "68c9207f46a2428edd9f2412",
+      "name": "White Body Glitter",
+      "price": 451,
+      "quantity": 2
+    },
+    {
+      "productId": "68c9201146a2428edd9f240b",
+      "name": "Lip Oil",
+      "price": 110,
+      "quantity": 1
+    },
+    {
+      "productId": "68c84d87fa85e1a3fd724360",
+      "name": "BodyHerbals De-Stress Lavender Skincare Gift Set",
+      "price": 1896,
+      "quantity": 1
+    }
+  ],
+  "shippingAddress": {
+    "name": "Primary Address",
+    "email": "angelraiyanii@gmail.com",
+    "phone": "7766554433",
+    "address": "Rajkot Main Rode Kothariya hina complex opp. Raiyaraj house",
+    "city": "",
+    "state": "",
+    "zip": "360020",
+    "country": "India"
+  },
+  "subtotal": 2908,
+  "tax": 232.64,
+  "shipping": 0,
+  "totalAmount": 3140.64,
+  "paymentStatus": "pending",
+  "createdAt": {
+    "$date": "2025-12-01T15:12:27.036Z"
+  },
+  "updatedAt": {
+    "$date": "2025-12-01T15:12:27.036Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "692db23cebe920174239d2ec"
+  },
+  "orderId": "GLOW-20251201-747679",
+  "userId": {
+    "$oid": "68c6bd8c89216c17c44d9fdc"
+  },
+  "products": [
+    {
+      "productId": "68c9207f46a2428edd9f2412",
+      "name": "White Body Glitter",
+      "price": 451,
+      "quantity": 2
+    },
+    {
+      "productId": "68c9201146a2428edd9f240b",
+      "name": "Lip Oil",
+      "price": 110,
+      "quantity": 1
+    },
+    {
+      "productId": "68c84d87fa85e1a3fd724360",
+      "name": "BodyHerbals De-Stress Lavender Skincare Gift Set",
+      "price": 1896,
+      "quantity": 1
+    }
+  ],
+  "shippingAddress": {
+    "name": "Primary Address",
+    "email": "angelraiyanii@gmail.com",
+    "phone": "7766554433",
+    "address": "Rajkot Main Rode Kothariya hina complex opp. Raiyaraj house",
+    "city": "",
+    "state": "",
+    "zip": "360020",
+    "country": "India"
+  },
+  "subtotal": 2908,
+  "tax": 232.64,
+  "shipping": 0,
+  "totalAmount": 3140.64,
+  "paymentStatus": "pending",
+  "createdAt": {
+    "$date": "2025-12-01T15:20:28.627Z"
+  },
+  "updatedAt": {
+    "$date": "2025-12-01T15:20:28.627Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "692db2fbebe920174239d368"
+  },
+  "orderId": "GLOW-20251201-939298",
+  "userId": {
+    "$oid": "68c6bd8c89216c17c44d9fdc"
+  },
+  "products": [
+    {
+      "productId": "68c9207f46a2428edd9f2412",
+      "name": "White Body Glitter",
+      "price": 451,
+      "quantity": 2
+    },
+    {
+      "productId": "68c9201146a2428edd9f240b",
+      "name": "Lip Oil",
+      "price": 110,
+      "quantity": 1
+    },
+    {
+      "productId": "68c84d87fa85e1a3fd724360",
+      "name": "BodyHerbals De-Stress Lavender Skincare Gift Set",
+      "price": 1896,
+      "quantity": 1
+    }
+  ],
+  "shippingAddress": {
+    "name": "Primary Address",
+    "email": "angelraiyanii@gmail.com",
+    "phone": "7766554433",
+    "address": "Rajkot Main Rode Kothariya hina complex opp. Raiyaraj house",
+    "city": "",
+    "state": "",
+    "zip": "360020",
+    "country": "India"
+  },
+  "subtotal": 2908,
+  "tax": 232.64,
+  "shipping": 0,
+  "totalAmount": 3140.64,
+  "paymentStatus": "pending",
+  "createdAt": {
+    "$date": "2025-12-01T15:23:39.226Z"
+  },
+  "updatedAt": {
+    "$date": "2025-12-01T15:23:39.226Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "692db43debe920174239d3cb"
+  },
+  "orderId": "GLOW-20251201-817025",
+  "userId": {
+    "$oid": "68c6bd8c89216c17c44d9fdc"
+  },
+  "products": [
+    {
+      "productId": "68c9207f46a2428edd9f2412",
+      "name": "White Body Glitter",
+      "price": 451,
+      "quantity": 2
+    },
+    {
+      "productId": "68c9201146a2428edd9f240b",
+      "name": "Lip Oil",
+      "price": 110,
+      "quantity": 1
+    },
+    {
+      "productId": "68c84d87fa85e1a3fd724360",
+      "name": "BodyHerbals De-Stress Lavender Skincare Gift Set",
+      "price": 1896,
+      "quantity": 1
+    }
+  ],
+  "shippingAddress": {
+    "name": "Home",
+    "email": "angelraiyanii@gmail.com",
+    "phone": "8475650567",
+    "address": "Rajkot Movdi rode shiv hospital opp., ramnager society \"Navratan",
+    "city": "Rajkot",
+    "state": "Gujarat",
+    "zip": "223345",
+    "country": "India"
+  },
+  "subtotal": 2908,
+  "tax": 232.64,
+  "shipping": 0,
+  "totalAmount": 3140.64,
+  "paymentStatus": "paid",
+  "createdAt": {
+    "$date": "2025-12-01T15:29:01.471Z"
+  },
+  "updatedAt": {
+    "$date": "2025-12-01T15:29:26.623Z"
+  },
+  "__v": 0,
+  "razorpayOrderId": "order_RmOf8oK7vn7sST",
+  "razorpayPaymentId": "pay_RmOfLxgBPS8wjB"
+},
+{
+  "_id": {
+    "$oid": "692dc630f5b860b1b2771a09"
+  },
+  "orderId": "GLOW-20251201-227142",
+  "userId": {
+    "$oid": "68c6bd8c89216c17c44d9fdc"
+  },
+  "products": [
+    {
+      "productId": "68c84c86fa85e1a3fd724350",
+      "name": "Kimirica Love Story Luxury Bath and Body Care Gift Set Box",
+      "price": 1146,
+      "quantity": 1,
+      "image": "1757957254240.jpeg"
+    }
+  ],
+  "shippingAddress": {
+    "name": "Office ",
+    "email": "angelraiyanii@gmail.com",
+    "phone": "5566778898",
+    "address": "Jamnagar Punit Nager mera medical after ramanujan Society \"Shree Ram Footware\" opp. Decent Infoways PVT. Manage Department  ",
+    "city": "Rajkot",
+    "state": "Gujarat",
+    "zip": "223345",
+    "country": "India"
+  },
+  "subtotal": 1146,
+  "tax": 91.68,
+  "shipping": 0,
+  "totalAmount": 1237.68,
+  "status": "pending",
+  "paymentStatus": "pending",
+  "createdAt": {
+    "$date": "2025-12-01T16:45:36.145Z"
+  },
+  "updatedAt": {
+    "$date": "2025-12-01T16:45:36.145Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "692eb0f754275b2909837e2a"
+  },
+  "orderId": "GLOW-20251202-711435",
+  "userId": {
+    "$oid": "68cbc963aea7d1d6cb4e19e7"
+  },
+  "products": [
+    {
+      "productId": "68c84c86fa85e1a3fd724350",
+      "name": "Kimirica Love Story Luxury Bath and Body Care Gift Set Box",
+      "price": 1146,
+      "quantity": 1,
+      "image": "1757957254240.jpeg"
+    }
+  ],
+  "shippingAddress": {
+    "name": "Home",
+    "email": "nirupatel7892@gmail.com",
+    "phone": "8475650567",
+    "address": "Rajkot Movdi rode shiv hospital opp., ramnager society \"Navratan\"",
+    "city": "Rajkot",
+    "state": "Gujarat",
+    "zip": "223345",
+    "country": "India"
+  },
+  "subtotal": 1146,
+  "tax": 91.68,
+  "shipping": 0,
+  "totalAmount": 1237.68,
+  "status": "pending",
+  "paymentStatus": "pending",
+  "createdAt": {
+    "$date": "2025-12-02T09:27:19.090Z"
+  },
+  "updatedAt": {
+    "$date": "2025-12-02T09:27:19.090Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "692eb7f354275b290983804a"
+  },
+  "orderId": "GLOW-20251202-457846",
+  "userId": {
+    "$oid": "68cbc963aea7d1d6cb4e19e7"
+  },
+  "products": [
+    {
+      "productId": "692dceaed0b8470e80f2c512",
+      "name": "PLUM Body lovin Marshmallow Melt Body Lotion with Shea Butter & Vitamin B5 Non Greasy",
+      "price": 394,
+      "quantity": 1,
+      "image": "1764609707016.jpeg"
+    }
+  ],
+  "shippingAddress": {
+    "name": "Primary Address",
+    "email": "nirupatel7892@gmail.com",
+    "phone": "4433221155",
+    "address": "Rajkot om nager , mahi hospital behind shree house",
+    "city": "Rajkot om nager",
+    "state": "mahi hospital behind shree house",
+    "zip": "360020",
+    "country": "India"
+  },
+  "subtotal": 394,
+  "tax": 39.400000000000006,
+  "shipping": 0,
+  "totalAmount": 433.4,
+  "status": "delivered",
+  "paymentStatus": "paid",
+  "createdAt": {
+    "$date": "2025-12-02T09:57:07.517Z"
+  },
+  "updatedAt": {
+    "$date": "2025-12-02T09:57:30.290Z"
+  },
+  "__v": 0,
+  "razorpayOrderId": "order_RmhY6P5gMoaEdi",
+  "razorpayPaymentId": "pay_RmhYFnauJhZTox"
+},
+{
+  "_id": {
+    "$oid": "692f04b90d6be2b6cdfd9975"
+  },
+  "orderId": "GLOW-20251202-973694",
+  "userId": {
+    "$oid": "68cbc963aea7d1d6cb4e19e7"
+  },
+  "products": [
+    {
+      "productId": "692dd9dcd0b8470e80f2c5f5",
+      "name": "Whimsy Beauty Set Of 4 Sunscreen &Face Wash - 100 ml Each With Body Wash",
+      "price": 1222,
+      "quantity": 1,
+      "image": "1764612571999.jpeg"
+    },
+    {
+      "productId": "692dd592d0b8470e80f2c57e",
+      "name": "PAC Pack of 8 PAC X Jovita All You Need Brush Set",
+      "price": 2994.99,
+      "quantity": 1,
+      "image": "1764611473769.jpeg"
+    }
+  ],
+  "shippingAddress": {
+    "name": "Home",
+    "email": "nirupatel7892@gmail.com",
+    "phone": "8475650567",
+    "address": "Rajkot Movdi rode shiv hospital opp., ramnager society \"Navratan\"",
+    "city": "Rajkot",
+    "state": "Gujarat",
+    "zip": "223345",
+    "country": "India"
+  },
+  "subtotal": 4216.99,
+  "tax": 421.699,
+  "shipping": 0,
+  "totalAmount": 4638.688999999999,
+  "status": "delivered",
+  "paymentStatus": "paid",
+  "createdAt": {
+    "$date": "2025-12-02T15:24:41.390Z"
+  },
+  "updatedAt": {
+    "$date": "2025-12-02T15:25:09.441Z"
+  },
+  "__v": 0,
+  "razorpayOrderId": "order_Rmn89PcNON5orq",
+  "razorpayPaymentId": "pay_Rmn8NBXccxMpHa"
+},
+{
+  "_id": {
+    "$oid": "692f0c1a0d6be2b6cdfd9f22"
+  },
+  "orderId": "GLOW-20251202-969074",
+  "userId": {
+    "$oid": "68c6bd8c89216c17c44d9fdc"
+  },
+  "products": [
+    {
+      "productId": "68c84c86fa85e1a3fd724350",
+      "name": "Kimirica Love Story Luxury Bath and Body Care Gift Set Box",
+      "price": 1146,
+      "quantity": 1,
+      "image": "1757957254240.jpeg"
+    }
+  ],
+  "shippingAddress": {
+    "name": "Primary Address",
+    "email": "angelraiyanii@gmail.com",
+    "phone": "7766554433",
+    "address": "Rajkot Main Rode Kothariya hina complex opp. Raiyaraj house",
+    "city": "",
+    "state": "",
+    "zip": "360020",
+    "country": "India"
+  },
+  "subtotal": 1146,
+  "tax": 114.60000000000001,
+  "shipping": 0,
+  "totalAmount": 1260.6,
+  "status": "delivered",
+  "paymentStatus": "paid",
+  "createdAt": {
+    "$date": "2025-12-02T15:56:10.558Z"
+  },
+  "updatedAt": {
+    "$date": "2025-12-02T15:56:35.889Z"
+  },
+  "__v": 0,
+  "razorpayOrderId": "order_RmnfO58Hz2XEWz",
+  "razorpayPaymentId": "pay_Rmnfa86gNll2LO"
+},
+{
+  "_id": {
+    "$oid": "692f0f9e0d6be2b6cdfda018"
+  },
+  "orderId": "GLOW-20251202-477441",
+  "userId": {
+    "$oid": "68c6bd8c89216c17c44d9fdc"
+  },
+  "products": [
+    {
+      "productId": "68c84b20fa85e1a3fd724334",
+      "name": "Kérastase Discipline",
+      "price": 2020,
+      "quantity": 1,
+      "image": "1757956896692.jpeg"
+    }
+  ],
+  "shippingAddress": {
+    "name": "Home",
+    "email": "angelraiyanii@gmail.com",
+    "phone": "8475650567",
+    "address": "Rajkot Movdi rode shiv hospital opp., ramnager society \"Navratan",
+    "city": "Rajkot",
+    "state": "Gujarat",
+    "zip": "223345",
+    "country": "India"
+  },
+  "subtotal": 2020,
+  "tax": 202,
+  "shipping": 0,
+  "totalAmount": 2222,
+  "status": "delivered",
+  "paymentStatus": "paid",
+  "createdAt": {
+    "$date": "2025-12-02T16:11:10.993Z"
+  },
+  "updatedAt": {
+    "$date": "2025-12-02T16:12:04.665Z"
+  },
+  "__v": 0,
+  "razorpayOrderId": "order_RmnvEvqL2yBOeG",
+  "razorpayPaymentId": "pay_Rmnvvo1pQxAbhD"
+},
+{
+  "_id": {
+    "$oid": "69313f60f40e4d72446bae9c"
+  },
+  "orderId": "GLOW-20251204-688772",
+  "userId": {
+    "$oid": "690c23baf1ee12e5c1e321d3"
+  },
+  "products": [
+    {
+      "productId": "692dda29d0b8470e80f2c5fc",
+      "name": "SOULFLOWER Kumkumadi Oil Night Beauty Elixir with Real Saffron",
+      "price": 900,
+      "quantity": 1,
+      "image": "1764612649122.jpeg"
+    }
+  ],
+  "shippingAddress": {
+    "name": "Home",
+    "email": "kundenraiyani7892@gmail.com",
+    "phone": "4454567677",
+    "address": "Rajkot om nagar mina bazar ram seri no. 3 \"Shree\"",
+    "city": "Rajkot",
+    "state": "Gujarat",
+    "zip": "554434",
+    "country": "India"
+  },
+  "subtotal": 900,
+  "tax": 90,
+  "shipping": 0,
+  "totalAmount": 990,
+  "status": "delivered",
+  "paymentStatus": "paid",
+  "createdAt": {
+    "$date": "2025-12-04T07:59:28.182Z"
+  },
+  "updatedAt": {
+    "$date": "2025-12-04T07:59:54.886Z"
+  },
+  "__v": 0,
+  "razorpayOrderId": "order_RnSc2em2E9Nhgl",
+  "razorpayPaymentId": "pay_RnScF6RXfKSl1a"
+},
+{
+  "_id": {
+    "$oid": "69314166f40e4d72446bafd9"
+  },
+  "orderId": "GLOW-20251204-972303",
+  "userId": {
+    "$oid": "690c23baf1ee12e5c1e321d3"
+  },
+  "products": [
+    {
+      "productId": "692dcf33d0b8470e80f2c519",
+      "name": "NEUDE Women Body Exfoliator Gel Wash",
+      "price": 629,
+      "quantity": 1,
+      "image": "1764609843384.jpeg"
+    }
+  ],
+  "shippingAddress": {
+    "name": "Home",
+    "email": "kundenraiyani7892@gmail.com",
+    "phone": "4454567677",
+    "address": "Rajkot om nagar mina bazar ram seri no. 3 \"Shree\"",
+    "city": "Rajkot",
+    "state": "Gujarat",
+    "zip": "554434",
+    "country": "India"
+  },
+  "subtotal": 629,
+  "tax": 62.900000000000006,
+  "shipping": 0,
+  "totalAmount": 691.9,
+  "status": "delivered",
+  "paymentStatus": "paid",
+  "createdAt": {
+    "$date": "2025-12-04T08:08:06.407Z"
+  },
+  "updatedAt": {
+    "$date": "2025-12-04T08:08:29.822Z"
+  },
+  "__v": 0,
+  "razorpayOrderId": "order_RnSl8yOoZAdJ50",
+  "razorpayPaymentId": "pay_RnSlJbVPGj0Jao"
+},
+{
+  "_id": {
+    "$oid": "6931531ada7285967ffb5544"
+  },
+  "orderId": "GLOW-20251204-824246",
+  "userId": {
+    "$oid": "693146f7f40e4d72446bb6dd"
+  },
+  "products": [
+    {
+      "productId": "692dd526d0b8470e80f2c577",
+      "name": "PAC 1 Piece Classic Beauty Blender",
+      "price": 394.99,
+      "quantity": 1,
+      "image": "1764611366152.jpeg"
+    },
+    {
+      "productId": "68c9201146a2428edd9f240b",
+      "name": "Lip Oil",
+      "price": 110,
+      "quantity": 1,
+      "image": "1758011409668.jpeg"
+    },
+    {
+      "productId": "68c9207f46a2428edd9f2412",
+      "name": "White Body Glitter",
+      "price": 451,
+      "quantity": 1,
+      "image": "1758011518890.jpeg"
+    }
+  ],
+  "shippingAddress": {
+    "name": "Primary Address",
+    "email": "araiyani764@rku.ac.in",
+    "phone": "8475650567",
+    "address": "Rajkot Movdi rode shiv restaurants opp., ramnager society \"Maa\"",
+    "city": "Rajkot",
+    "state": "Gujarat",
+    "zip": "223345",
+    "country": "India"
+  },
+  "subtotal": 955.99,
+  "tax": 95.599,
+  "shipping": 0,
+  "totalAmount": 1051.589,
+  "status": "delivered",
+  "paymentStatus": "paid",
+  "createdAt": {
+    "$date": "2025-12-04T09:23:38.822Z"
+  },
+  "updatedAt": {
+    "$date": "2025-12-04T09:24:37.011Z"
+  },
+  "__v": 0,
+  "razorpayOrderId": "order_RnU2xKVArgpELM",
+  "razorpayPaymentId": "pay_RnU3j25v5pFxTa"
+},
+{
+  "_id": {
+    "$oid": "6932b5e7c31076aad4a4184b"
+  },
+  "orderId": "GLOW-20251205-308046",
+  "userId": {
+    "$oid": "693146f7f40e4d72446bb6dd"
+  },
+  "products": [
+    {
+      "productId": "692dd5e5d0b8470e80f2c589",
+      "name": "SWISS BEAUTY Makeup Brush Set",
+      "price": 319,
+      "quantity": 1,
+      "image": "1764611557281.jpeg"
+    }
+  ],
+  "shippingAddress": {
+    "name": "Primary Address",
+    "email": "araiyani764@rku.ac.in",
+    "phone": "8475650567",
+    "address": "Rajkot Movdi rode shiv restaurants opp., ramnager society \"Maa\"",
+    "city": "Rajkot Movdi rode shiv restaurants opp.",
+    "state": "ramnager society \"Maa\"",
+    "zip": "223345",
+    "country": "India"
+  },
+  "subtotal": 319,
+  "tax": 31.900000000000002,
+  "shipping": 0,
+  "totalAmount": 350.9,
+  "status": "delivered",
+  "paymentStatus": "paid",
+  "createdAt": {
+    "$date": "2025-12-05T10:37:27.088Z"
+  },
+  "updatedAt": {
+    "$date": "2025-12-05T10:38:05.276Z"
+  },
+  "__v": 0,
+  "razorpayOrderId": "order_Rntq1vRCAyIJhV",
+  "razorpayPaymentId": "pay_RntqRPAn5Bx0lE"
+},
+{
+  "_id": {
+    "$oid": "6933f23a9b391fc082a1eb55"
+  },
+  "orderId": "GLOW-20251206-113751",
+  "userId": {
+    "$oid": "693146f7f40e4d72446bb6dd"
+  },
+  "products": [
+    {
+      "productId": "692ddb35d0b8470e80f2c603",
+      "name": "NATURAL AND HERBAL PRODUCTS Mulethi Powder For Face, Hair, Skin And Body",
+      "price": 142,
+      "quantity": 1,
+      "image": "1764612916948.jpeg"
+    }
+  ],
+  "shippingAddress": {
+    "name": "Primary Address",
+    "email": "araiyani764@rku.ac.in",
+    "phone": "8475650567",
+    "address": "Rajkot Movdi rode shiv restaurants opp., ramnager society \"Maa\"",
+    "city": "Rajkot Movdi rode shiv restaurants opp.",
+    "state": "ramnager society \"Maa\"",
+    "zip": "223345",
+    "country": "India"
+  },
+  "subtotal": 142,
+  "tax": 14.200000000000001,
+  "shipping": 0,
+  "totalAmount": 156.2,
+  "status": "delivered",
+  "paymentStatus": "paid",
+  "createdAt": {
+    "$date": "2025-12-06T09:07:06.685Z"
+  },
+  "updatedAt": {
+    "$date": "2025-12-06T09:07:32.934Z"
+  },
+  "__v": 0,
+  "razorpayOrderId": "order_RoGphNHGkeYuGX",
+  "razorpayPaymentId": "pay_RoGptore0CKfcE"
+},
+{
+  "_id": {
+    "$oid": "6933f37c9b391fc082a1ec06"
+  },
+  "orderId": "GLOW-20251206-705364",
+  "userId": {
+    "$oid": "693146f7f40e4d72446bb6dd"
+  },
+  "products": [
+    {
+      "productId": "68c705b7b977f639482ad5ce",
+      "name": "Dot & Key Hyaluronic",
+      "price": 334,
+      "quantity": 1,
+      "image": "1757873591580.jpeg"
+    }
+  ],
+  "shippingAddress": {
+    "name": "Primary Address",
+    "email": "araiyani764@rku.ac.in",
+    "phone": "8475650567",
+    "address": "Rajkot Movdi rode shiv restaurants opp., ramnager society \"Maa\"",
+    "city": "Rajkot Movdi rode shiv restaurants opp.",
+    "state": "ramnager society \"Maa\"",
+    "zip": "223345",
+    "country": "India"
+  },
+  "subtotal": 334,
+  "tax": 33.4,
+  "shipping": 0,
+  "totalAmount": 367.4,
+  "status": "delivered",
+  "paymentStatus": "paid",
+  "createdAt": {
+    "$date": "2025-12-06T09:12:28.670Z"
+  },
+  "updatedAt": {
+    "$date": "2025-12-06T09:12:50.006Z"
+  },
+  "__v": 0,
+  "razorpayOrderId": "order_RoGvMIMzKGxlji",
+  "razorpayPaymentId": "pay_RoGvUgbUxnawDD"
+},
+{
+  "_id": {
+    "$oid": "6933f5849b391fc082a1ece7"
+  },
+  "orderId": "GLOW-20251206-111719",
+  "userId": {
+    "$oid": "693146f7f40e4d72446bb6dd"
+  },
+  "products": [
+    {
+      "productId": "68c84d08fa85e1a3fd724357",
+      "name": "5 Senses Co.",
+      "price": 1966,
+      "quantity": 1,
+      "image": "1757957382067.jpeg"
+    }
+  ],
+  "shippingAddress": {
+    "name": "Primary Address",
+    "email": "araiyani764@rku.ac.in",
+    "phone": "8475650567",
+    "address": "Rajkot Movdi rode shiv restaurants opp., ramnager society \"Maa\"",
+    "city": "Rajkot Movdi rode shiv restaurants opp.",
+    "state": "ramnager society \"Maa\"",
+    "zip": "223345",
+    "country": "India"
+  },
+  "subtotal": 1966,
+  "tax": 196.60000000000002,
+  "shipping": 0,
+  "totalAmount": 2162.6,
+  "status": "delivered",
+  "paymentStatus": "paid",
+  "createdAt": {
+    "$date": "2025-12-06T09:21:08.605Z"
+  },
+  "updatedAt": {
+    "$date": "2025-12-06T09:21:32.890Z"
+  },
+  "__v": 0,
+  "razorpayOrderId": "order_RoH4YA4RIpqDJA",
+  "razorpayPaymentId": "pay_RoH4gs7Fb2VbW6"
+},
+{
+  "_id": {
+    "$oid": "6933f93732d7e0e1abdc98ba"
+  },
+  "orderId": "GLOW-20251206-376981",
+  "userId": {
+    "$oid": "68c6bd8c89216c17c44d9fdc"
+  },
+  "products": [
+    {
+      "productId": "692dd9dcd0b8470e80f2c5f5",
+      "name": "Whimsy Beauty Set Of 4 Sunscreen &Face Wash - 100 ml Each With Body Wash",
+      "price": 1222,
+      "quantity": 1,
+      "image": "1764612571999.jpeg"
+    }
+  ],
+  "shippingAddress": {
+    "name": "Office ",
+    "email": "angelraiyanii@gmail.com",
+    "phone": "5566778898",
+    "address": "Jamnagar Punit Nager mera medical after ramanujan Society \"Shree Ram Footware\" opp. Decent Infoways PVT. Manage Department  ",
+    "city": "Rajkot",
+    "state": "Gujarat",
+    "zip": "223345",
+    "country": "India"
+  },
+  "subtotal": 1222,
+  "tax": 122.2,
+  "shipping": 0,
+  "totalAmount": 1344.2,
+  "status": "delivered",
+  "paymentStatus": "paid",
+  "createdAt": {
+    "$date": "2025-12-06T09:36:55.601Z"
+  },
+  "updatedAt": {
+    "$date": "2025-12-06T09:37:17.001Z"
+  },
+  "__v": 0,
+  "razorpayOrderId": "order_RoHLBRfv5upXg1",
+  "razorpayPaymentId": "pay_RoHLJsIEubVIIp"
+},
+{
+  "_id": {
+    "$oid": "69340f70b80954e83dc1f03f"
+  },
+  "orderId": "GLOW-20251206-875663",
+  "userId": {
+    "$oid": "68cbc963aea7d1d6cb4e19e7"
+  },
+  "products": [
+    {
+      "productId": "692dd9dcd0b8470e80f2c5f5",
+      "name": "Whimsy Beauty Set Of 4 Sunscreen &Face Wash - 100 ml Each With Body Wash",
+      "price": 1222,
+      "quantity": 2,
+      "image": "1764612571999.jpeg"
+    }
+  ],
+  "shippingAddress": {
+    "name": "Home",
+    "email": "nirupatel7892@gmail.com",
+    "phone": "8475650567",
+    "address": "Rajkot Movdi rode shiv hospital opp., ramnager society \"Navratan\"",
+    "city": "Rajkot",
+    "state": "Gujarat",
+    "zip": "223345",
+    "country": "India"
+  },
+  "subtotal": 2444,
+  "tax": 244.4,
+  "shipping": 0,
+  "totalAmount": 2688.4,
+  "status": "delivered",
+  "paymentStatus": "paid",
+  "createdAt": {
+    "$date": "2025-12-06T11:11:44.350Z"
+  },
+  "updatedAt": {
+    "$date": "2025-12-06T11:12:11.752Z"
+  },
+  "__v": 0,
+  "razorpayOrderId": "order_RoIxLnhEKTloHG",
+  "razorpayPaymentId": "pay_RoIxZo3IU9tjzu"
+},
+{
+  "_id": {
+    "$oid": "69344a2987208cf352538b76"
+  },
+  "orderId": "GLOW-20251206-425978",
+  "userId": {
+    "$oid": "68cbc963aea7d1d6cb4e19e7"
+  },
+  "products": [
+    {
+      "productId": "692dd62dd0b8470e80f2c597",
+      "name": "LULU & SKY Women Basic Makeup Brushes Set",
+      "price": 337,
+      "quantity": 1,
+      "image": "1764611629132.jpeg"
+    },
+    {
+      "productId": "692dce39d0b8470e80f2c50b",
+      "name": "PLUM Vanilla Vibes Sugar Body Scrub",
+      "price": 440,
+      "quantity": 1,
+      "image": "1764609593119.jpeg"
+    },
+    {
+      "productId": "692dd4e2d0b8470e80f2c570",
+      "name": "GLAM 21 Easy-Grip Handle Blusher Brush",
+      "price": 124.99,
+      "quantity": 1,
+      "image": "1764611298316.jpeg"
+    },
+    {
+      "productId": "68c84c86fa85e1a3fd724350",
+      "name": "Kimirica Love Story Luxury Bath and Body Care Gift Set Box",
+      "price": 1146,
+      "quantity": 1,
+      "image": "1757957254240.jpeg"
+    },
+    {
+      "productId": "68c84b7dfa85e1a3fd72433b",
+      "name": "Nexxus Promend",
+      "price": 1804,
+      "quantity": 1,
+      "image": "1757956989083.jpeg"
+    },
+    {
+      "productId": "68c91f9846a2428edd9f2404",
+      "name": "Lash Princess False Lash Effect Mascara",
+      "price": 21,
+      "quantity": 1,
+      "image": "1758011287873.jpeg"
+    }
+  ],
+  "shippingAddress": {
+    "name": "Home",
+    "email": "nirupatel7892@gmail.com",
+    "phone": "8475650567",
+    "address": "Rajkot Movdi rode shiv hospital opp., ramnager society \"Navratan\"",
+    "city": "Rajkot",
+    "state": "Gujarat",
+    "zip": "223345",
+    "country": "India"
+  },
+  "subtotal": 3872.99,
+  "tax": 387.299,
+  "shipping": 0,
+  "totalAmount": 4260.289,
+  "status": "delivered",
+  "paymentStatus": "paid",
+  "createdAt": {
+    "$date": "2025-12-06T15:22:17.098Z"
+  },
+  "updatedAt": {
+    "$date": "2025-12-06T15:22:43.227Z"
+  },
+  "__v": 0,
+  "razorpayOrderId": "order_RoNE1yJF9NR5oA",
+  "razorpayPaymentId": "pay_RoNECnrWg7zfjN"
+},
+{
+  "_id": {
+    "$oid": "69350ac4cbab748486d2c355"
+  },
+  "orderId": "GLOW-20251207-419086",
+  "userId": {
+    "$oid": "68c6bd8c89216c17c44d9fdc"
+  },
+  "products": [
+    {
+      "productId": "68c70641b977f639482ad5d5",
+      "name": "Estee Lauder",
+      "price": 4500,
+      "quantity": 1,
+      "image": "1757873729075.jpeg"
+    }
+  ],
+  "shippingAddress": {
+    "name": "Home",
+    "email": "angelraiyanii@gmail.com",
+    "phone": "8475650567",
+    "address": "Rajkot Movdi rode shiv hospital opp., ramnager society \"Navratan",
+    "city": "Rajkot",
+    "state": "Gujarat",
+    "zip": "223345",
+    "country": "India"
+  },
+  "subtotal": 4500,
+  "tax": 450,
+  "shipping": 0,
+  "totalAmount": 4950,
+  "status": "delivered",
+  "paymentStatus": "paid",
+  "createdAt": {
+    "$date": "2025-12-07T05:04:04.622Z"
+  },
+  "updatedAt": {
+    "$date": "2025-12-07T05:04:31.693Z"
+  },
+  "__v": 0,
+  "razorpayOrderId": "order_RobE5KYvTAlyym",
+  "razorpayPaymentId": "pay_RobEI7ZYDRuFY1"
+}]

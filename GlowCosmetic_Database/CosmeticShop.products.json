@@ -1,0 +1,759 @@
+[{
+  "_id": {
+    "$oid": "68c6fe47389db85d6a40ed52"
+  },
+  "name": "Dot & Key",
+  "description": "Dot & Key Vitamin C + E Super Bright Face Moisturizer For Glowing Skin, Fades Dark Spots",
+  "price": 450,
+  "stock": 14,
+  "status": "active",
+  "ml": "60",
+  "discount": 10,
+  "category": {
+    "$oid": "68c6d5baff33e34ca58ea66f"
+  },
+  "image": "1757871687205.jpeg",
+  "createdAt": {
+    "$date": "2025-09-14T17:41:27.418Z"
+  },
+  "updatedAt": {
+    "$date": "2025-09-14T18:10:38.348Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68c705b7b977f639482ad5ce"
+  },
+  "name": "Dot & Key Hyaluronic",
+  "description": "Dot & Key Hyaluronic + Ceramide Barrier Repair Hydrating Face Moisturizer Ph 5.5 Cream, Normal To Dry Skin",
+  "price": 334,
+  "stock": 4,
+  "status": "active",
+  "ml": "100",
+  "discount": 16,
+  "category": {
+    "$oid": "68c6d5baff33e34ca58ea66f"
+  },
+  "image": "1757873591580.jpeg",
+  "createdAt": {
+    "$date": "2025-09-14T18:13:11.987Z"
+  },
+  "updatedAt": {
+    "$date": "2025-12-06T09:12:29.044Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68c70641b977f639482ad5d5"
+  },
+  "name": "Estee Lauder",
+  "description": "Estee Lauder Advanced Night Repair Synchronized Multi-Recovery Complex Serum With Tripeptide-32 20ml",
+  "price": 4500,
+  "stock": 20,
+  "status": "active",
+  "ml": "20",
+  "discount": 0,
+  "category": {
+    "$oid": "68c6d5baff33e34ca58ea66f"
+  },
+  "image": "1757873729075.jpeg",
+  "createdAt": {
+    "$date": "2025-09-14T18:15:29.331Z"
+  },
+  "updatedAt": {
+    "$date": "2025-12-07T05:04:04.816Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68c706e9b977f639482ad5dc"
+  },
+  "name": "Foxtale De-Tan Skin Radiance Mask",
+  "description": "Foxtale De-Tan Skin Radiance Mask, With Lactic Acid, Brazilian Purple Clay & Kaolin Clay",
+  "price": 436,
+  "stock": 43,
+  "status": "active",
+  "ml": "75",
+  "discount": 18,
+  "category": {
+    "$oid": "68c6d5baff33e34ca58ea66f"
+  },
+  "image": "1757873897747.jpeg",
+  "createdAt": {
+    "$date": "2025-09-14T18:18:17.906Z"
+  },
+  "updatedAt": {
+    "$date": "2025-09-14T18:18:17.907Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68c70a87b977f639482ad5fb"
+  },
+  "name": "Jeffree Star Cosmetics",
+  "description": "\r\nJeffree Star Cosmetics\r\nVelour Matte Liquid Lipstick 5.6ml - Bite My Lip",
+  "price": 2432.98,
+  "stock": 22,
+  "status": "active",
+  "ml": "5.6",
+  "discount": 10,
+  "category": {
+    "$oid": "68c7092ab977f639482ad5f0"
+  },
+  "image": "1757874822762.jpeg",
+  "createdAt": {
+    "$date": "2025-09-14T18:33:43.007Z"
+  },
+  "updatedAt": {
+    "$date": "2025-09-14T18:33:43.008Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68c84206fa85e1a3fd724327"
+  },
+  "name": "Carlton London",
+  "description": "Carlton London Cosmetic DAZZLUXE Gift Set | For Girlfriend & Wife With Perfume, Lipstick, Mascara & Kajal (Pack of 4)",
+  "price": 1245,
+  "stock": 12,
+  "status": "active",
+  "ml": "",
+  "discount": 0,
+  "category": {
+    "$oid": "68c7092ab977f639482ad5f0"
+  },
+  "image": "1757954565961.jpeg",
+  "createdAt": {
+    "$date": "2025-09-15T16:42:46.958Z"
+  },
+  "updatedAt": {
+    "$date": "2025-09-15T16:42:46.970Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68c84b20fa85e1a3fd724334"
+  },
+  "name": "Kérastase Discipline",
+  "description": "Kérastase Discipline Fluidealiste Anti-Frizz Shampoo | Sulphate-Free Shampoo for Frizzy Hair | Infused with Morpho-Kératine, Surface Perfector & High Precision Care Agent | 250ml",
+  "price": 2020,
+  "stock": 20,
+  "status": "active",
+  "ml": "250",
+  "discount": 20,
+  "category": {
+    "$oid": "68c7077eb977f639482ad5e4"
+  },
+  "image": "1757956896692.jpeg",
+  "createdAt": {
+    "$date": "2025-09-15T17:21:36.839Z"
+  },
+  "updatedAt": {
+    "$date": "2025-12-02T16:11:11.501Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68c84b7dfa85e1a3fd72433b"
+  },
+  "name": "Nexxus Promend",
+  "description": "Nexxus Promend Repair Keratinizing Bond Treatment Mask for Damaged Hair I 200ml",
+  "price": 1804,
+  "stock": 10,
+  "status": "active",
+  "ml": "200",
+  "discount": 4,
+  "category": {
+    "$oid": "68c7077eb977f639482ad5e4"
+  },
+  "image": "1757956989083.jpeg",
+  "createdAt": {
+    "$date": "2025-09-15T17:23:09.218Z"
+  },
+  "updatedAt": {
+    "$date": "2025-12-06T15:22:17.919Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68c84bccfa85e1a3fd724342"
+  },
+  "name": "Contraband",
+  "description": "\r\nClick to see full view\r\nContraband Have It All Perfume | Timeless Everyday Fragrance | 30ml",
+  "price": 1234,
+  "stock": 56,
+  "status": "active",
+  "ml": "30",
+  "discount": 5,
+  "category": {
+    "$oid": "68c708ddb977f639482ad5e8"
+  },
+  "image": "1757957067958.jpeg",
+  "createdAt": {
+    "$date": "2025-09-15T17:24:28.177Z"
+  },
+  "updatedAt": {
+    "$date": "2025-09-15T17:24:28.178Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68c84c26fa85e1a3fd724349"
+  },
+  "name": "Dopamine Unisex Perfume",
+  "description": "Dopamine Unisex Perfume for Long Lasting Smell - 50 ml | Extrait De Parfum Refreshing Premium Luxurious Fragrance for Men & Women - Deliciously Spicy",
+  "price": 1445,
+  "stock": 10,
+  "status": "active",
+  "ml": "50",
+  "discount": 4,
+  "category": {
+    "$oid": "68c708ddb977f639482ad5e8"
+  },
+  "image": "1757957158466.jpeg",
+  "createdAt": {
+    "$date": "2025-09-15T17:25:58.701Z"
+  },
+  "updatedAt": {
+    "$date": "2025-09-15T17:25:58.702Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68c84c86fa85e1a3fd724350"
+  },
+  "name": "Kimirica Love Story Luxury Bath and Body Care Gift Set Box",
+  "description": "Kimirica Love Story Luxury Bath and Body Care Gift Set Box | Bath Salt, Body Wash, Body Lotion, Bathing Bar and Hand cream | Pack of 5 | For Men and Women | Pampering Kit for Birthday ,Anniversary & All Special Occasions | Premium Gift Packaging 100% Vegan",
+  "price": 1146,
+  "stock": 14,
+  "status": "active",
+  "ml": "",
+  "discount": 15,
+  "category": {
+    "$oid": "68c708fcb977f639482ad5ec"
+  },
+  "image": "1757957254240.jpeg",
+  "createdAt": {
+    "$date": "2025-09-15T17:27:34.697Z"
+  },
+  "updatedAt": {
+    "$date": "2025-12-06T15:22:17.764Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68c84d08fa85e1a3fd724357"
+  },
+  "name": "5 Senses Co.",
+  "description": "5 Senses Co. Luxury Wellness Gift Set for Women | Birthday Gift For Wife, Girlfriend, Mom, Sister | Personal Care, Healing, Relaxation, Spa & Get Well Soon Gifts Hamper For Pregnancy | Expecting Moms | Baby Shower | Valentines Day Gift",
+  "price": 1966,
+  "stock": 30,
+  "status": "active",
+  "ml": "",
+  "discount": 48,
+  "category": {
+    "$oid": "68c708fcb977f639482ad5ec"
+  },
+  "image": "1757957382067.jpeg",
+  "createdAt": {
+    "$date": "2025-09-15T17:29:44.394Z"
+  },
+  "updatedAt": {
+    "$date": "2025-12-06T09:21:08.790Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68c84d87fa85e1a3fd724360"
+  },
+  "name": "BodyHerbals De-Stress Lavender Skincare Gift Set",
+  "description": "BodyHerbals De-Stress Lavender Skincare Gift Set For Women and Men| | for Gift Box Hamper 9 Pcs| Luxury Gift for Diwali Gift set Birthdays, Anniversaries, Wedding and Special Celebrations| 100 % Vegan",
+  "price": 1896,
+  "stock": 2,
+  "status": "active",
+  "ml": "",
+  "discount": 42,
+  "category": {
+    "$oid": "68c708fcb977f639482ad5ec"
+  },
+  "image": "1757957511231.jpeg",
+  "createdAt": {
+    "$date": "2025-09-15T17:31:51.377Z"
+  },
+  "updatedAt": {
+    "$date": "2025-09-15T17:31:51.378Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68c84dccfa85e1a3fd724369"
+  },
+  "name": "5 Senses Co",
+  "description": "5 Senses Co. Luxury Gift Set For Women|Pack Of 5 Gifts|Gift Hamper For Wife, Sister, Girlfriend, Mother|For Birthday, Anniversary, Rakhi & All Special Occasions|Consist Of Candle, Luxurious Body Wash",
+  "price": 1699,
+  "stock": 4,
+  "status": "active",
+  "ml": "",
+  "discount": 42,
+  "category": {
+    "$oid": "68c708fcb977f639482ad5ec"
+  },
+  "image": "1757957580035.jpeg",
+  "createdAt": {
+    "$date": "2025-09-15T17:33:00.210Z"
+  },
+  "updatedAt": {
+    "$date": "2025-09-15T17:33:00.213Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68c91cb49dd0dfc745b72e81"
+  },
+  "name": "Shams Al Emarat Khususi",
+  "description": "Ard al Zaafaran Pink Blush Shams Al Emarat Khususi, Marshmallow Blush Perfume For Women, Eau de Parfum - 100 ML (3.4 OZ) Romantic & Sweet Arabian Perfume - A Captivating Scent wrapped in Pink Bottle",
+  "price": 239,
+  "stock": 41,
+  "status": "active",
+  "ml": "100",
+  "discount": 35,
+  "category": {
+    "$oid": "68c708ddb977f639482ad5e8"
+  },
+  "image": "1758010547998.jpeg",
+  "createdAt": {
+    "$date": "2025-09-16T08:15:48.180Z"
+  },
+  "updatedAt": {
+    "$date": "2025-09-16T08:15:48.189Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68c91d899dd0dfc745b72e88"
+  },
+  "name": "Olaplex",
+  "description": "Olaplex Hair Repair Treatment\r\nPremium Brand Sourced\r\nWe work closely with your favorite premium beauty brands and their approved resellers to ensure the premium products sold in our stores are authentic.",
+  "price": 329,
+  "stock": 4,
+  "status": "inactive",
+  "ml": "100",
+  "discount": 52,
+  "category": {
+    "$oid": "68c7077eb977f639482ad5e4"
+  },
+  "image": "1758516735998.jpeg",
+  "createdAt": {
+    "$date": "2025-09-16T08:19:21.249Z"
+  },
+  "updatedAt": {
+    "$date": "2025-09-25T04:27:23.239Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68c91f9846a2428edd9f2404"
+  },
+  "name": "Lash Princess False Lash Effect Mascara",
+  "description": "essence | Lash Princess False Lash Effect Mascara | Volumizing & Lengthening | Cruelty Free & Paraben Free \r\nColor\tBlack\r\nProduct Benefits\tVolumizing, Lengthening\r\nSpecial Feature\tNot Tested On Animals\r\nBrand\tessence\r\nItem Form\tCream",
+  "price": 21,
+  "stock": 54,
+  "status": "active",
+  "ml": "10",
+  "discount": 21,
+  "category": {
+    "$oid": "68c8596adeb95c7dcbfe2a2c"
+  },
+  "image": "1758011287873.jpeg",
+  "createdAt": {
+    "$date": "2025-09-16T08:28:08.081Z"
+  },
+  "updatedAt": {
+    "$date": "2025-12-06T15:22:18.073Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68c9201146a2428edd9f240b"
+  },
+  "name": "Lip Oil",
+  "description": "e.l.f. Glow Reviver Lip Oil, Nourishing Tinted Lip Oil For A High-shine Finish, Infused With Jojoba Oil, Vegan & Cruelty-free, Jam Session \r\nBrand\te.l.f.\r\nColor\tJam Session\r\nItem Form\tLiquid\r\nFinish Type\tGlossy\r\nProduct Benefits\tNourishing and hydrating lip oil with a non-sticky, high-gloss finish and fresh minty scent",
+  "price": 110,
+  "stock": 8,
+  "status": "active",
+  "ml": "8",
+  "discount": 6,
+  "category": {
+    "$oid": "68c8596adeb95c7dcbfe2a2c"
+  },
+  "image": "1758011409668.jpeg",
+  "createdAt": {
+    "$date": "2025-09-16T08:30:09.924Z"
+  },
+  "updatedAt": {
+    "$date": "2025-12-04T09:23:39.180Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68c9207f46a2428edd9f2412"
+  },
+  "name": "White Body Glitter",
+  "description": "MEICOLY Clear White Body Glitter,Mardi Gras Face Glitter Makeup for Kids Women,Face Glitter for Running,Sparkly Chunky Hair Glitter,Singer Concert Festival Rave Accessories,Mermaid Glitter Face Paint \r\nColor\twhite body glitter\r\nBrand\tMEICOLY\r\nItem Weight\t50 Grams\r\nShape\tHexagonal\r\nNumber of Pieces\t1\r\nItem Form\tGel",
+  "price": 451,
+  "stock": 31,
+  "status": "active",
+  "ml": "32",
+  "discount": 63,
+  "category": {
+    "$oid": "68c8596adeb95c7dcbfe2a2c"
+  },
+  "image": "1758011518890.jpeg",
+  "createdAt": {
+    "$date": "2025-09-16T08:31:59.093Z"
+  },
+  "updatedAt": {
+    "$date": "2025-12-04T09:23:39.330Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68c920f546a2428edd9f2419"
+  },
+  "name": "Eye Shadow",
+  "description": "Covergirl Eye Enhancers Eye Shadow Palette, Natural Nudes, 0.19 Ounce \r\nColor\t4-Shades - 280 Natural Nudes\r\nBrand\tCOVERGIRL\r\nItem Form\tpallet\r\nProduct Benefits\tDefining\r\nNumber of Items\t1",
+  "price": 547,
+  "stock": 65,
+  "status": "active",
+  "ml": "",
+  "discount": 26,
+  "category": {
+    "$oid": "68c8596adeb95c7dcbfe2a2c"
+  },
+  "image": "1758011636805.jpeg",
+  "createdAt": {
+    "$date": "2025-09-16T08:33:57.156Z"
+  },
+  "updatedAt": {
+    "$date": "2025-09-16T08:33:57.157Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "692dcdb1d0b8470e80f2c504"
+  },
+  "name": "PLUM Bodylovin Vanilla Vibes Shower Gel",
+  "description": "PLUM\r\nBodylovin Vanilla Vibes Shower Gel | 240.0 ml  Cleanses and nourishes your skinOlive oil moisturises and repairs skinRose scent leaves your skin refreshedFree from sulphates, silicone, and soap for safe use Comes in a bottle.Package Contains\r\nPackage contains: 1 gel\r\nVolume\r\nVolume: 240 ml",
+  "price": 308,
+  "stock": 13,
+  "status": "active",
+  "ml": "240",
+  "discount": 2,
+  "category": {
+    "$oid": "692dcc0ad0b8470e80f2c4d3"
+  },
+  "image": "1764609457665.jpeg",
+  "createdAt": {
+    "$date": "2025-12-01T17:17:37.852Z"
+  },
+  "updatedAt": {
+    "$date": "2025-12-01T17:17:37.855Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "692dce39d0b8470e80f2c50b"
+  },
+  "name": "PLUM Vanilla Vibes Sugar Body Scrub",
+  "description": "PLUM\r\nVanilla Vibes Sugar Body Scrub | 200.0 gm  Use instruction: Scoop up & make circles on damp skin. Now give that scrub a rub. Rinse with lukewarm water. Fall in love with your skin. Make sure to follow up with a moisturiser.  Hey there, sweet tooth. There perhaps ain't a sweeter way to smoother skin than this vanilla-flavored blend of sugar, kokum butter, shea butter & argan oil. Let’s take the stairway to moisture heaven, shall we?  \r\nIngredients\r\nIngredients: Sucrose, Ethylhexyl Palmitate, Helianthus Annuus (Sunflower) Seed Oil, PEG-40 Hydrogenated Castor Oil, Silica, Cetearyl Alcohol, Polysorbate 60, Garcinia Indica (Kokum) Seed Butter, Coco Glucoside, Hydrogenated Soybean Oil, Fragrance, Oryza Sativa (Rice) Bran Wax, Copernicia Cerifera (Carnauba) Wax, Hydrogenated Soy Polyglycerides, C15-23 Alkanes, Phenoxyethanol, Ethylhexylglycerin, Hydrogenated Polyisobutene, Butyrospermum Parkii (Shea) Butter, Pentaerythrityl Tetra-di-t-butyl Hydroxyhydrocinnamate, Argania Spinosa (Argan) Oil, Vanilla Planifolia (Vanilla) Oil, Bertholletia Excelsa (Brazil Nut) Seed Oil, Tocopherol, CI 77491, CI 77492, CI 77499",
+  "price": 440,
+  "stock": 2,
+  "status": "active",
+  "ml": "200",
+  "discount": 14,
+  "category": {
+    "$oid": "692dcc0ad0b8470e80f2c4d3"
+  },
+  "image": "1764609593119.jpeg",
+  "createdAt": {
+    "$date": "2025-12-01T17:19:53.296Z"
+  },
+  "updatedAt": {
+    "$date": "2025-12-06T15:22:17.427Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "692dceaed0b8470e80f2c512"
+  },
+  "name": "PLUM Body lovin Marshmallow Melt Body Lotion with Shea Butter & Vitamin B5 Non Greasy",
+  "description": "Wrap your skin in sweet comfort with the Plum Body lovin Marshmallow Melt Body Lotion with Shea Butter & Vitamin B5 Non Greasy. This ultra-nourishing body lotion melts effortlessly on the skin, providing a non-greasy finish. Packed with shea butter and vitamin B5, it provides deep hydration, leaving your skin super moisturized, gorgeously glowy, and utterly pampered.  Shea butter, vitamin B5: Provides intense moisture and promotes skin elasticity, leaving your skin soft, smooth, and rejuvenated,INGREDIENTS: Aqua, Glycerin, Paraffinum Liquidum, Helianthus Annuus Seed Oil, Glyceryl Stearate, PEG-100 Stearate, Cetearyl Alcohol, Fragrance, Garcinia Indica Seed Butter, Dimethicone, Stearic Acid, Ricinus Communis Seed Oil, Butyrospermum Parkii Butter, Potassium Cetyl Phosphate, Polyacrylate-13\r\nPackage Contains\r\nPackage contains: 1 body lotion",
+  "price": 394,
+  "stock": 10,
+  "status": "active",
+  "ml": "400",
+  "discount": 0,
+  "category": {
+    "$oid": "692dcc0ad0b8470e80f2c4d3"
+  },
+  "image": "1764609707016.jpeg",
+  "createdAt": {
+    "$date": "2025-12-01T17:21:50.126Z"
+  },
+  "updatedAt": {
+    "$date": "2025-12-02T09:57:07.820Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "692dcf33d0b8470e80f2c519"
+  },
+  "name": "NEUDE Women Body Exfoliator Gel Wash",
+  "description": "NEUDE\r\nWomen Body Exfoliator Gel Wash Zero Particle Exfoliation: No abrasion, only exfoliation  Aqua, Cocamidopropyl Betaine (And) Glycerin (And) Caprylyl/Capryl Glucoside (And) Sodium Methyl Cocoyl Taurate, Lactic Acid, Propanediol, Salicylic Acid (2%), Aloe Barbadensis (Aloe Vera) Leaf Extract, Cellulose Gum (And) Algin, Butylene Glycol, Xylitylglucoside (And) Anhydroxylitol (And) Xylitol, Salix Alba (Willow) Bark Extract, Glycyrrhiza Glabra (Licorice) Root Extract, Phenoxyethanol, Water (And) Glycerin (And) Gluconolactone (And) Honey (And) Lactobionic Acid, Hyaluronic Acid, Glycolic Acid, Magnesium Ascorbyl Phosphate (Vitamin C), D-Panthenol (Vitamin B5), Tocopheryl Acetate (Vitamin E), Sodium Gluconate, Acacia Senegal Gum (And) Xanthan Gum, Fragrance\r\nPackage Contains\r\n1 body scrab\r\n",
+  "price": 629,
+  "stock": 1,
+  "status": "active",
+  "ml": "250",
+  "discount": 0,
+  "category": {
+    "$oid": "692dcc0ad0b8470e80f2c4d3"
+  },
+  "image": "1764609843384.jpeg",
+  "createdAt": {
+    "$date": "2025-12-01T17:24:03.579Z"
+  },
+  "updatedAt": {
+    "$date": "2025-12-04T08:09:55.569Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "692dd4e2d0b8470e80f2c570"
+  },
+  "name": "GLAM 21 Easy-Grip Handle Blusher Brush",
+  "description": "GLAM 21\r\nEasy-Grip Handle Blusher Brush\r\nMood\r\nCasual\r\nPackage Contains\r\n1 blusher brush",
+  "price": 124.99,
+  "stock": 20,
+  "status": "active",
+  "ml": "",
+  "discount": 0,
+  "category": {
+    "$oid": "692dd42bd0b8470e80f2c53f"
+  },
+  "image": "1764611298316.jpeg",
+  "createdAt": {
+    "$date": "2025-12-01T17:48:18.533Z"
+  },
+  "updatedAt": {
+    "$date": "2025-12-06T15:22:17.598Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "692dd526d0b8470e80f2c577"
+  },
+  "name": "PAC 1 Piece Classic Beauty Blender",
+  "description": "Achieve a professional makeup look with the PAC Classic Water Drop Sponge. This PAC beauty blender easily blends makeup products to provide an even-toned, natural finish. Also, this makeup sponge absorbs minimal makeup products to ensure less wastage.\r\nMood\r\nClassic\r\nPackage Contains\r\nPackage contains: 1 makeup sponge",
+  "price": 394.99,
+  "stock": 7,
+  "status": "active",
+  "ml": "",
+  "discount": 2,
+  "category": {
+    "$oid": "692dd42bd0b8470e80f2c53f"
+  },
+  "image": "1764611366152.jpeg",
+  "createdAt": {
+    "$date": "2025-12-01T17:49:26.352Z"
+  },
+  "updatedAt": {
+    "$date": "2025-12-04T09:23:39.014Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "692dd592d0b8470e80f2c57e"
+  },
+  "name": "PAC Pack of 8 PAC X Jovita All You Need Brush Set",
+  "description": "PAC\r\nPack of 8 PAC X Jovita All You Need Brush Set  Highlight\r\nStylish beauty essentials with contemporary, trendy fashion energy.\r\nAdditional Information 1\r\nTrendy beauty add-ons that complement modern, fashionable looks. Ideal for everyday glam and grooming.\r\nPackage Contains\r\nset of 12 makeup brushes",
+  "price": 2994.99,
+  "stock": 7,
+  "status": "active",
+  "ml": "",
+  "discount": 43,
+  "category": {
+    "$oid": "692dd42bd0b8470e80f2c53f"
+  },
+  "image": "1764611473769.jpeg",
+  "createdAt": {
+    "$date": "2025-12-01T17:51:14.323Z"
+  },
+  "updatedAt": {
+    "$date": "2025-12-02T15:24:42.441Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "692dd5e5d0b8470e80f2c589"
+  },
+  "name": "SWISS BEAUTY Makeup Brush Set",
+  "description": "Additional Details\r\nAbout the brand: founded in 2008, Swiss Beauty is a cosmetics brand that caters to all the skin care needs. They offer a wide range of cosmetic products for lips, eyes, nails, and overall skin. The brand is on a mission to elevate your beauty concepts to match Swiss standards. Swiss Beauty products maintain a high standard of manufacturing with ingredients specially imported from Japan, Italy, Germany, and Taiwan to ensure safe use on the skin\r\nAdditional Information 1\r\nEasily apply lovely makeup with the Swiss Beauty Makeup Brush Set - (5 Pcs). Each brush in this set is made with high-quality materials and soft, tightly packed bristles for perfect blending. Their ergonomic design with sturdy wooden handles and copper-plated ferrules enables a comfortable grip for precise application.",
+  "price": 319,
+  "stock": 29,
+  "status": "active",
+  "ml": "",
+  "discount": 0,
+  "category": {
+    "$oid": "692dd42bd0b8470e80f2c53f"
+  },
+  "image": "1764611557281.jpeg",
+  "createdAt": {
+    "$date": "2025-12-01T17:52:37.510Z"
+  },
+  "updatedAt": {
+    "$date": "2025-12-05T10:37:27.297Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "692dd62dd0b8470e80f2c597"
+  },
+  "name": "LULU & SKY Women Basic Makeup Brushes Set",
+  "description": "LULU & SKY\r\nWomen Basic Makeup Brushes Set  Highlight\r\nStylish beauty essentials with contemporary, trendy fashion energy.\r\nAdditional Information 1\r\nTrendy beauty add-ons that complement modern, fashionable looks. Ideal for everyday glam and grooming.\r\nPackage Contains\r\nset of 12 makeup brushes",
+  "price": 337,
+  "stock": 2,
+  "status": "active",
+  "ml": "",
+  "discount": 0,
+  "category": {
+    "$oid": "692dd42bd0b8470e80f2c53f"
+  },
+  "image": "1764611629132.jpeg",
+  "createdAt": {
+    "$date": "2025-12-01T17:53:49.496Z"
+  },
+  "updatedAt": {
+    "$date": "2025-12-06T15:22:17.253Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "692dd965d0b8470e80f2c5ee"
+  },
+  "name": "Facejewel 4in1 Makeup Brush With Pizza & Blender Puff",
+  "description": "Product Details \r\n4in1 Makeup Brush With Pizza & Blender Puff\r\n\r\n\r\nMaterial & Care\r\nSynthetic Bristles\r\nHand Wash\r\n\r\n\r\nSpecifications\r\nNet Quantity\r\n3\r\n\r\nNet Quantity Unit\r\nPieces\r\nPreferences\r\nSynthetic\r\nSustainable\r\nRegular",
+  "price": 398.99,
+  "stock": 43,
+  "status": "active",
+  "ml": "",
+  "discount": 4,
+  "category": {
+    "$oid": "692dd42bd0b8470e80f2c53f"
+  },
+  "image": "1764612452858.jpeg",
+  "createdAt": {
+    "$date": "2025-12-01T18:07:33.053Z"
+  },
+  "updatedAt": {
+    "$date": "2025-12-01T18:07:33.054Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "692dd9dcd0b8470e80f2c5f5"
+  },
+  "name": "Whimsy Beauty Set Of 4 Sunscreen &Face Wash - 100 ml Each With Body Wash",
+  "description": "Whimsy Beauty\r\nSet Of 4 Sunscreen &Face Wash - 100 ml Each With Body Wash\r\nProduct Details \r\nThis Set Consists Of:\r\nRay Rebels Sunscreen Spray - 100 ml\r\nButter Me Up Moisturizer - 100 ml\r\nBubble & Bliss Foaming Body Wash - 150 ml\r\nClean Vibes Foaming Face Wash - 100 ml\r\n\r\nSpecifications\r\nContent\r\nFace Wash\r\nContent 2\r\nFace Moisturiser\r\nKey Ingredients\r\nAloe Vera\r\nNet Quantity\r\n4\r\nNet Quantity Unit\r\nPieces\r\nNumber of Contents\r\n4\r\nPreferences\r\nOrganic\r\nSustainable\r\nRegular",
+  "price": 1222,
+  "stock": 28,
+  "status": "active",
+  "ml": "150",
+  "discount": 21,
+  "category": {
+    "$oid": "692dd76cd0b8470e80f2c5bd"
+  },
+  "image": "1764612571999.jpeg",
+  "createdAt": {
+    "$date": "2025-12-01T18:09:32.254Z"
+  },
+  "updatedAt": {
+    "$date": "2025-12-06T11:11:44.591Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "692dda29d0b8470e80f2c5fc"
+  },
+  "name": "SOULFLOWER Kumkumadi Oil Night Beauty Elixir with Real Saffron",
+  "description": "Product Details\r\nHighlight\r\nBoost your skin health with the Soulflower Kumkumadi Oil Night Beauty Elixir with Real Saffron. It rectifies uneven skin tone and moisturises your skin to give you a healthy glow. This night beauty elixir contains active ingredients that help you get rid of pigmentation, dark spots, clogged pores and dead skin cells. Also, the Soulflower elixir oil is cruelty-free and completely organic.\r\nMood\r\nClassic\r\nPackage Contains\r\nPackage contains: 1 oil\r\nVolume\r\nVolume: 12 ml",
+  "price": 900,
+  "stock": 4,
+  "status": "active",
+  "ml": "120",
+  "discount": 3,
+  "category": {
+    "$oid": "692dd76cd0b8470e80f2c5bd"
+  },
+  "image": "1764612649122.jpeg",
+  "createdAt": {
+    "$date": "2025-12-01T18:10:49.331Z"
+  },
+  "updatedAt": {
+    "$date": "2025-12-04T07:59:28.500Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "692ddb35d0b8470e80f2c603"
+  },
+  "name": "NATURAL AND HERBAL PRODUCTS Mulethi Powder For Face, Hair, Skin And Body",
+  "description": "\r\nMulethi Powder is 100% natural and herbal. 100% chemical free powder with no additives, synthetics and other harsh metals. Mulethi Edible Powder: Consumption of mulethi boosts immunity and helps to improve cough and cold. Mulethi powder for skin whitening: Helps to lighten sun tan and minimizes blemishes and marks. Mulethi powder for hair helps to removes all traces of dirt and excess oil accumulated on scalp. Fades dark spots, acne breakouts and help to maintain a healthy glowing skin. Mulethi Powder is obtained from the drying and processing of the licorice root. Rich in antioxidants it helps block free radicals, protects the skin from darkening, controls excess oil production which may lead to acne and pimples, ultimately leaving the skin smooth and glowing. The only ingredient in pure mulethi powder is dried and powdered root of the licorice plant, also known as Glycyrrhiza glabra.",
+  "price": 142,
+  "stock": 44,
+  "status": "active",
+  "ml": "100",
+  "discount": 65,
+  "category": {
+    "$oid": "692dd76cd0b8470e80f2c5bd"
+  },
+  "image": "1764612916948.jpeg",
+  "createdAt": {
+    "$date": "2025-12-01T18:15:17.141Z"
+  },
+  "updatedAt": {
+    "$date": "2025-12-06T09:07:06.920Z"
+  },
+  "__v": 0
+}]

@@ -1,0 +1,35 @@
+[{
+  "_id": {
+    "$oid": "692aace57758107a76a24a45"
+  },
+  "name": "demo",
+  "description": "demo Offers",
+  "offerType": "category",
+  "category": {
+    "$oid": "68c708fcb977f639482ad5ec"
+  },
+  "discountType": "percentage",
+  "discountValue": 37,
+  "maxDiscount": 432,
+  "minOrderValue": 1,
+  "startDate": {
+    "$date": "2025-11-29T00:00:00.000Z"
+  },
+  "endDate": {
+    "$date": "2025-11-30T00:00:00.000Z"
+  },
+  "status": "Active",
+  "usageLimit": null,
+  "usedCount": 0,
+  "targetAudience": "all",
+  "createdAt": {
+    "$date": "2025-11-29T08:20:53.807Z"
+  },
+  "updatedAt": {
+    "$date": "2025-12-06T10:26:37.998Z"
+  },
+  "__v": 0,
+  "bannerImage": null,
+  "product": null,
+  "promoCode": null
+}]

@@ -1,0 +1,100 @@
+[{
+  "_id": {
+    "$oid": "68c6bd8c89216c17c44d9fdc"
+  },
+  "fullname": "Angel Raiyani",
+  "email": "angelraiyanii@gmail.com",
+  "mobile": "7766554433",
+  "password": "Angel@123",
+  "gender": "Female",
+  "pincode": "360020",
+  "address": "Rajkot Main Rode Kothariya hina complex opp. Raiyaraj house",
+  "profilePic": "1758300992123.JPG",
+  "role": "admin",
+  "status": "Active",
+  "token": null,
+  "createdAt": {
+    "$date": "2025-09-14T13:05:16.822Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68cbc963aea7d1d6cb4e19e7"
+  },
+  "fullname": "Nirali Raiyani",
+  "email": "nirupatel7892@gmail.com",
+  "mobile": "4433221155",
+  "password": "nirali",
+  "gender": "female",
+  "pincode": "360020",
+  "address": "Rajkot om nager , mahi hospital behind shree house",
+  "profilePic": "1758185827869.jpeg",
+  "role": "user",
+  "status": "Active",
+  "token": null,
+  "createdAt": {
+    "$date": "2025-09-18T08:57:07.897Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68d0d89bf21017be2b3b037f"
+  },
+  "fullname": "Dhaval Lal",
+  "email": "dhaval.lal@rku.ac.in",
+  "mobile": "8980628004",
+  "password": "Dhaval@1212",
+  "gender": "male",
+  "pincode": "360005",
+  "address": "Rajkot",
+  "profilePic": "1758605546166.jpeg",
+  "role": "user",
+  "status": "Active",
+  "token": null,
+  "createdAt": {
+    "$date": "2025-09-22T05:03:23.606Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "690c23baf1ee12e5c1e321d3"
+  },
+  "fullname": "Kunden Raiyani",
+  "email": "kundenraiyani7892@gmail.com",
+  "mobile": "8347487892",
+  "password": "Kunden@123",
+  "gender": "female",
+  "pincode": "330065",
+  "address": "Rajkot bapasitaram chhok mahi deri before seri No.34 vijya society \"Mahi\"",
+  "profilePic": "1762403258971.jpeg",
+  "role": "user",
+  "status": "Active",
+  "token": null,
+  "createdAt": {
+    "$date": "2025-11-06T04:27:38.994Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "693146f7f40e4d72446bb6dd"
+  },
+  "fullname": "Dipaxi vekariya",
+  "email": "araiyani764@rku.ac.in",
+  "mobile": "8475650567",
+  "password": "Dipaxi@123",
+  "gender": "female",
+  "pincode": "223345",
+  "address": "Rajkot Movdi rode shiv restaurants opp., ramnager society \"Maa\"",
+  "profilePic": "1764837111873.jpeg",
+  "role": "user",
+  "status": "Active",
+  "token": null,
+  "createdAt": {
+    "$date": "2025-12-04T08:31:51.892Z"
+  },
+  "__v": 0
+}]

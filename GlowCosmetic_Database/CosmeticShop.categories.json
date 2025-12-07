@@ -1,0 +1,108 @@
+[{
+  "_id": {
+    "$oid": "68c6d5baff33e34ca58ea66f"
+  },
+  "categoryName": "Skincare",
+  "categoryImage": "1757861306223.jpeg",
+  "categoryStatus": "Active",
+  "createdAt": {
+    "$date": "2025-09-14T14:48:26.459Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68c7077eb977f639482ad5e4"
+  },
+  "categoryName": "Haircare",
+  "categoryImage": "1757874045958.jpeg",
+  "categoryStatus": "Active",
+  "createdAt": {
+    "$date": "2025-09-14T18:20:46.047Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68c708ddb977f639482ad5e8"
+  },
+  "categoryName": "Fragrance",
+  "categoryImage": "1757874397494.jpeg",
+  "categoryStatus": "Active",
+  "createdAt": {
+    "$date": "2025-09-14T18:26:37.604Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68c708fcb977f639482ad5ec"
+  },
+  "categoryName": "Gift Sets",
+  "categoryImage": "1757874428379.jpeg",
+  "categoryStatus": "Active",
+  "createdAt": {
+    "$date": "2025-09-14T18:27:08.458Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68c7092ab977f639482ad5f0"
+  },
+  "categoryName": "luxury collection",
+  "categoryImage": "1757874474293.jpeg",
+  "categoryStatus": "Active",
+  "createdAt": {
+    "$date": "2025-09-14T18:27:54.387Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68c8596adeb95c7dcbfe2a2c"
+  },
+  "categoryName": "Makeup",
+  "categoryImage": "1758010920384.jpeg",
+  "categoryStatus": "Active",
+  "createdAt": {
+    "$date": "2025-09-15T18:22:34.716Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "692dcc0ad0b8470e80f2c4d3"
+  },
+  "categoryName": "Body & Bath",
+  "categoryImage": "1764609034316.jpeg",
+  "categoryStatus": "Active",
+  "createdAt": {
+    "$date": "2025-12-01T17:10:34.740Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "692dd42bd0b8470e80f2c53f"
+  },
+  "categoryName": "Tools & Accessories",
+  "categoryImage": "1764611114832.jpeg",
+  "categoryStatus": "Active",
+  "createdAt": {
+    "$date": "2025-12-01T17:45:15.025Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "692dd76cd0b8470e80f2c5bd"
+  },
+  "categoryName": "Organic Beauty",
+  "categoryImage": "1764611948208.jpeg",
+  "categoryStatus": "Active",
+  "createdAt": {
+    "$date": "2025-12-01T17:59:08.610Z"
+  },
+  "__v": 0
+}]
