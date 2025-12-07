@@ -26,6 +26,7 @@ It offers a smooth shopping experience with secure payments, product browsing, a
 🖼️ Banner Management
 📄 About Us Editor
 📬 Contact Queries Management
+
 🖼️ Screenshots folder
 https://github.com/angelraiyanii/Cosmetic_Product_React_MCA/tree/23c277d9a156483345e32b9c96dc976f7916794d/GLowCosmetic_ScreenShort
 
