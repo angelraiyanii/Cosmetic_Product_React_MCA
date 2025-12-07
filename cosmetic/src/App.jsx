@@ -26,7 +26,6 @@ import PurchasedProductsForReview from './component/PurchasedProductsForReview'
 // Admin Called
 import AdCategory from './component/Admin/AdCategory'
 import AdPro from './component/Admin/AdPro'
-import ASlider from './component/Admin/ASlider'
 import AdAbout from './component/Admin/AdAbout'
 import AdBanner from "./component/Admin/AdBanner";
 import AdContact from './component/Admin/AdContact'
@@ -91,7 +90,6 @@ function App() {
 
         {/* Admin Routes */}
         <Route path='/Admin/AdAbout' element={<AdAbout />} />
-        <Route path='/Admin/ASlider' element={<ASlider />} />
         <Route path="/Admin/AdBanner" element={<AdBanner />} />
         <Route path="/Admin/AdCategory" element={<AdCategory />} />
         <Route path="/Admin/AdPro" element={<AdPro />} />

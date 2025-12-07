@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Carousel } from "react-bootstrap";
 import axios from "axios";
-import s1 from "./images/banner1.png"; // Default fallback image
+import s1 from "./Images/banner1.jpeg"
 
 const Slider = () => {
   const [activeBanners, setActiveBanners] = useState([]);
