@@ -16,7 +16,7 @@ import {
   FaExclamationCircle
 } from 'react-icons/fa';
 import { Link, useNavigate } from 'react-router-dom';
-import placeholder from './images/c1.jpeg'; // Your placeholder image
+import placeholder from './Images/c1.jpeg'; // Your placeholder image
 import '../App.css';
 
 const PurchasedProductsForReview = ({ userId, isAuthenticated }) => {

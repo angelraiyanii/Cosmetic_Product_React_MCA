@@ -4,7 +4,7 @@ import { Component } from "react";
 import axios from "axios";
 import { useParams } from "react-router-dom";
 import { FaHeart, FaShoppingCart, FaStar, FaCheck, FaTruck, FaShieldAlt, FaUndo, FaShare, FaFilter, FaEye, FaBolt } from "react-icons/fa";
-import placeholder from "./images/c1.jpeg"; // Default cosmetic image
+import placeholder from "./Images/c1.jpeg"; // Default cosmetic image
 import Rating_Review from "./Rating_Review";
 
 class SingleProClass extends Component {

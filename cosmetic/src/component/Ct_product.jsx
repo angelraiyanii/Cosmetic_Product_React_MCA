@@ -3,7 +3,7 @@ import axios from "axios";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { FaHeart, FaShoppingCart, FaEye, FaStar, FaFilter, FaBolt } from "react-icons/fa";
 import Category from "../component/Category";
-import placeholder from "./images/c1.jpeg";
+import placeholder from "./Images/c1.jpeg";
 
 export default function Ct_product() {
    const url = window.location.hostname.includes("localhost")

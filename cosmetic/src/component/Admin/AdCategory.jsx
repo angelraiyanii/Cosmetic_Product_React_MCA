@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
-// import c1 from "../images/category1.png";
+
 
 function AdCategory() {
    const url = window.location.hostname.includes("localhost")

@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-// import s1 from "../images/slide1.png"; // Default image
 import "../../App.css";
 
 const AdBanner = () => {

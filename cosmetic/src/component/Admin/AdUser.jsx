@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import axios from "axios";
-import u1 from "../images/pro1.jpeg";
+import u1 from "../Images/pro1.jpeg";
 
  const url = window.location.hostname.includes("localhost")
     ? "http://localhost:5000" 

@@ -13,7 +13,7 @@ import {
   FaGem
 } from "react-icons/fa";
 import "../App.css";
-import placeholder from "./images/c1.jpeg";
+import placeholder from "./Images/c1.jpeg";
 
  const url = window.location.hostname.includes("localhost")
     ? "http://localhost:5000" 
