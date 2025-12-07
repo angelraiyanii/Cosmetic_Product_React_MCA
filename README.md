@@ -7,6 +7,7 @@ A Modern E-Commerce Web Application for Beauty & Cosmetic Products
 </p>
 
 🛍️ Overview
+
 GlowCosmetics is a full-featured online shopping platform built using the MERN Stack (MongoDB, Express, React, Node.js).
 It offers a smooth shopping experience with secure payments, product browsing, admin management, and responsive UI.
 
