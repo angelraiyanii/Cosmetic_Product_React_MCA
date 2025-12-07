@@ -1,41 +1,74 @@
 🌸 GlowCosmetics – Online Cosmetic Store (MERN Stack)
 A Modern E-Commerce Web Application for Beauty & Cosmetic Products
 
-<p align="center"> <img src="[https://via.placeholder.com/900x350?text=GlowCosmetics+Banner](https://github.com/angelraiyanii/Cosmetic_Product_React_MCA/blob/002a402176416f17a8c808d5e278668a060d1412/GLowCosmetic_ScreenShort/Home.png)" alt="GlowCosmetics Banner"/> </p>
+Built using MongoDB, Express, React, Node.js (MERN).
 
+<p align="center"> <img src="https://raw.githubusercontent.com/angelraiyanii/Cosmetic_Product_React_MCA/bc5116a407d09136b8d9465c4c1c1f63c7687e3e/GLowCosmetic_ScreenShort/Home.png" alt="GlowCosmetics Banner" width="850"/> </p>
 🛍️ Overview
-GlowCosmetics is a full-featured online shopping platform built using the MERN Stack (MongoDB, Express, React, Node.js).
-It offers a smooth shopping experience with secure payments, product browsing, admin management, and responsive UI.
+
+GlowCosmetics is a fully-featured online cosmetic shopping platform offering:
+
+Smooth & interactive shopping experience
+
+Secure Razorpay payments
+
+Fast API with Express.js
+
+Fully integrated Admin Dashboard
+
+Mobile-friendly UI
+
+Complete CRUD operations
 
 🎯 Key Features
 👩‍💼 User Features
-🔐 Secure Register/Login + Email Verification
-🛒 Add to Cart & Wishlist
-📦 Place Orders with Razorpay Payment
-🔍 Product Search & Category-wise Browsing
-🧑‍💻 Admin Features
-👥 User Management
-🛍️ Product & Category Management
-🎁 Offers & Discounts
-📦 Order Management
-⭐ Review Management
-🖼️ Banner Management
-📄 About Us Editor
-📬 Contact Queries Management
-🖼️ Screenshots folder
-https://github.com/angelraiyanii/Cosmetic_Product_React_MCA/tree/23c277d9a156483345e32b9c96dc976f7916794d/GLowCosmetic_ScreenShort
 
-🌐 Frontend
+🔐 Secure Register/Login with Email Verification
+
+🛒 Add to Cart & Wishlist
+
+💳 Place Orders using Razorpay
+
+🔍 Product Search & Filters
+
+⭐ Product Reviews
+
+👤 Manage Profile & Order History
+
+🧑‍💻 Admin Features
+
+👥 User Management
+
+🛍️ Product & Category Management
+
+🎁 Offers & Discounts
+
+📦 Order Status Management
+
+⭐ Review Moderation
+
+🖼️ Banner Management
+
+📄 About Us Page Editor
+
+📬 Contact Queries Handling
+
+🖼️ Screenshots Folder
+
+You can view all project screenshots here:
+
+👉 https://github.com/angelraiyanii/Cosmetic_Product_React_MCA/tree/23c277d9a156483345e32b9c96dc976f7916794d/GLowCosmetic_ScreenShort
+
+🌐 Frontend Technology
 Technology	Purpose
 React	UI Development
-Vite	Fast development server
-React Router DOM	Client-side routing
+Vite	Fast Development Server
+React Router DOM	Client-side Routing
 TailwindCSS	Styling
 MUI & Bootstrap	UI Components
 Axios	API Calls
 Slick Carousel	Sliders
-
-🖥️ Backend
+🖥️ Backend Technology
 Technology	Purpose
 Node.js	Server Runtime
 Express.js	Backend API
@@ -44,29 +77,7 @@ JWT + Bcrypt	Authentication
 Multer	Image Upload
 Nodemailer	Email Verification
 Razorpay	Online Payment
-
-🏗️ Tech Stack Used
-🔹 Frontend (React + Vite)
-React 19
-Vite
-React Router DOM
-Axios
-Bootstrap / React Bootstrap
-MUI (Material UI)
-TailwindCSS
-React Slick (Slider)
-
-🔹 Backend (Node + Express)
-Express.js
-MongoDB + Mongoose
-Multer (Image upload)
-JWT Authentication
-Bcrypt (Password hashing)
-Nodemailer (Email verification)
-Razorpay (Payment gateway)
-
-CORS
-📁 Project Structure
+🏗️ Project Structure
 GlowCosmetics/
 │
 ├── frontend/      # React + Vite (UI)
@@ -74,7 +85,7 @@ GlowCosmetics/
 
 ⚙️ Installation & Setup
 1️⃣ Clone Repository
-git clone :  https://github.com/angelraiyanii/Cosmetic_Product_React_MCA.git
+git clone https://github.com/angelraiyanii/Cosmetic_Product_React_MCA.git
 cd GlowCosmetics
 
 🌐 Frontend Setup
@@ -82,7 +93,9 @@ cd frontend
 npm install
 npm run dev
 
-Frontend runs at: http://localhost:5173
+
+Frontend runs at:
+👉 http://localhost:5173
 
 🖥️ Backend Setup
 cd backend
@@ -90,9 +103,11 @@ npm install
 nodemon server.js
 
 
-Backend runs at: http://localhost:5000
+Backend runs at:
+👉 http://localhost:5000
 
 🔑 Environment Variables (.env)
+
 Create a .env file inside backend/:
 
 MONGO_URL=your_mongodb_url
@@ -102,41 +117,55 @@ EMAIL_PASS=your_app_password
 RAZORPAY_KEY_ID=rzp_test_your_key
 RAZORPAY_KEY_SECRET=your_secret
 
-🚀 How to Run Full Project
-
-Run backend first:
+🚀 Running Full Project
+▶️ Start Backend:
 cd backend
 nodemon server.js
 
-
-Then run frontend:
+▶️ Start Frontend:
 cd frontend
 npm run dev
 
 🔗 Important Notes
-✔️ You must run both Frontend & Backend at the same time.
-✔️ Make sure MongoDB is connected properly.
-✔️ Razorpay will need live/test keys.
-✔️ For email verification, configure Gmail App Password.
+
+Frontend & Backend must run together
+
+Ensure MongoDB is connected
+
+Razorpay requires test/live keys
+
+Email verification requires Gmail App Password
 
 🛡️ Security Features
 
-Encrypted passwords using bcrypt
-JWT-based secure authentication
-Protected API routes
-Validation for user inputs
-Razorpay secure payment processing
+Bcrypt password hashing
+
+JWT authentication
+
+Protected admin routes
+
+Input validation
+
+Secure online payment flow
 
 🚀 Future Enhancements
 
-Add Product Ratings
-Add Coupons/Discount Codes
-Chat Support for Customers
-Analytics Dashboard for Admin
-Multi-language & Dark Mode
+⭐ Product Ratings
+
+💬 Customer Chat Support
+
+📊 Admin Analytics Dashboard
+
+🏷️ Coupon System
+
+🌙 Dark Mode
+
+🌍 Multi-language Support
 
 👩‍💻 Developer
 Angel Raiyani
-MCA, RK University
+
+MCA – RK University
 2025–2026
-<p align="center"> ⭐ If you liked this project, don't forget to star the repo! ⭐ </p>
+
+<p align="center">⭐ Don’t forget to star the repo! ⭐</p>
