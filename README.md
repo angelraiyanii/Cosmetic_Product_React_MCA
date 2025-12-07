@@ -106,11 +106,7 @@ Nodemailer
 
 Razorpay Payment Gateway
 
-📁 Project Structure
-GlowCosmetics/
-│
-├── frontend/      # React + Vite (UI)
-└── backend/       # Node + Express API
+📁 Project Structure GlowCosmetics/ │ ├── frontend/ # React + Vite (UI) └── backend/ # Node + Express API
 
 ⚙️ Installation & Setup
 1️⃣ Clone Repository
