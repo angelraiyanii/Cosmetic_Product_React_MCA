@@ -55,8 +55,8 @@ router.post("/add-Usermodel", upload.single("profilePic"), async (req, res) => {
       to: email,
       subject: "Verify Your Email",
       html: `<div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #ddd; border-radius: 10px; background-color: #f9f9f9;">
-        <h2 style="color: #333; text-align: center;">Welcome to Our Platform, ${fullname}!</h2>
-        <p style="color: #555; font-size: 16px;">Thank you for signing up! Please verify your email to activate your account.</p>
+        <h2 style="color: #333; text-align: center;">Welcome to GlowCosmetic.💗, ${fullname}!</h2>
+        <p style="color: #555; font-size: 16px;">Thank you for signing up!😍 Please verify your email to activate your account.</p>
         <div style="text-align: center; margin: 20px 0;">
           <a href="${verificationLink}" style="display: inline-block; padding: 12px 20px; background-color: #007bff; color: #fff; text-decoration: none; font-size: 16px; border-radius: 5px;">Verify Your Email</a>
         </div>
@@ -334,7 +334,7 @@ router.post("/send-order-confirmation", async (req, res) => {
         <head>
           <meta charset="UTF-8">
           <meta name="viewport" content="width=device-width, initial-scale=1.0">
-          <title>Order Confirmation</title>
+          <title>Order Confirmation🎉🎊</title>
           <style>
             body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f5f5f5; }
             .container { background: white; border-radius: 10px; padding: 30px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
@@ -359,7 +359,7 @@ router.post("/send-order-confirmation", async (req, res) => {
             <div class="header">
               <div class="success-icon">✅</div>
               <h1>Payment Successful!</h1>
-              <p>Your order has been confirmed and will be shipped soon.</p>
+              <p>Your order has been confirmed and will be shipped soon.😊</p>
             </div>
             
             <h2>Order Details</h2>

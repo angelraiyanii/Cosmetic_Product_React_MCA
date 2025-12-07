@@ -15,6 +15,10 @@ import {
 import "../App.css";
 import placeholder from "./images/c1.jpeg";
 
+ const url = window.location.hostname.includes("localhost")
+    ? "http://localhost:5000" 
+    : "https://gowcosmetic-backed.onrender.com";
+
 export class Wishlist extends Component {
   constructor() {
     super();
@@ -43,7 +47,7 @@ export class Wishlist extends Component {
       const userId = user.id;
 
       const response = await axios.get(
-        `http://localhost:5000/api/WishlistModel/${userId}`
+        `${url}/api/WishlistModel/${userId}`
       );
 
       this.setState({
@@ -61,7 +65,7 @@ export class Wishlist extends Component {
 
   removeFromWishlist = async (wishlistItemId) => {
     try {
-      await axios.delete(`http://localhost:5000/api/WishlistModel/${wishlistItemId}`);
+      await axios.delete(`${url}/api/WishlistModel/${wishlistItemId}`);
       this.setState((prevState) => ({
         wishlistItems: prevState.wishlistItems.filter(
           (item) => item._id !== wishlistItemId
@@ -83,7 +87,7 @@ export class Wishlist extends Component {
       const user = JSON.parse(userData);
       const userId = user.id;
 
-      await axios.post("http://localhost:5000/api/CartModel/add", {
+      await axios.post(`${url}/api/CartModel/add`, {
         userId,
         productId,
       });
@@ -110,7 +114,7 @@ export class Wishlist extends Component {
 
       // Add all items to cart
       const addPromises = this.state.wishlistItems.map(item =>
-        axios.post("http://localhost:5000/api/CartModel/add", {
+        axios.post(`${url}/api/CartModel/add`, {
           userId,
           productId: item.productId._id,
         })
@@ -120,7 +124,7 @@ export class Wishlist extends Component {
 
       // Remove all items from wishlist
       const removePromises = this.state.wishlistItems.map(item =>
-        axios.delete(`http://localhost:5000/api/WishlistModel/${item._id}`)
+        axios.delete(`${url}/api/WishlistModel/${item._id}`)
       );
 
       await Promise.all(removePromises);
@@ -163,7 +167,7 @@ export class Wishlist extends Component {
 
       // Add selected items to cart
       const addPromises = selectedWishlistItems.map(item =>
-        axios.post("http://localhost:5000/api/CartModel/add", {
+        axios.post(`${url}/api/CartModel/add`, {
           userId,
           productId: item.productId._id,
         })
@@ -173,7 +177,7 @@ export class Wishlist extends Component {
 
       // Remove selected items from wishlist
       const removePromises = selectedWishlistItems.map(item =>
-        axios.delete(`http://localhost:5000/api/WishlistModel/${item._id}`)
+        axios.delete(`${url}/api/WishlistModel/${item._id}`)
       );
 
       await Promise.all(removePromises);
@@ -376,7 +380,7 @@ export class Wishlist extends Component {
                         <img
                           src={
                             product.image
-                              ? `http://localhost:5000/public/images/product_images/${product.image}`
+                              ? `${url}/public/images/product_images/${product.image}`
                               : placeholder
                           }
                           alt={product.name}

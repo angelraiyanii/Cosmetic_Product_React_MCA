@@ -3,6 +3,10 @@ import axios from "axios";
 import "../../App.css";
 
 const AdOrder = () => {
+   const url = window.location.hostname.includes("localhost")
+    ? "http://localhost:5000" 
+    : "https://gowcosmetic-backed.onrender.com";
+    
   const [orders, setOrders] = useState([]);
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [showEditForm, setShowEditForm] = useState(false);
@@ -28,11 +32,11 @@ const AdOrder = () => {
     
     // If it contains 'product_images', construct the full path
     if (imagePath.includes('product_images')) {
-      return `http://localhost:5000/public/images/${imagePath}`;
+      return `${url}/public/images/${imagePath}`;
     }
     
     // Otherwise assume it's just a filename
-    return `http://localhost:5000/public/images/product_images/${imagePath}`;
+    return `${url}/public/images/product_images/${imagePath}`;
   };
 
   // Fetch orders on mount
@@ -46,7 +50,7 @@ const AdOrder = () => {
       try {
         setLoading(true);
         const response = await axios.get(
-          "http://localhost:5000/api/orderModel"
+          `${url}/api/orderModel`
         );
         const orders = response.data.orders || response.data;
         console.log("🔍 Full API Response:", response.data);
@@ -105,7 +109,7 @@ const AdOrder = () => {
 
     try {
       const response = await axios.put(
-        `http://localhost:5000/api/orderModel/${selectedOrder._id}`,
+        `${url}/api/orderModel/${selectedOrder._id}`,
         formData
       );
       

@@ -2,6 +2,10 @@ import React, { Component } from "react";
 import axios from "axios";
 import u1 from "../images/pro1.jpeg";
 
+ const url = window.location.hostname.includes("localhost")
+    ? "http://localhost:5000" 
+    : "https://gowcosmetic-backed.onrender.com";
+    
 export class AdUser extends Component {
   constructor(props) {
     super(props);
@@ -45,7 +49,7 @@ export class AdUser extends Component {
       return;
     }
     axios
-      .get("http://localhost:5000/api/UserModel/all-Usermodel")
+      .get(`${url}/api/UserModel/all-Usermodel`)
       .then((res) => {
         if (Array.isArray(res.data.Usermodel)) {
           this.setState({ Login: res.data.Usermodel });
@@ -76,7 +80,7 @@ export class AdUser extends Component {
   handleDelete = (id) => {
     if (window.confirm("Are you sure you want to delete this user?")) {
       axios
-        .delete(`http://localhost:5000/api/UserModel/${id}`)
+        .delete(`${url}/api/UserModel/${id}`)
         .then(() => {
           this.setState((prevState) => ({
             Login: prevState.Login.filter((user) => user._id !== id),
@@ -128,7 +132,7 @@ export class AdUser extends Component {
         profilePic: null,
       },
       imagePreview: user.profilePic
-        ? `http://localhost:5000/public/images/profile_pictures/${user.profilePic}`
+        ? `${url}/public/images/profile_pictures/${user.profilePic}`
         : null,
     });
   };
@@ -200,7 +204,7 @@ export class AdUser extends Component {
         let response;
         if (showUpdateFormUser) {
           response = await axios.put(
-            `http://localhost:5000/api/UserModel/${selectedUser._id}`,
+            `${url}/api/UserModel/${selectedUser._id}`,
             formDataObj,
             { headers: { "Content-Type": "multipart/form-data" } }
           );
@@ -214,7 +218,7 @@ export class AdUser extends Component {
           }));
         } else {
           response = await axios.post(
-            "http://localhost:5000/api/UserModel/add-Login",
+            `${url}/api/UserModel/add-Login`,
             formDataObj,
             { headers: { "Content-Type": "multipart/form-data" } }
           );
@@ -409,7 +413,7 @@ export class AdUser extends Component {
                   <img
                     src={
                       selectedUser.profilePic
-                        ? `http://localhost:5000/public/images/profile_pictures/${selectedUser.profilePic}`
+                        ? `${url}/public/images/profile_pictures/${selectedUser.profilePic}`
                         : u1
                     }
                     alt="User Profile"
@@ -653,7 +657,7 @@ export class AdUser extends Component {
                           <img
                             src={
                               user.profilePic
-                                ? `http://localhost:5000/public/images/profile_pictures/${user.profilePic}`
+                                ? `${url}/public/images/profile_pictures/${user.profilePic}`
                                 : u1
                             }
                             alt="User"

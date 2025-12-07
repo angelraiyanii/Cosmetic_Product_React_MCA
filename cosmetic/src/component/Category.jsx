@@ -8,14 +8,19 @@ const Category = ({ onCategorySelect }) => {
   const [categories, setCategories] = useState([]);
   const navigate = useNavigate();
   const scrollContainerRef = useRef(null);
+  const url = window.location.hostname.includes("localhost")
+    ? "http://localhost:5000"
+    : "https://gowcosmetic-backed.onrender.com";
+
 
   // Fetch categories on mount
   useEffect(() => {
     const fetchCategories = async () => {
       try {
         const response = await axios.get(
-          "http://localhost:5000/api/CategoryModel/categories"
+          `${url}/api/CategoryModel/categories`
         );
+
         const activeCategories = response.data.filter(
           (category) => category.categoryStatus === "Active"
         );
@@ -79,10 +84,10 @@ const Category = ({ onCategorySelect }) => {
       <p className="text-center mb-5 text-muted lead">
         Explore our wide range of beautiful cosmetics categories
       </p>
-      
+
       <div className="position-relative">
         {/* Left scroll button */}
-        <button 
+        <button
           className="btn btn-light position-absolute start-0 top-50 translate-middle-y z-3 d-none d-md-block"
           onClick={scrollLeft}
           style={{
@@ -94,9 +99,9 @@ const Category = ({ onCategorySelect }) => {
         >
           &lt;
         </button>
-        
+
         {/* Right scroll button */}
-        <button 
+        <button
           className="btn btn-light position-absolute end-0 top-50 translate-middle-y z-3 d-none d-md-block"
           onClick={scrollRight}
           style={{
@@ -108,9 +113,9 @@ const Category = ({ onCategorySelect }) => {
         >
           &gt;
         </button>
-        
+
         {/* Categories container with horizontal scroll */}
-        <div 
+        <div
           ref={scrollContainerRef}
           className="d-flex flex-nowrap overflow-auto py-3 scroll-container"
           style={{
@@ -121,19 +126,19 @@ const Category = ({ onCategorySelect }) => {
           <style>
             {`.scroll-container::-webkit-scrollbar { display: none; }`}
           </style>
-          
+
           {(categories.length > 0 ? categories : [...Array(4)]).map((category, index) => (
-            <div 
+            <div
               key={category?._id || index}
               className="flex-shrink-0 me-4"
               style={{ width: "calc(25% - 1rem)", minWidth: "240px" }}
             >
-              <div 
+              <div
                 className="card category-card h-100 shadow-sm border-0 overflow-hidden"
                 onClick={() => category && handleCategoryClick(category.categoryName)}
-                style={{ 
-                  cursor: category ? "pointer" : "default", 
-                  transition: "transform 0.3s" 
+                style={{
+                  cursor: category ? "pointer" : "default",
+                  transition: "transform 0.3s"
                 }}
                 onMouseEnter={(e) => {
                   if (category) {
@@ -151,7 +156,7 @@ const Category = ({ onCategorySelect }) => {
                     <img
                       src={
                         category.categoryImage
-                          ? `http://localhost:5000/public/images/category_images/${category.categoryImage}`
+                          ? `${url}/public/images/category_images/${category.categoryImage}`
                           : c1
                       }
                       className="card-img-top h-100 object-fit-cover"
@@ -203,7 +208,7 @@ const Category = ({ onCategorySelect }) => {
           ))}
         </div>
       </div>
-      
+
       {/* Scroll indicators for mobile */}
       <div className="d-flex justify-content-center mt-3 d-md-none">
         <button className="btn btn-sm btn-outline-secondary me-2" onClick={scrollLeft}>
@@ -213,7 +218,7 @@ const Category = ({ onCategorySelect }) => {
           Next &gt;
         </button>
       </div>
-      
+
       {/* Add custom CSS for additional styling */}
       <style>
         {`

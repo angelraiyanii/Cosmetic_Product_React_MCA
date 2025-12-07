@@ -22,6 +22,9 @@ import {
 import "../App.css";
 
 const placeholderImage = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Crect fill='%23ddd' width='200' height='200'/%3E%3Ctext fill='%23999' x='50%25' y='50%25' text-anchor='middle' dy='.3em'%3ENo Image%3C/text%3E%3C/svg%3E";
+ const url = window.location.hostname.includes("localhost")
+    ? "http://localhost:5000" 
+    : "https://gowcosmetic-backed.onrender.com";
 
 export class Cart extends Component {
   constructor() {
@@ -53,7 +56,7 @@ export class Cart extends Component {
       const userId = user.id;
 
       const response = await axios.get(
-        `http://localhost:5000/api/CartModel/${userId}`
+        `${url}/api/CartModel/${userId}`
       );
 
       const cartItems = response.data.map(item => {
@@ -81,7 +84,7 @@ export class Cart extends Component {
   removeFromCart = async (cartItemId) => {
     this.setState({ processingItem: cartItemId });
     try {
-      await axios.delete(`http://localhost:5000/api/CartModel/remove/${cartItemId}`);
+      await axios.delete(`${url}/api/CartModel/remove/${cartItemId}`);
       this.fetchCartItems();
     } catch (error) {
       console.error("Error removing item from cart:", error);
@@ -97,7 +100,7 @@ export class Cart extends Component {
 
     try {
       await axios.put(
-        `http://localhost:5000/api/CartModel/update/${cartItemId}`,
+        `${url}/api/CartModel/update/${cartItemId}`,
         { quantity: newQuantity }
       );
       this.fetchCartItems();
@@ -120,12 +123,12 @@ export class Cart extends Component {
       const user = JSON.parse(userData);
       const userId = user.id;
 
-      await axios.post("http://localhost:5000/api/WishlistModel/add", {
+      await axios.post({url}+"/api/WishlistModel/add", {
         userId,
         productId,
       });
 
-      await axios.delete(`http://localhost:5000/api/CartModel/remove/${cartItemId}`);
+      await axios.delete(`${url}/api/CartModel/remove/${cartItemId}`);
 
       this.fetchCartItems();
       alert("Item moved to wishlist!");
@@ -177,7 +180,7 @@ export class Cart extends Component {
       const user = JSON.parse(userData);
       const userId = user.id;
 
-      await axios.delete(`http://localhost:5000/api/CartModel/clear/${userId}`);
+      await axios.delete(`${url}/api/CartModel/clear/${userId}`);
       this.fetchCartItems();
     } catch (error) {
       console.error("Error clearing cart:", error);
@@ -311,7 +314,7 @@ export class Cart extends Component {
                           <img
                             src={
                               product.image
-                                ? `http://localhost:5000/public/images/product_images/${product.image}`
+                                ? `${url}/public/images/product_images/${product.image}`
                                 : placeholderImage
                             }
                             alt={product.name}

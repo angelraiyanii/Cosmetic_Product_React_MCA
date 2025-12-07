@@ -6,7 +6,9 @@ import "../App.css";
 
 // Placeholder image for cosmetics
 import placeholder from "./images/c1.jpeg";
-
+ const url = window.location.hostname.includes("localhost")
+    ? "http://localhost:5000" 
+    : "https://gowcosmetic-backed.onrender.com";
 // Create a wrapper component to use navigate hook
 class ProductComponent extends Component {
   constructor(props) {
@@ -36,7 +38,7 @@ class ProductComponent extends Component {
       const ratingsPromises = productIds.map(async (productId) => {
         try {
           const response = await axios.get(
-            `http://localhost:5000/api/ReviewModel/product/${productId}`
+            `${url}/api/ReviewModel/product/${productId}`
           );
           const stats = response.data?.statistics || {};
           const avgRating = parseFloat(stats.averageRating) || 0;
@@ -68,13 +70,13 @@ class ProductComponent extends Component {
 
       // Fetch categories
       const categoriesResponse = await axios.get(
-        "http://localhost:5000/api/CategoryModel/categories"
+        `${url}/api/CategoryModel/categories`
       );
       const categories = categoriesResponse.data;
 
       // Fetch products
       const productsResponse = await axios.get(
-        "http://localhost:5000/api/ProductModel/"
+        `${url}/api/ProductModel/`
       );
       const allProducts = productsResponse.data;
 
@@ -96,7 +98,7 @@ class ProductComponent extends Component {
           const userId = user.id;
 
           const wishlistResponse = await axios.get(
-            `http://localhost:5000/api/WishlistModel/${userId}`
+            `${url}/api/WishlistModel/${userId}`
           );
           let wishlistItems = wishlistResponse.data;
 
@@ -243,7 +245,7 @@ class ProductComponent extends Component {
       const userId = user.id;
 
       const response = await axios.post(
-        "http://localhost:5000/api/CartModel/add",
+        `${url}/api/CartModel/add`,
         {
           userId,
           productId,
@@ -323,7 +325,7 @@ class ProductComponent extends Component {
       const { liked, products } = this.state;
 
       if (!liked[index]) {
-        await axios.post("http://localhost:5000/api/WishlistModel/add", {
+        await axios.post(`${url}/api/WishlistModel/add`, {
           userId,
           productId,
         });
@@ -334,7 +336,7 @@ class ProductComponent extends Component {
         window.location.reload();
       } else {
         // Remove from wishlist
-        await axios.delete(`http://localhost:5000/api/WishlistModel/${userId}/${productId}`);
+        await axios.delete(`${url}/api/WishlistModel/${userId}/${productId}`);
         const newLiked = [...liked];
         newLiked[index] = false;
         this.setState({ liked: newLiked });
@@ -549,7 +551,7 @@ class ProductComponent extends Component {
                         <img
                           src={
                             product.image
-                              ? `http://localhost:5000/public/images/product_images/${product.image}`
+                              ? `${url}/public/images/product_images/${product.image}`
                               : placeholder
                           }
                           alt={product.name}

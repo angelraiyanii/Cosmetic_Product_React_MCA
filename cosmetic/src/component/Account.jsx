@@ -19,8 +19,12 @@ import {
 } from "lucide-react";
 
 function Account() {
+   const url = window.location.hostname.includes("localhost")
+    ? "http://localhost:5000" 
+    : "https://gowcosmetic-backed.onrender.com";
+
   const navigate = useNavigate();
-  const [user, setUser] = useState(null);
+    const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
@@ -57,7 +61,7 @@ function Account() {
       const userId = JSON.parse(atob(token.split(".")[1])).userId;
 
       const response = await fetch(
-        `http://localhost:5000/api/Usermodel/user-details/${userId}`,
+        `${url}/api/Usermodel/user-details/${userId}`,
         {
           headers: { Authorization: `Bearer ${token}` },
         }
@@ -136,7 +140,7 @@ function Account() {
       console.log("Updating user with ID:", userId); // ✅ Debug log
 
       const response = await fetch(
-        `http://localhost:5000/api/Usermodel/${userId}`,
+        `${url}/api/Usermodel/${userId}`,
         { 
           method: "PUT", 
           body: formData 
@@ -221,7 +225,7 @@ function Account() {
       const token = localStorage.getItem("token");
 
       const response = await fetch(
-        `http://localhost:5000/api/Usermodel/change-password/${userId}`,
+        `${url}/api/Usermodel/change-password/${userId}`,
         {
           method: "PUT",
           headers: {
@@ -422,7 +426,7 @@ function Account() {
                           <img
                             src={
                               profilePicPreview ||
-                              `http://localhost:5000/public/images/profile_pictures/${user.profilePic}`
+                              `${url}/public/images/profile_pictures/${user.profilePic}`
                             }
                             alt="Profile"
                             className="w-100 h-100 object-cover rounded-circle"

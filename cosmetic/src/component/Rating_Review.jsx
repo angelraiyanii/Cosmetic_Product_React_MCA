@@ -3,6 +3,9 @@ import axios from 'axios';
 import { FaStar, FaRegStar, FaThumbsUp, FaEdit, FaTrash, FaCheckCircle, FaImage, FaTimes } from 'react-icons/fa';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
+ const url = window.location.hostname.includes("localhost")
+    ? "http://localhost:5000" 
+    : "https://gowcosmetic-backed.onrender.com";
 class Rating_Review extends Component {
   constructor(props) {
     super(props);
@@ -58,7 +61,7 @@ class Rating_Review extends Component {
     const { productId } = this.props;
     try {
       const response = await axios.get(
-        `http://localhost:5000/api/ReviewModel/product/${productId}`
+        `${url}/api/ReviewModel/product/${productId}`
       );
       this.setState({
         reviews: response.data.reviews,
@@ -77,7 +80,7 @@ class Rating_Review extends Component {
 
     try {
       const reviewResponse = await axios.get(
-        `http://localhost:5000/api/ReviewModel/check-review/${currentUser.id}/${productId}`
+        `${url}/api/ReviewModel/check-review/${currentUser.id}/${productId}`
       );
 
       this.setState({
@@ -87,7 +90,7 @@ class Rating_Review extends Component {
 
       try {
         const purchaseResponse = await axios.get(
-          `http://localhost:5000/api/ReviewModel/check-purchase/${currentUser.id}/${productId}`
+          `${url}/api/ReviewModel/check-purchase/${currentUser.id}/${productId}`
         );
         this.setState({ hasPurchased: purchaseResponse.data.hasPurchased });
       } catch (error) {
@@ -214,7 +217,7 @@ class Rating_Review extends Component {
         // If editing, you might want to keep some existing images
         formData.append('imagesToKeep', JSON.stringify(userReview.images || []));
         await axios.put(
-          `http://localhost:5000/api/ReviewModel/update/${userReview._id}`,
+          `${url}/api/ReviewModel/update/${userReview._id}`,
           formData,
           {
             headers: {
@@ -224,7 +227,7 @@ class Rating_Review extends Component {
         );
         this.setState({ success: 'Review updated successfully!' });
       } else {
-        await axios.post('http://localhost:5000/api/ReviewModel/add', formData, {
+        await axios.post(`${url}/api/ReviewModel/add`, formData, {
           headers: {
             'Content-Type': 'multipart/form-data'
           }
@@ -287,7 +290,7 @@ class Rating_Review extends Component {
 
     try {
       await axios.delete(
-        `http://localhost:5000/api/ReviewModel/delete/${userReview._id}/${currentUser.id}`
+        `${url}/api/ReviewModel/delete/${userReview._id}/${currentUser.id}`
       );
       this.setState({ success: 'Review deleted successfully!' });
       setTimeout(() => {
@@ -304,7 +307,7 @@ class Rating_Review extends Component {
   handleMarkHelpful = async (reviewId) => {
     try {
       await axios.post(
-        `http://localhost:5000/api/ReviewModel/helpful/${reviewId}`
+        `${url}/api/ReviewModel/helpful/${reviewId}`
       );
       this.fetchReviews();
     } catch (error) {
@@ -421,7 +424,7 @@ class Rating_Review extends Component {
             </div>
             <div className="modal-body text-center position-relative">
               <img
-                src={`http://localhost:5000${modalImages[currentImageIndex]}`}
+                src={`${url}${modalImages[currentImageIndex]}`}
                 className="img-fluid"
                 style={{ maxHeight: "80vh" }}
                 alt={`Review image ${currentImageIndex + 1}`}
@@ -467,7 +470,7 @@ class Rating_Review extends Component {
         <div className="d-flex flex-wrap gap-2">
           {images.map((imageUrl, index) => {
             // FIXED: Use the correct path - images are in /images/ratingreview_images/
-            const fullImageUrl = `http://localhost:5000/images/ratingreview_images/${imageUrl.split('/').pop()}`;
+            const fullImageUrl = `${url}/images/ratingreview_images/${imageUrl.split('/').pop()}`;
 
             return (
               <div
@@ -505,7 +508,7 @@ class Rating_Review extends Component {
     const currentImage = modalImages[currentImageIndex];
     // FIXED: Extract just the filename and build correct URL
     const fileName = currentImage.split('/').pop();
-    const fullImageUrl = `http://localhost:5000/images/ratingreview_images/${fileName}`;
+    const fullImageUrl = `${url}/images/ratingreview_images/${fileName}`;
 
     return (
       <div

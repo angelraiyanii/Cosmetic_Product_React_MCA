@@ -17,7 +17,10 @@ const Register = () => {
     pincode: "",
     profilePic: null,
   });
-
+ const url = window.location.hostname.includes("localhost")
+    ? "http://localhost:5000" 
+    : "https://gowcosmetic-backed.onrender.com";
+    
   const [errors, setErrors] = useState({});
   const [imagePreview, setImagePreview] = useState(null);
 
@@ -114,7 +117,7 @@ const Register = () => {
 
     try {
       const response = await axios.post(
-        "http://localhost:5000/api/Usermodel/add-Usermodel",
+        `${url}/api/Usermodel/add-Usermodel`,
         formDataObj,
         { headers: { "Content-Type": "multipart/form-data" } }
       );

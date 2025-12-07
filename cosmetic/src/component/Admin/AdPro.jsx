@@ -4,6 +4,11 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
 
 function AdProduct() {
+  
+   const url = window.location.hostname.includes("localhost")
+    ? "http://localhost:5000" 
+    : "https://gowcosmetic-backed.onrender.com";
+
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [showForm, setShowForm] = useState(false);
@@ -41,7 +46,7 @@ function AdProduct() {
   const fetchProducts = async () => {
     try {
       console.log("Fetching products from API...");
-      const res = await axios.get("http://localhost:5000/api/ProductModel/");
+      const res = await axios.get(`${url}/api/ProductModel/`);
       console.log("Products fetched successfully:", res.data.length);
       setProducts(res.data);
     } catch (error) {
@@ -53,7 +58,7 @@ function AdProduct() {
   const fetchCategories = async () => {
     try {
       const res = await axios.get(
-        "http://localhost:5000/api/CategoryModel/categories"
+        `${url}/api/CategoryModel/categories`
       );
       const activeCategories = res.data.filter(cat => cat.categoryStatus === "Active");
       setCategories(activeCategories);
@@ -147,13 +152,13 @@ function AdProduct() {
       let res;
       if (isUpdate) {
         res = await axios.put(
-          `http://localhost:5000/api/ProductModel/${selectedProductId}`,
+          `${url}/api/ProductModel/${selectedProductId}`,
           data,
           { headers: { "Content-Type": "multipart/form-data" } }
         );
       } else {
         res = await axios.post(
-          "http://localhost:5000/api/ProductModel/add",
+          `${url}/api/ProductModel/add`,
           data,
           { headers: { "Content-Type": "multipart/form-data" } }
         );
@@ -184,7 +189,7 @@ function AdProduct() {
     });
     
     if (product.image) {
-      setImagePreview(`http://localhost:5000/public/images/product_images/${product.image}`);
+      setImagePreview(`${url}/public/images/product_images/${product.image}`);
     }
   };
 
@@ -194,7 +199,7 @@ function AdProduct() {
     }
 
     try {
-      const res = await axios.delete(`http://localhost:5000/api/ProductModel/${id}`);
+      const res = await axios.delete(`${url}/api/ProductModel/${id}`);
       alert(res.data.message || "Product deleted successfully!");
       fetchProducts();
     } catch (error) {
@@ -230,7 +235,7 @@ function AdProduct() {
                     <img
                       src={
                         product.image
-                          ? `http://localhost:5000/public/images/product_images/${product.image}`
+                          ? `${url}/public/images/product_images/${product.image}`
                           : "https://via.placeholder.com/300x300?text=No+Image"
                       }
                       alt={product.name}
@@ -722,7 +727,7 @@ function AdProduct() {
                         <img
                           src={
                             product.image
-                              ? `http://localhost:5000/public/images/product_images/${product.image}`
+                              ? `${url}/public/images/product_images/${product.image}`
                               : "https://via.placeholder.com/60x60?text=No+Image"
                           }
                           alt={product.name}

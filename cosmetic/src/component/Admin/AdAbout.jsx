@@ -6,6 +6,10 @@ import section2Default from "../images/about3.jpeg";
 import "../../App.css";
 
 const AdAbout = () => {
+   const url = window.location.hostname.includes("localhost")
+    ? "http://localhost:5000" 
+    : "https://gowcosmetic-backed.onrender.com";
+    
   const [aboutData, setAboutData] = useState(null);
   const [showAddForm, setShowAddForm] = useState(false);
   const [activeBannerIndex, setActiveBannerIndex] = useState(0);
@@ -34,7 +38,7 @@ const AdAbout = () => {
 
     const fetchAboutData = async () => {
       try {
-        const response = await axios.get("http://localhost:5000/api/AboutModel/about");
+        const response = await axios.get(`${url}/api/AboutModel/about`);
         if (response.data && response.data._id) {
           setAboutData(response.data);
           setFormData({
@@ -226,7 +230,7 @@ const AdAbout = () => {
     }
 
     try {
-      const response = await axios.post("http://localhost:5000/api/AboutModel/about", data, {
+      const response = await axios.post(`${url}/api/AboutModel/about`, data, {
         headers: { "Content-Type": "multipart/form-data" },
       });
       setAboutData(response.data);
@@ -288,7 +292,7 @@ const AdAbout = () => {
 
     try {
       const response = await axios.put(
-        `http://localhost:5000/api/AboutModel/about/${aboutData._id}`,
+        `${url}/api/AboutModel/about/${aboutData._id}`,
         data,
         { headers: { "Content-Type": "multipart/form-data" } }
       );
@@ -305,7 +309,7 @@ const AdAbout = () => {
     if (!aboutData || !window.confirm("Are you sure you want to delete the About data?")) return;
 
     try {
-      await axios.delete(`http://localhost:5000/api/AboutModel/about/${aboutData._id}`);
+      await axios.delete(`${url}/api/AboutModel/about/${aboutData._id}`);
       setAboutData(null);
       setFormData({
         banners: [],
@@ -344,7 +348,7 @@ const AdAbout = () => {
                     className={`carousel-item ${index === activeBannerIndex ? 'active' : ''}`}
                   >
                     <img
-                      src={`http://localhost:5000/public/images/about_images/${banner}`}
+                      src={`${url}/public/images/about_images/${banner}`}
                       alt={`About Banner ${index + 1}`}
                       className="d-block w-100 banner-img"
                       style={{ height: "400px", objectFit: "cover" }}
@@ -448,7 +452,7 @@ const AdAbout = () => {
                       style={{ borderRadius: "10px" }}
                     >
                       <source
-                        src={`http://localhost:5000/public/videos/about_videos/${aboutData.videoFile}`}
+                        src={`${url}/public/videos/about_videos/${aboutData.videoFile}`}
                         type="video/mp4"
                       />
                       Your browser does not support the video tag.
@@ -474,7 +478,7 @@ const AdAbout = () => {
               <img
                 src={
                   aboutData?.section1Image
-                    ? `http://localhost:5000/public/images/about_images/${aboutData.section1Image}`
+                    ? `${url}/public/images/about_images/${aboutData.section1Image}`
                     : section1Default
                 }
                 height={350}
@@ -502,7 +506,7 @@ const AdAbout = () => {
               <img
                 src={
                   aboutData?.section2Image
-                    ? `http://localhost:5000/public/images/about_images/${aboutData.section2Image}`
+                    ? `${url}/public/images/about_images/${aboutData.section2Image}`
                     : section2Default
                 }
                 height={350}

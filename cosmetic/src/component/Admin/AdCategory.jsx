@@ -5,6 +5,9 @@ import "bootstrap/dist/js/bootstrap.bundle.min.js";
 // import c1 from "../images/category1.png";
 
 function AdCategory() {
+   const url = window.location.hostname.includes("localhost")
+    ? "http://localhost:5000" 
+    : "https://gowcosmetic-backed.onrender.com";
   const [categories, setCategories] = useState([]);
   const [showForm, setShowForm] = useState(false);
   const [showDetails, setShowDetails] = useState(false);
@@ -33,7 +36,7 @@ function AdCategory() {
   const fetchCategories = async () => {
     try {
       const res = await axios.get(
-        "http://localhost:5000/api/CategoryModel/categories"
+        `${url}/api/CategoryModel/categories`
       );
       setCategories(res.data);
     } catch (error) {
@@ -86,12 +89,12 @@ function AdCategory() {
       let res;
       if (isUpdate) {
         res = await axios.put(
-          `http://localhost:5000/api/CategoryModel/update-category/${selectedCategoryId}`,
+          `${url}/api/CategoryModel/update-category/${selectedCategoryId}`,
           data
         );
       } else {
         res = await axios.post(
-          "http://localhost:5000/api/CategoryModel/add-category",
+          `${url}/api/CategoryModel/add-category`,
           data
           
         );
@@ -117,7 +120,7 @@ function AdCategory() {
       window.location.reload();
     setImagePreview(
       category.categoryImage
-        ? `http://localhost:5000/public/images/category_images/${category.categoryImage}`
+        ? `${url}/public/images/category_images/${category.categoryImage}`
         : null
     );
   };
@@ -128,7 +131,7 @@ function AdCategory() {
 
     try {
       const res = await axios.delete(
-        `http://localhost:5000/api/CategoryModel/delete-category/${id}`
+        `${url}/api/CategoryModel/delete-category/${id}`
       );
       alert(res.data.message);
       fetchCategories();
@@ -157,7 +160,7 @@ function AdCategory() {
                   <img
                     src={
                       selectedCategory.categoryImage
-                        ? `http://localhost:5000/public/images/category_images/${selectedCategory.categoryImage}`
+                        ? `${url}/public/images/category_images/${selectedCategory.categoryImage}`
                         : "https://via.placeholder.com/100x100?text=No+Image"
                     }
                     alt="Category"
@@ -207,7 +210,7 @@ function AdCategory() {
                       <img
                         src={
                           selectedCategory.categoryImage
-                            ? `http://localhost:5000/public/images/category_images/${selectedCategory.categoryImage}`
+                            ? `${url}/public/images/category_images/${selectedCategory.categoryImage}`
                             : "https://via.placeholder.com/200x200?text=No+Image"
                         }
                         alt="Category"
@@ -513,7 +516,7 @@ function AdCategory() {
                       <img
                         src={
                           cat.categoryImage
-                            ? `http://localhost:5000/public/images/category_images/${cat.categoryImage}`
+                            ? `${url}/public/images/category_images/${cat.categoryImage}`
                             : "https://via.placeholder.com/70x70?text=No+Image"
                         }
                         alt={cat.categoryName}

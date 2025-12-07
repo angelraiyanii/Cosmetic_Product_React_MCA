@@ -4,6 +4,10 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
 
 const AdContact = () => {
+   const url = window.location.hostname.includes("localhost")
+    ? "http://localhost:5000" 
+    : "https://gowcosmetic-backed.onrender.com";
+
   const [inquiries, setInquiries] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -31,7 +35,7 @@ const AdContact = () => {
   });
 
   // Base URL for API calls - adjust according to your backend URL
-  const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api/ContactModel';
+  const API_BASE_URL = import.meta.env.VITE_API_URL || `${url}/api/ContactModel`;
 
   // Fetch inquiries from MongoDB
   const fetchInquiries = async (page = 1, search = "", status = "all") => {

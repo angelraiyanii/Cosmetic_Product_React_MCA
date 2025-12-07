@@ -4,6 +4,9 @@ import { useNavigate } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
 
 const ForgotPassword = () => {
+   const url = window.location.hostname.includes("localhost")
+    ? "http://localhost:5000" 
+    : "https://gowcosmetic-backed.onrender.com";
   const [email, setEmail] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -22,7 +25,7 @@ const ForgotPassword = () => {
 
     try {
       // 📨 Send email to backend to generate OTP
-      const response = await axios.post("http://localhost:5000/api/OtpModel/send-otp", {
+      const response = await axios.post(`${url}/api/OtpModel/send-otp`, {
         email,
       });
 

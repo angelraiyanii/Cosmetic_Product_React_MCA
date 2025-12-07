@@ -6,6 +6,10 @@ import { Link, useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
 
 const ResetPassword = () => {
+   const url = window.location.hostname.includes("localhost")
+    ? "http://localhost:5000" 
+    : "https://gowcosmetic-backed.onrender.com";
+    
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [errors, setErrors] = useState("");
@@ -41,7 +45,7 @@ const ResetPassword = () => {
     if (!error) {
       setIsLoading(true);
       try {
-        await axios.post("http://localhost:5000/api/OtpModel/reset-password", {
+        await axios.post(`${url}/api/OtpModel/reset-password`, {
           email,
           newPassword: password,
         });

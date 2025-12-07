@@ -1,6 +1,10 @@
 import React, { Component } from "react";
 import axios from "axios";
 
+ const url = window.location.hostname.includes("localhost")
+    ? "http://localhost:5000" 
+    : "https://gowcosmetic-backed.onrender.com";
+    
 export class AdReviews extends Component {
   constructor(props) {
     super(props);
@@ -30,7 +34,7 @@ export class AdReviews extends Component {
       return;
     }
     axios
-      .get("http://localhost:5000/api/ReviewModel/all-reviews")
+      .get(`${url}/api/ReviewModel/all-reviews`)
       .then((res) => {
         if (Array.isArray(res.data.reviews)) {
           this.setState({ reviews: res.data.reviews });
@@ -73,7 +77,7 @@ export class AdReviews extends Component {
       if (review.productId) {
         try {
           const productRes = await axios.get(
-            `http://localhost:5000/api/products/${review.productId}`
+            `${url}/api/products/${review.productId}`
           );
 
           this.setState({
@@ -88,7 +92,7 @@ export class AdReviews extends Component {
       if (review.userId) {
         try {
           const userRes = await axios.get(
-            `http://localhost:5000/api/Usermodel/user-details/${review.userId}`
+            `${url}/api/Usermodel/user-details/${review.userId}`
           );
 
           this.setState({
@@ -130,7 +134,7 @@ export class AdReviews extends Component {
   handleStatusChange = async (reviewId, newStatus) => {
     try {
       await axios.patch(
-        `http://localhost:5000/api/ReviewModel/${reviewId}/status`,
+        `${url}/api/ReviewModel/${reviewId}/status`,
         { status: newStatus }
       );
 
@@ -156,7 +160,7 @@ export class AdReviews extends Component {
   handleDelete = (id) => {
     if (window.confirm("Are you sure you want to delete this review?")) {
       axios
-        .delete(`http://localhost:5000/api/ReviewModel/${id}`)
+        .delete(`${url}/api/ReviewModel/${id}`)
         .then(() => {
           this.setState((prevState) => ({
             reviews: prevState.reviews.filter((review) => review._id !== id),
@@ -220,16 +224,16 @@ export class AdReviews extends Component {
 
       // If it's a relative path starting with / or ./
       if (imagePath.startsWith('/') || imagePath.startsWith('./')) {
-        return `http://localhost:5000${imagePath.startsWith('/') ? imagePath : imagePath.replace('.', '')}`;
+        return `${url}${imagePath.startsWith('/') ? imagePath : imagePath.replace('.', '')}`;
       }
 
       // Default path for user profile pictures
       if (imagePath.includes('profile') || imagePath.includes('user')) {
-        return `http://localhost:5000/profile_pictures/${imagePath}`;
+        return `${url}/profile_pictures/${imagePath}`;
       }
 
       // Default path for review images
-      return `http://localhost:5000/images/reviews/${imagePath}`;
+      return `${url}/images/reviews/${imagePath}`;
     };
 
     // Construct user profile image URL
@@ -289,7 +293,7 @@ export class AdReviews extends Component {
                       {selectedUser?.profilePic && (
                         <div className="text-center mt-3">
                           <img
-                            src={`http://localhost:5000/public/images/profile_pictures/${selectedUser.profilePic}`}
+                            src={`${url}/public/images/profile_pictures/${selectedUser.profilePic}`}
                             className="rounded-circle"
                             width="70"
                             height="70"

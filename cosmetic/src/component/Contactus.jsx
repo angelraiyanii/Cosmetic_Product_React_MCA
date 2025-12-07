@@ -26,7 +26,9 @@ const ContactUs = () => {
     subject: "",
     message: "",
   });
-
+ const url = window.location.hostname.includes("localhost")
+    ? "http://localhost:5000" 
+    : "https://gowcosmetic-backed.onrender.com";
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
@@ -170,7 +172,7 @@ const ContactUs = () => {
     setErrors({});
 
     try {
-      const response = await axios.post('http://localhost:5000/api/ContactModel/submit', {
+      const response = await axios.post(`${url}/api/ContactModel/submit`, {
         name: formData.name,
         email: formData.email,
         phone: formData.phone,

@@ -4,6 +4,10 @@ import axios from "axios";
 import "../../App.css";
 
 const AdBanner = () => {
+   const url = window.location.hostname.includes("localhost")
+    ? "http://localhost:5000" 
+    : "https://gowcosmetic-backed.onrender.com";
+    
   const [banners, setBanners] = useState([]);
   const [selectedBanner, setSelectedBanner] = useState(null);
   const [showEditForm, setShowEditForm] = useState(false);
@@ -26,7 +30,7 @@ const AdBanner = () => {
     const fetchBanners = async () => {
       try {
         const response = await axios.get(
-          "http://localhost:5000/api/BannerModel/banners"
+          `${url}/api/BannerModel/banners`
         );
         setBanners(response.data);
       } catch (error) {
@@ -97,7 +101,7 @@ const AdBanner = () => {
 
     try {
       const response = await axios.post(
-        "http://localhost:5000/api/BannerModel/add-banner",
+        `${url}/api/BannerModel/add-banner`,
         addFormData,
         { headers: { "Content-Type": "multipart/form-data" } }
       );
@@ -146,7 +150,7 @@ const AdBanner = () => {
 
     try {
       const response = await axios.put(
-        `http://localhost:5000/api/BannerModel/update-banner/${selectedBanner._id}`,
+        `${url}/api/BannerModel/update-banner/${selectedBanner._id}`,
         formDataToSend,
         { headers: { "Content-Type": "multipart/form-data" } }
       );
@@ -171,7 +175,7 @@ const AdBanner = () => {
 
     try {
       await axios.delete(
-        `http://localhost:5000/api/BannerModel/delete-banner/${id}`
+        `${url}/api/BannerModel/delete-banner/${id}`
       );
       setBanners(banners.filter((b) => b._id !== id));
       alert("Banner deleted successfully!");
@@ -204,7 +208,7 @@ const AdBanner = () => {
                     <img
                       src={
                         banner.image
-                          ? `http://localhost:5000/public/images/banner_images/${banner.image}`
+                          ? `${url}/public/images/banner_images/${banner.image}`
                           : "https://via.placeholder.com/600x200?text=Banner+Image"
                       }
                       alt={banner.name}
@@ -392,7 +396,7 @@ const AdBanner = () => {
                         <img
                           src={
                             banner.image
-                              ? `http://localhost:5000/public/images/banner_images/${banner.image}`
+                              ? `${url}/public/images/banner_images/${banner.image}`
                               : "https://via.placeholder.com/100x50?text=Banner"
                           }
                           alt={banner.name}
@@ -689,7 +693,7 @@ const AdBanner = () => {
                       <img
                         src={
                           selectedBanner.image
-                            ? `http://localhost:5000/public/images/banner_images/${selectedBanner.image}`
+                            ? `${url}/public/images/banner_images/${selectedBanner.image}`
                             : "https://via.placeholder.com/300x150?text=Current+Banner"
                         }
                         alt={selectedBanner.name}

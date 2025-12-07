@@ -20,8 +20,11 @@ import {
 } from "react-icons/fa";
 
 const placeholderImage = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Crect fill='%23ddd' width='200' height='200'/%3E%3Ctext fill='%23999' x='50%25' y='50%25' text-anchor='middle' dy='.3em'%3ENo Image%3C/text%3E%3C/svg%3E";
-
+ const url = window.location.hostname.includes("localhost")
+    ? "http://localhost:5000" 
+    : "https://gowcosmetic-backed.onrender.com";
 class CheckoutForm extends Component {
+  
   constructor(props) {
     super(props);
     this.state = {
@@ -58,6 +61,7 @@ class CheckoutForm extends Component {
       , razorpayLoaded: false
     };
   }
+
 
   componentDidMount() {
     this.loadCartData();
@@ -218,7 +222,7 @@ class CheckoutForm extends Component {
     }
 
     // Build full URL for local images
-    return `http://localhost:5000/public/images/product_images/${imageField}`;
+    return `${url}/public/images/product_images/${imageField}`;
   };
 
   loadAddressesFromLocalStorage = () => {
@@ -268,7 +272,7 @@ class CheckoutForm extends Component {
 
       // Try to fetch complete user data from backend
       try {
-        const response = await axios.get(`http://localhost:5000/api/Usermodel/user-details/${user.id}`);
+        const response = await axios.get(`${url}/api/Usermodel/user-details/${user.id}`);
         if (response.data.success) {
           const completeUser = response.data.user;
 
@@ -558,7 +562,7 @@ class CheckoutForm extends Component {
       };
 
       const orderResponse = await axios.post(
-        "http://localhost:5000/api/orderModel/create",
+        `${url}/api/orderModel/create`,
         orderPayload
       );
 
@@ -571,7 +575,7 @@ class CheckoutForm extends Component {
 
       // Step 2: Create Razorpay order
       const razorpayOrderResponse = await axios.post(
-        "http://localhost:5000/api/payment/create-order",
+        `${url}/api/payment/create-order`,
         {
           amount: Math.round(parseFloat(this.state.total) * 100),
           currency: "INR",
@@ -615,7 +619,7 @@ class CheckoutForm extends Component {
           try {
             // Verify payment
             const verificationResponse = await axios.post(
-              "http://localhost:5000/api/payment/verify-payment",
+              `${url}/api/payment/verify-payment`,
               {
                 razorpay_order_id: response.razorpay_order_id,
                 razorpay_payment_id: response.razorpay_payment_id,
@@ -633,7 +637,7 @@ class CheckoutForm extends Component {
               // Clear cart and local storage
               localStorage.removeItem("checkoutData");
               await axios.delete(
-                `http://localhost:5000/api/CartModel/clear/${userId}`
+                `${url}/api/CartModel/clear/${userId}`
               );
             } else {
               throw new Error(verificationResponse.data.message || "Payment verification failed");
@@ -724,7 +728,7 @@ sendOrderConfirmationEmail = async (orderId, orderData, shippingAddress) => {
 
     // Send email request to backend
     const response = await axios.post(
-      "http://localhost:5000/api/Usermodel/send-order-confirmation",
+      `${url}/api/Usermodel/send-order-confirmation`,
       emailData
     );
 

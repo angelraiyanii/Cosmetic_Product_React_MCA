@@ -20,6 +20,9 @@ import placeholder from './images/c1.jpeg'; // Your placeholder image
 import '../App.css';
 
 const PurchasedProductsForReview = ({ userId, isAuthenticated }) => {
+   const url = window.location.hostname.includes("localhost")
+    ? "http://localhost:5000" 
+    : "https://gowcosmetic-backed.onrender.com";
   const [purchasedProducts, setPurchasedProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -39,17 +42,17 @@ const PurchasedProductsForReview = ({ userId, isAuthenticated }) => {
     
     // If it's a relative path
     if (imagePath.includes('/')) {
-      return `http://localhost:5000/public/images/${imagePath}`;
+      return `${url}/public/images/${imagePath}`;
     }
     
     // Otherwise, assume it's just a filename
-    return `http://localhost:5000/public/images/product_images/${imagePath}`;
+    return `${url}/public/images/product_images/${imagePath}`;
   };
 
   // Fetch product image from API if not in order
   const fetchProductImage = async (productId) => {
     try {
-      const response = await axios.get(`http://localhost:5000/api/ProductModel/${productId}`);
+      const response = await axios.get(`${url}/api/ProductModel/${productId}`);
       const productImage = response.data?.image || response.data?.productImage || placeholder;
       console.log('📸 Fetched product image for', productId, ':', productImage);
       return productImage;
@@ -72,7 +75,7 @@ const PurchasedProductsForReview = ({ userId, isAuthenticated }) => {
         console.log('🔍 Fetching purchased products for user:', userId);
         
         // First, get user's orders with paid status
-        const ordersResponse = await axios.get(`http://localhost:5000/api/orderModel/user/${userId}`);
+        const ordersResponse = await axios.get(`${url}/api/orderModel/user/${userId}`);
         console.log('📦 Orders fetched:', ordersResponse.data);
         
         // Extract orders from response
@@ -145,7 +148,7 @@ const PurchasedProductsForReview = ({ userId, isAuthenticated }) => {
             try {
               // Fetch actual reviews and rating stats for this product
               const reviewsResponse = await axios.get(
-                `http://localhost:5000/api/reviewModel/product/${product._id}`
+                `${url}/api/reviewModel/product/${product._id}`
               );
               
               let avgRating = 0;
@@ -155,7 +158,7 @@ const PurchasedProductsForReview = ({ userId, isAuthenticated }) => {
               
               // Check if user has already reviewed this product
               const reviewCheckResponse = await axios.get(
-                `http://localhost:5000/api/reviewModel/check-review/${userId}/${product._id}`
+                `${url}/api/reviewModel/check-review/${userId}/${product._id}`
               );
               
               console.log(`📝 Product ${product._id} (${product.name}) - hasReviewed: ${reviewCheckResponse.data.hasReviewed}`);

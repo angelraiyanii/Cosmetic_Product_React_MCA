@@ -6,6 +6,9 @@ import "bootstrap/dist/js/bootstrap.bundle.min.js";
 import "../App.css";
 
 function Navbar() {
+   const url = window.location.hostname.includes("localhost")
+    ? "http://localhost:5000" 
+    : "https://gowcosmetic-backed.onrender.com";
   const [user, setUser] = useState(null);
   const [categories, setCategories] = useState([]);
   const [cartCount, setCartCount] = useState(0);
@@ -106,7 +109,7 @@ function Navbar() {
   const fetchProductsForSearch = async (query = '') => {
     try {
       // If there's a search endpoint, use it; otherwise fall back to filtering
-      const response = await axios.get("http://localhost:5000/api/ProductModel/");
+      const response = await axios.get(`${url}/api/ProductModel/`);
       const allProducts = response.data || [];
 
       if (!query.trim()) {
@@ -139,7 +142,7 @@ function Navbar() {
     try {
       setLoading(true);
       const response = await axios.get(
-        "http://localhost:5000/api/CategoryModel/categories"
+        `${url}/api/CategoryModel/categories`
       );
 
       const activeCategories = response.data.filter(
@@ -161,7 +164,7 @@ function Navbar() {
 
   const fetchProducts = async () => {
     try {
-      const response = await axios.get("http://localhost:5000/api/ProductModel/");
+      const response = await axios.get(`${url}/api/ProductModel/`);
       setProducts(response.data || []);
     } catch (error) {
       console.error("Error fetching products:", error);
@@ -177,7 +180,7 @@ function Navbar() {
       const user = JSON.parse(savedUser);
       const userId = user.id;
 
-      const response = await axios.get(`http://localhost:5000/api/CartModel/${userId}`);
+      const response = await axios.get(`${url}/api/CartModel/${userId}`);
       setCartCount(response.data.length);
     } catch (error) {
       console.error("Error fetching cart count:", error);
@@ -192,7 +195,7 @@ function Navbar() {
       const user = JSON.parse(savedUser);
       const userId = user.id;
 
-      const response = await axios.get(`http://localhost:5000/api/WishlistModel/${userId}`);
+      const response = await axios.get(`${url}/api/WishlistModel/${userId}`);
       setWishlistCount(response.data.length);
     } catch (error) {
       console.error("Error fetching wishlist count:", error);
@@ -203,7 +206,7 @@ function Navbar() {
   const fetchDiscountedProducts = async () => {
     try {
       setNotificationsLoading(true);
-      const response = await axios.get("http://localhost:5000/api/ProductModel/");
+      const response = await axios.get(`${url}/api/ProductModel/`);
       const allProducts = response.data || [];
 
       console.log("All products:", allProducts); // Debug log
@@ -339,7 +342,7 @@ function Navbar() {
       if (user && (queryLower.includes('order') || queryLower.match(/ord[0-9]/i))) {
         try {
           const response = await axios.get(
-            `http://localhost:5000/api/OrderModels/user/${user.id}?q=${query}`
+            `${url}/api/OrderModels/user/${user.id}?q=${query}`
           );
           const matchingOrders = response.data.filter(order =>
             order.orderId?.toLowerCase().includes(queryLower) ||
@@ -982,7 +985,7 @@ function Navbar() {
 
                               {result.type === 'product' && result.image && (
                                 <img
-                                  src={result.image.includes('http') ? result.image : `http://localhost:5000/public/images/product_images/${result.image}`}
+                                  src={result.image.includes('http') ? result.image : `${url}/public/images/product_images/${result.image}`}
                                   alt={result.name}
                                   className="ms-2 rounded"
                                   style={{ width: "40px", height: "40px", objectFit: "cover" }}
@@ -1116,7 +1119,7 @@ function Navbar() {
                             >
                               <div className="flex-shrink-0 me-3">
                                 <img
-                                  src={productImage ? `http://localhost:5000/public/images/product_images/${productImage}` : 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNTAiIGhlaWdodD0iNTAiIHZpZXdCb3g9IjAgMCA1MCA1MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjUwIiBoZWlnaHQ9IjUwIiBmaWxsPSIjRjVGNUY1Ii8+CjxwYXRoIGQ9Ik0yNSAxNkMzMC41MjI4IDE2IDM1IDIwLjQ3NzIgMzUgMjZDMzUgMzEuNTIyOCAzMC41MjI4IDM2IDI1IDM2QzE5LjQ3NzIgMzYgMTUgMzEuNTIyOCAxNSAyNkMxNSAyMC40NzcyIDE5LjQ3NzIgMTYgMjUgMTZaIiBmaWxsPSIjQ0RDRENEIi8+Cjwvc3ZnPgo='}
+                                  src={productImage ? `${url}/public/images/product_images/${productImage}` : 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNTAiIGhlaWdodD0iNTAiIHZpZXdCb3g9IjAgMCA1MCA1MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjUwIiBoZWlnaHQ9IjUwIiBmaWxsPSIjRjVGNUY1Ii8+CjxwYXRoIGQ9Ik0yNSAxNkMzMC41MjI4IDE2IDM1IDIwLjQ3NzIgMzUgMjZDMzUgMzEuNTIyOCAzMC41MjI4IDM2IDI1IDM2QzE5LjQ3NzIgMzYgMTUgMzEuNTIyOCAxNSAyNkMxNSAyMC40NzcyIDE5LjQ3NzIgMTYgMjUgMTZaIiBmaWxsPSIjQ0RDRENEIi8+Cjwvc3ZnPgo='}
                                   alt={productName}
                                   className="rounded"
                                   style={{ width: "50px", height: "50px", objectFit: "cover" }}

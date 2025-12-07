@@ -1,16 +1,19 @@
 import React, { useState, useEffect } from "react";
 import { Carousel } from "react-bootstrap";
 import axios from "axios";
-import s1 from "./images/slide1.png"; // Default fallback image
+import s1 from "./images/banner1.png"; // Default fallback image
 
 const Slider = () => {
   const [activeBanners, setActiveBanners] = useState([]);
-
+ const url = window.location.hostname.includes("localhost")
+    ? "http://localhost:5000" 
+    : "https://gowcosmetic-backed.onrender.com";
+    
   // Fetch banners on mount
   useEffect(() => {
     const fetchBanners = async () => {
       try {
-        const response = await axios.get("http://localhost:5000/api/BannerModel/banners");
+        const response = await axios.get(`${url}/api/BannerModel/banners`);
         // Filter for active banners only
         const active = response.data.filter((banner) => banner.status === "Active");
         setActiveBanners(active);
@@ -35,7 +38,7 @@ const Slider = () => {
                 className="d-block w-100 h-100"
                 src={
                   banner.image
-                    ? `http://localhost:5000/public/images/banner_images/${banner.image}`
+                    ? `${url}/public/images/banner_images/${banner.image}`
                     : s1 // Fallback to default image
                 }
                 alt={banner.name}

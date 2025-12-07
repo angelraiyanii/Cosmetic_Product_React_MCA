@@ -6,6 +6,9 @@ import Category from "../component/Category";
 import placeholder from "./images/c1.jpeg";
 
 export default function Ct_product() {
+   const url = window.location.hostname.includes("localhost")
+    ? "http://localhost:5000" 
+    : "https://gowcosmetic-backed.onrender.com";
   const [products, setProducts] = useState([]);
   const [productRatings, setProductRatings] = useState({}); // Store ratings for each product
   const [activeCategories, setActiveCategories] = useState([]);
@@ -22,9 +25,10 @@ export default function Ct_product() {
   useEffect(() => {
     const fetchActiveCategories = async () => {
       try {
-        const response = await axios.get(
-          "http://localhost:5000/api/CategoryModel/categories"
-        );
+       const response = await axios.get(
+  `${url}/api/CategoryModel/categories`
+);
+
         const activeCats = response.data.filter(
           (cat) => cat.categoryStatus === "Active"
         );
@@ -68,7 +72,7 @@ export default function Ct_product() {
       const ratingsPromises = productIds.map(async (productId) => {
         try {
           const response = await axios.get(
-            `http://localhost:5000/api/ReviewModel/product/${productId}`
+            `${url}/api/ReviewModel/product/${productId}`
           );
           const stats = response.data?.statistics || {};
           const avgRating = parseFloat(stats.averageRating) || 0;
@@ -100,7 +104,7 @@ export default function Ct_product() {
       try {
         setIsLoading(true);
 
-        const response = await axios.get("http://localhost:5000/api/ProductModel/");
+        const response = await axios.get(`${url}/api/ProductModel/`);
         const allProducts = response.data;
 
         const activeCategoryNames = activeCategories.map(cat => cat.categoryName);
@@ -131,7 +135,7 @@ export default function Ct_product() {
             const userId = user.id;
 
             const wishlistResponse = await axios.get(
-              `http://localhost:5000/api/WishlistModel/${userId}`
+              `${url}/api/WishlistModel/${userId}`
             );
             let wishlistItems = wishlistResponse.data;
 
@@ -248,7 +252,7 @@ export default function Ct_product() {
     setIsLikeLoading(true);
     try {
       if (!liked[index]) {
-        await axios.post("http://localhost:5000/api/WishlistModel/add", {
+        await axios.post(`${url}/api/WishlistModel/add`, {
           userId,
           productId,
         });
@@ -258,7 +262,7 @@ export default function Ct_product() {
         alert("Added to wishlist!");
         window.location.reload();
       } else {
-        await axios.delete(`http://localhost:5000/api/WishlistModel/${userId}/${productId}`);
+        await axios.delete(`${url}/api/WishlistModel/${userId}/${productId}`);
         setLiked((prevLiked) =>
           prevLiked.map((likedState, i) => (i === index ? false : likedState))
         );
@@ -295,7 +299,7 @@ export default function Ct_product() {
       const userId = user.id;
 
       const response = await axios.post(
-        "http://localhost:5000/api/CartModel/add",
+        `${url}/api/CartModel/add`,
         {
           userId,
           productId,
@@ -499,7 +503,7 @@ export default function Ct_product() {
                       <img
                         src={
                           product.image
-                            ? `http://localhost:5000/public/images/product_images/${product.image}`
+                            ? `${url}/public/images/product_images/${product.image}`
                             : placeholder
                         }
                         alt={product.name}

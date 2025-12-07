@@ -50,7 +50,7 @@ class SingleProClass extends Component {
     try {
       const { productId } = this.props;
       if (!productId) return;
-      const response = await axios.get(`http://localhost:5000/api/ReviewModel/product/${productId}`);
+      const response = await axios.get(`${url}/api/ReviewModel/product/${productId}`);
       const stats = response.data?.statistics || {};
       const avg = parseFloat(stats.averageRating) || 0;
       const total = parseInt(stats.totalReviews) || 0;
@@ -70,7 +70,7 @@ class SingleProClass extends Component {
 
       // First, get ALL products
       const response = await axios.get(
-        `http://localhost:5000/api/ProductModel`
+        `${url}/api/ProductModel`
       );
 
       // Filter products by category and exclude current product
@@ -86,7 +86,7 @@ class SingleProClass extends Component {
         related.map(async (product) => {
           try {
             const ratingResponse = await axios.get(
-              `http://localhost:5000/api/ReviewModel/product/${product._id}`
+              `${url}/api/ReviewModel/product/${product._id}`
             );
             const stats = ratingResponse.data?.statistics || {};
             return {
@@ -122,7 +122,7 @@ class SingleProClass extends Component {
     const { productId } = this.props;
     try {
       const response = await axios.get(
-        `http://localhost:5000/api/ProductModel/${productId}`
+        `${url}/api/ProductModel/${productId}`
       );
       this.setState({ product: response.data, error: null });
     } catch (error) {
@@ -144,7 +144,7 @@ class SingleProClass extends Component {
       const { productId } = this.props;
 
       const response = await axios.get(
-        `http://localhost:5000/api/WishlistModel/${userId}`
+        `${url}/api/WishlistModel/${userId}`
       );
 
       // Handle both array and object responses
@@ -177,7 +177,7 @@ class SingleProClass extends Component {
       const { productId } = this.props;
 
       await axios.post(
-        "http://localhost:5000/api/CartModel/add",
+        `${url}/api/CartModel/add`,
         {
           userId,
           productId,
@@ -208,7 +208,7 @@ class SingleProClass extends Component {
       const userId = user.id;
 
       await axios.post(
-        "http://localhost:5000/api/CartModel/add",
+        `${url}/api/CartModel/add`,
         {
           userId,
           productId,
@@ -271,7 +271,7 @@ class SingleProClass extends Component {
 
       // First check if product is already in wishlist
       const wishlistResponse = await axios.get(
-        `http://localhost:5000/api/WishlistModel/${userId}`
+        `${url}/api/WishlistModel/${userId}`
       );
 
       const wishlistData = Array.isArray(wishlistResponse.data)
@@ -283,13 +283,13 @@ class SingleProClass extends Component {
       );
 
       if (!isInWishlist) {
-        await axios.post("http://localhost:5000/api/WishlistModel/add", {
+        await axios.post(`${url}/api/WishlistModel/add`, {
           userId,
           productId,
         });
         alert("Added to wishlist!");
       } else {
-        await axios.delete(`http://localhost:5000/api/WishlistModel/${userId}/${productId}`);
+        await axios.delete(`${url}/api/WishlistModel/${userId}/${productId}`);
         alert("Removed from wishlist!");
       }
     } catch (error) {
@@ -315,7 +315,7 @@ class SingleProClass extends Component {
       const { productId } = this.props;
 
       if (!this.state.isInWishlist) {
-        await axios.post("http://localhost:5000/api/WishlistModel/add", {
+        await axios.post(`${url}/api/WishlistModel/add`, {
           userId,
           productId,
         });
@@ -324,7 +324,7 @@ class SingleProClass extends Component {
           isInWishlist: true
         });
       } else {
-        await axios.delete(`http://localhost:5000/api/WishlistModel/${userId}/${productId}`);
+        await axios.delete(`${url}/api/WishlistModel/${userId}/${productId}`);
         this.setState({
           wishlistMessage: "Removed from wishlist!",
           isInWishlist: false
@@ -379,7 +379,7 @@ class SingleProClass extends Component {
             <img
               src={
                 product.image
-                  ? `http://localhost:5000/public/images/product_images/${product.image}`
+                  ? `${url}/public/images/product_images/${product.image}`
                   : placeholder
               }
               alt={product.name}
@@ -502,7 +502,7 @@ class SingleProClass extends Component {
                     <img
                       src={
                         displayProduct.image
-                          ? `http://localhost:5000/public/images/product_images/${displayProduct.image}`
+                          ? `${url}/public/images/product_images/${displayProduct.image}`
                           : placeholder
                       }
                       alt={displayProduct.name}
@@ -1011,7 +1011,7 @@ class SingleProClass extends Component {
                           <img
                             src={
                               relatedProduct.image
-                                ? `http://localhost:5000/public/images/product_images/${relatedProduct.image}`
+                                ? `${url}/public/images/product_images/${relatedProduct.image}`
                                 : placeholder
                             }
                             alt={relatedProduct.name}

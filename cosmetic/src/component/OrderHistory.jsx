@@ -19,6 +19,9 @@ import {
 } from 'react-icons/fa';
 
 const OrderHistory = () => {
+   const url = window.location.hostname.includes("localhost")
+    ? "http://localhost:5000" 
+    : "https://gowcosmetic-backed.onrender.com";
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -38,11 +41,11 @@ const OrderHistory = () => {
     
     // Check if imagePath already contains the full URL structure
     if (imagePath.includes('product_images')) {
-      return `http://localhost:5000/public/images/${imagePath}`;
+      return `${url}/public/images/${imagePath}`;
     }
     
     // Default path for product images
-    return `http://localhost:5000/public/images/product_images/${imagePath}`;
+    return `${url}/public/images/product_images/${imagePath}`;
   };
 
   const getProductImage = (item) => {
@@ -60,7 +63,7 @@ const OrderHistory = () => {
   // Fetch product image from API if not stored in order
   const fetchProductImage = async (productId) => {
     try {
-      const response = await fetch(`http://localhost:5000/api/ProductModel/${productId}`);
+      const response = await fetch(`${url}/api/ProductModel/${productId}`);
       const data = await response.json();
       
       // The API returns the product directly, not wrapped in a 'product' property
@@ -113,7 +116,7 @@ const OrderHistory = () => {
       setLoading(true);
       console.log('🔍 Fetching orders for userId:', id);
 
-      const response = await fetch(`http://localhost:5000/api/OrderModel/user/${id}`);
+      const response = await fetch(`${url}/api/OrderModel/user/${id}`);
       console.log('📡 Response status:', response.status);
 
       const data = await response.json();

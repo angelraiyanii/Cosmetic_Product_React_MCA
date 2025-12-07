@@ -3,6 +3,10 @@ import axios from "axios";
 import "../../App.css";
 
 const AdOffer = () => {
+   const url = window.location.hostname.includes("localhost")
+    ? "http://localhost:5000" 
+    : "https://gowcosmetic-backed.onrender.com";
+    
   const [offers, setOffers] = useState([]);
   const [categories, setCategories] = useState([]);
   const [products, setProducts] = useState([]);
@@ -47,7 +51,7 @@ const AdOffer = () => {
 
   const fetchOffers = async () => {
     try {
-      const response = await axios.get("http://localhost:5000/api/OfferModel/offers");
+      const response = await axios.get(`${url}/api/OfferModel/offers`);
       setOffers(response.data);
     } catch (error) {
       console.error("Error fetching offers:", error);
@@ -56,7 +60,7 @@ const AdOffer = () => {
 
   const fetchCategories = async () => {
     try {
-      const response = await axios.get("http://localhost:5000/api/CategoryModel/categories");
+      const response = await axios.get(`${url}/api/CategoryModel/categories`);
       // Filter only active categories and map to match your expected format
       const activeCategories = response.data
         .filter(cat => cat.categoryStatus === "Active")
@@ -74,7 +78,7 @@ const AdOffer = () => {
   const fetchProducts = async () => {
   try {
     // The correct endpoint based on your routes
-    const response = await axios.get("http://localhost:5000/api/ProductModel/");
+    const response = await axios.get(`${url}/api/ProductModel/`);
     
     console.log("✅ Products fetched:", response.data);
     
@@ -227,7 +231,7 @@ const AdOffer = () => {
 
     try {
       const response = await axios.post(
-        "http://localhost:5000/api/OfferModel/add-offer",
+        `${url}/api/OfferModel/add-offer`,
         addFormData,
         { headers: { "Content-Type": "multipart/form-data" } }
       );
@@ -325,7 +329,7 @@ const AdOffer = () => {
 
     try {
       const response = await axios.put(
-        `http://localhost:5000/api/OfferModel/update-offer/${selectedOffer._id}`,
+        `${url}/api/OfferModel/update-offer/${selectedOffer._id}`,
         formDataToSend,
         { headers: { "Content-Type": "multipart/form-data" } }
       );
@@ -344,7 +348,7 @@ const AdOffer = () => {
     if (!window.confirm("Are you sure you want to delete this offer?")) return;
 
     try {
-      await axios.delete(`http://localhost:5000/api/OfferModel/delete-offer/${id}`);
+      await axios.delete(`${url}/api/OfferModel/delete-offer/${id}`);
       setOffers(offers.filter(o => o._id !== id));
       alert("Offer deleted successfully!");
     } catch (error) {
@@ -371,7 +375,7 @@ const AdOffer = () => {
                     </div>
                     <div className="card-body text-center">
                       <img
-                        src={`http://localhost:5000/public/images/offer_images/${offer.bannerImage}`}
+                        src={`${url}/public/images/offer_images/${offer.bannerImage}`}
                         alt={offer.name}
                         className="img-fluid rounded-3 shadow-sm"
                         style={{
@@ -1297,7 +1301,7 @@ const AdOffer = () => {
                         </label>
                         {selectedOffer.bannerImage && (
                           <img
-                            src={`http://localhost:5000/public/images/offer_images/${selectedOffer.bannerImage}`}
+                            src={`${url}/public/images/offer_images/${selectedOffer.bannerImage}`}
                             alt={selectedOffer.name}
                             className="img-fluid d-block rounded-3 shadow-sm"
                             style={{ border: '2px solid #dee2e6' }}
