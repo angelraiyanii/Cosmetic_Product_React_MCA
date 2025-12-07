@@ -1,22 +1,24 @@
 🌸 GlowCosmetics – Online Cosmetic Store (MERN Stack)
-
 A Modern E-Commerce Web Application for Beauty & Cosmetic Products
+
 Built using MongoDB, Express, React, Node.js (MERN).
 
 <p align="center"> <img src="https://raw.githubusercontent.com/angelraiyanii/Cosmetic_Product_React_MCA/bc5116a407d09136b8d9465c4c1c1f63c7687e3e/GLowCosmetic_ScreenShort/Home.png" alt="GlowCosmetics Banner" width="850"/> </p>
 🛍️ Overview
 
-GlowCosmetics is a fully-featured online shopping platform that offers:
+GlowCosmetics is a fully-featured online cosmetic shopping platform offering:
 
-Smooth shopping experience
+Smooth & interactive shopping experience
 
-Secure payments
+Secure Razorpay payments
 
-Product browsing
+Fast API with Express.js
 
-Admin dashboard
+Fully integrated Admin Dashboard
 
 Mobile-friendly UI
+
+Complete CRUD operations
 
 🎯 Key Features
 👩‍💼 User Features
@@ -25,13 +27,13 @@ Mobile-friendly UI
 
 🛒 Add to Cart & Wishlist
 
-💳 Place Orders using Razorpay Payment
+💳 Place Orders using Razorpay
 
-🔍 Product Search & Category-based Filtering
+🔍 Product Search & Filters
 
-⭐ Review Products
+⭐ Product Reviews
 
-👤 Manage Profile & Orders
+👤 Manage Profile & Order History
 
 🧑‍💻 Admin Features
 
@@ -41,17 +43,19 @@ Mobile-friendly UI
 
 🎁 Offers & Discounts
 
-📦 Order Management
+📦 Order Status Management
 
-⭐ Review Management
+⭐ Review Moderation
 
 🖼️ Banner Management
 
-📄 About Us Editor
+📄 About Us Page Editor
 
-📬 Contact Queries Management
+📬 Contact Queries Handling
 
 🖼️ Screenshots Folder
+
+You can view all project screenshots here:
 
 👉 https://github.com/angelraiyanii/Cosmetic_Product_React_MCA/tree/23c277d9a156483345e32b9c96dc976f7916794d/GLowCosmetic_ScreenShort
 
@@ -73,40 +77,11 @@ JWT + Bcrypt	Authentication
 Multer	Image Upload
 Nodemailer	Email Verification
 Razorpay	Online Payment
-🏗️ Full Tech Stack
-🔹 Frontend (React + Vite)
-
-React 19
-
-Vite
-
-React Router DOM
-
-Axios
-
-TailwindCSS
-
-Bootstrap / MUI
-
-React Slick
-
-🔹 Backend (Node + Express)
-
-Express.js
-
-MongoDB + Mongoose
-
-Multer
-
-JWT Authentication
-
-Bcrypt
-
-Nodemailer
-
-Razorpay Payment Gateway
-
-📁 Project Structure GlowCosmetics/ │ ├── frontend/ # React + Vite (UI) └── backend/ # Node + Express API
+🏗️ Project Structure
+GlowCosmetics/
+│
+├── frontend/      # React + Vite (UI)
+└── backend/       # Node + Express API
 
 ⚙️ Installation & Setup
 1️⃣ Clone Repository
@@ -143,43 +118,43 @@ RAZORPAY_KEY_ID=rzp_test_your_key
 RAZORPAY_KEY_SECRET=your_secret
 
 🚀 Running Full Project
-Start Backend:
+▶️ Start Backend:
 cd backend
 nodemon server.js
 
-Start Frontend:
+▶️ Start Frontend:
 cd frontend
 npm run dev
 
 🔗 Important Notes
 
-Both Frontend & Backend must run together
+Frontend & Backend must run together
 
-MongoDB must be properly connected
+Ensure MongoDB is connected
 
 Razorpay requires test/live keys
 
-For email verification, enable Gmail App Passwords
+Email verification requires Gmail App Password
 
 🛡️ Security Features
 
-Encrypted passwords using bcrypt
+Bcrypt password hashing
 
-JWT-based secure authentication
+JWT authentication
 
-Protected API routes
+Protected admin routes
 
-User input validation
+Input validation
 
-Razorpay secure payment flow
+Secure online payment flow
 
 🚀 Future Enhancements
 
 ⭐ Product Ratings
 
-💬 Chat Support for Customers
+💬 Customer Chat Support
 
-📊 Analytics Dashboard (Admin)
+📊 Admin Analytics Dashboard
 
 🏷️ Coupon System
 
@@ -188,8 +163,8 @@ Razorpay secure payment flow
 🌍 Multi-language Support
 
 👩‍💻 Developer
-
 Angel Raiyani
+
 MCA – RK University
 2025–2026
 
