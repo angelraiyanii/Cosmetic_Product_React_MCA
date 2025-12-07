@@ -1,58 +1,30 @@
 🌸 GlowCosmetics – Online Cosmetic Store (MERN Stack)
-
 A Modern E-Commerce Web Application for Beauty & Cosmetic Products
 
-<p align="center"> <img src="https://via.placeholder.com/900x350?text=GlowCosmetics+Banner" alt="GlowCosmetics Banner"/> </p>
-🛍️ Overview
+<p align="center"> <img src="[https://via.placeholder.com/900x350?text=GlowCosmetics+Banner](https://github.com/angelraiyanii/Cosmetic_Product_React_MCA/blob/002a402176416f17a8c808d5e278668a060d1412/GLowCosmetic_ScreenShort/Home.png)" alt="GlowCosmetics Banner"/> </p>
 
+🛍️ Overview
 GlowCosmetics is a full-featured online shopping platform built using the MERN Stack (MongoDB, Express, React, Node.js).
 It offers a smooth shopping experience with secure payments, product browsing, admin management, and responsive UI.
 
 🎯 Key Features
 👩‍💼 User Features
-
 🔐 Secure Register/Login + Email Verification
-
 🛒 Add to Cart & Wishlist
-
 📦 Place Orders with Razorpay Payment
-
-📃 Order Tracking (Pending → Delivered)
-
 🔍 Product Search & Category-wise Browsing
-
 🧑‍💻 Admin Features
-
 👥 User Management
-
 🛍️ Product & Category Management
-
 🎁 Offers & Discounts
-
 📦 Order Management
-
 ⭐ Review Management
-
 🖼️ Banner Management
-
 📄 About Us Editor
-
 📬 Contact Queries Management
+🖼️ Screenshots folder
+https://github.com/angelraiyanii/Cosmetic_Product_React_MCA/tree/23c277d9a156483345e32b9c96dc976f7916794d/GLowCosmetic_ScreenShort
 
-🖼️ Screenshots
-
-Replace the placeholder links with your actual images from /screenshots or GitHub Upload.
-
-🏠 Home Page
-<p align="center"> <img src="https://via.placeholder.com/900x500?text=Home+Page" width="80%"> </p>
-🛒 Product Details
-<p align="center"> <img src="https://via.placeholder.com/900x500?text=Product+Details" width="80%"> </p>
-📦 Cart Page
-<p align="center"> <img src="https://via.placeholder.com/900x500?text=Cart+Page" width="80%"> </p>
-🔐 Admin Dashboard
-<p align="center"> <img src="https://via.placeholder.com/900x500?text=Admin+Dashboard" width="80%"> </p>
-🧰 Tech Stack Used
-<p align="center">
 🌐 Frontend
 Technology	Purpose
 React	UI Development
@@ -62,6 +34,7 @@ TailwindCSS	Styling
 MUI & Bootstrap	UI Components
 Axios	API Calls
 Slick Carousel	Sliders
+
 🖥️ Backend
 Technology	Purpose
 Node.js	Server Runtime
@@ -71,7 +44,28 @@ JWT + Bcrypt	Authentication
 Multer	Image Upload
 Nodemailer	Email Verification
 Razorpay	Online Payment
-</p>
+
+🏗️ Tech Stack Used
+🔹 Frontend (React + Vite)
+React 19
+Vite
+React Router DOM
+Axios
+Bootstrap / React Bootstrap
+MUI (Material UI)
+TailwindCSS
+React Slick (Slider)
+
+🔹 Backend (Node + Express)
+Express.js
+MongoDB + Mongoose
+Multer (Image upload)
+JWT Authentication
+Bcrypt (Password hashing)
+Nodemailer (Email verification)
+Razorpay (Payment gateway)
+
+CORS
 📁 Project Structure
 GlowCosmetics/
 │
@@ -80,7 +74,7 @@ GlowCosmetics/
 
 ⚙️ Installation & Setup
 1️⃣ Clone Repository
-git clone https://github.com/YOUR_USERNAME/GlowCosmetics.git
+git clone :  https://github.com/angelraiyanii/Cosmetic_Product_React_MCA.git
 cd GlowCosmetics
 
 🌐 Frontend Setup
@@ -88,19 +82,17 @@ cd frontend
 npm install
 npm run dev
 
-
 Frontend runs at: http://localhost:5173
 
 🖥️ Backend Setup
 cd backend
 npm install
-npm start
+nodemon server.js
 
 
 Backend runs at: http://localhost:5000
 
 🔑 Environment Variables (.env)
-
 Create a .env file inside backend/:
 
 MONGO_URL=your_mongodb_url
@@ -113,47 +105,38 @@ RAZORPAY_KEY_SECRET=your_secret
 🚀 How to Run Full Project
 
 Run backend first:
-
 cd backend
-npm start
+nodemon server.js
 
 
 Then run frontend:
-
 cd frontend
 npm run dev
 
-
-Make sure both are running together.
+🔗 Important Notes
+✔️ You must run both Frontend & Backend at the same time.
+✔️ Make sure MongoDB is connected properly.
+✔️ Razorpay will need live/test keys.
+✔️ For email verification, configure Gmail App Password.
 
 🛡️ Security Features
 
 Encrypted passwords using bcrypt
-
 JWT-based secure authentication
-
 Protected API routes
-
 Validation for user inputs
-
 Razorpay secure payment processing
 
 🚀 Future Enhancements
 
 Add Product Ratings
-
 Add Coupons/Discount Codes
-
 Chat Support for Customers
-
 Analytics Dashboard for Admin
-
 Multi-language & Dark Mode
 
 👩‍💻 Developer
 Angel Raiyani
-
 MCA, RK University
 2025–2026
-
 <p align="center"> ⭐ If you liked this project, don't forget to star the repo! ⭐ </p>
