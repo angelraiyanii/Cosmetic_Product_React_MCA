@@ -5,7 +5,7 @@ import { Link, useNavigate } from "react-router-dom";
 import "../App.css";
 
 // Placeholder image for cosmetics
-import placeholder from "./images/c1.jpeg";
+import placeholder from "./Images/c1.jpeg";
  const url = window.location.hostname.includes("localhost")
     ? "http://localhost:5000" 
     : "https://gowcosmetic-backed.onrender.com";
