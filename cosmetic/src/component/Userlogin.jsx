@@ -17,10 +17,10 @@ const Register = () => {
     pincode: "",
     profilePic: null,
   });
- const url = window.location.hostname.includes("localhost")
-    ? "http://localhost:5000" 
+  const url = window.location.hostname.includes("localhost")
+    ? "http://localhost:5000"
     : "https://gowcosmetic-backed.onrender.com";
-    
+
   const [errors, setErrors] = useState({});
   const [imagePreview, setImagePreview] = useState(null);
 
@@ -203,7 +203,7 @@ const Register = () => {
                 placeholder="Enter your mobile number"
               />
 
-              
+
 
               {errors.mobile && (
                 <div className="invalid-feedback">{errors.mobile}</div>
@@ -307,15 +307,15 @@ const Register = () => {
           {/* Pincode */}
           <div className="mb-3">
             <label className="form-label fw-semibold">Pincode</label>
-           <input
-                type="text"
-                name="pincode"
-                maxLength="6"
-                className={`form-control ${errors.pincode ? "is-invalid" : ""}`}
-                value={formData.pincode}
-                onChange={handleChange}
-                placeholder="Enter your pincode"
-              />
+            <input
+              type="text"
+              name="pincode"
+              maxLength="6"
+              className={`form-control ${errors.pincode ? "is-invalid" : ""}`}
+              value={formData.pincode}
+              onChange={handleChange}
+              placeholder="Enter your pincode"
+            />
             {errors.pincode && (
               <div className="invalid-feedback">{errors.pincode}</div>
             )}

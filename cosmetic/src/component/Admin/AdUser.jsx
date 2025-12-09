@@ -2,10 +2,10 @@ import React, { Component } from "react";
 import axios from "axios";
 import u1 from "../Images/pro1.jpeg";
 
- const url = window.location.hostname.includes("localhost")
-    ? "http://localhost:5000" 
+const url = window.location.hostname.includes("localhost")
+  ? "http://localhost:5000"
     : "https://gowcosmetic-backed.onrender.com";
-    
+
 export class AdUser extends Component {
   constructor(props) {
     super(props);

@@ -3,8 +3,8 @@ import axios from 'axios';
 import { FaStar, FaRegStar, FaThumbsUp, FaEdit, FaTrash, FaCheckCircle, FaImage, FaTimes } from 'react-icons/fa';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
- const url = window.location.hostname.includes("localhost")
-    ? "http://localhost:5000" 
+const url = window.location.hostname.includes("localhost")
+  ? "http://localhost:5000"
     : "https://gowcosmetic-backed.onrender.com";
 class Rating_Review extends Component {
   constructor(props) {

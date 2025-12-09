@@ -3,10 +3,10 @@ import axios from "axios";
 import "../../App.css";
 
 const AdBanner = () => {
-   const url = window.location.hostname.includes("localhost")
-    ? "http://localhost:5000" 
+  const url = window.location.hostname.includes("localhost")
+    ? "http://localhost:5000"
     : "https://gowcosmetic-backed.onrender.com";
-    
+
   const [banners, setBanners] = useState([]);
   const [selectedBanner, setSelectedBanner] = useState(null);
   const [showEditForm, setShowEditForm] = useState(false);
@@ -84,10 +84,10 @@ const AdBanner = () => {
   const handleAddSubmit = async (e) => {
     e.preventDefault();
     const newErrors = {};
-    
+
     if (!formData.name.trim()) newErrors.name = "Name is required";
     if (!newImage) newErrors.image = "Image is required";
-    
+
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
       return;
@@ -182,7 +182,7 @@ const AdBanner = () => {
       console.error("Error deleting banner:", error.response?.data || error.message);
       alert(
         "Failed to delete banner: " +
-          (error.response?.data?.error || error.message)
+        (error.response?.data?.error || error.message)
       );
     }
   };
@@ -254,11 +254,10 @@ const AdBanner = () => {
                         <i className="fas fa-toggle-on text-warning me-2"></i>
                         <small className="text-muted">Status</small>
                       </div>
-                      <span className={`badge fs-6 px-3 py-2 ${
-                        banner.status === 'Active' 
-                          ? 'bg-success-subtle text-success border border-success' 
+                      <span className={`badge fs-6 px-3 py-2 ${banner.status === 'Active'
+                          ? 'bg-success-subtle text-success border border-success'
                           : 'bg-danger-subtle text-danger border border-danger'
-                      }`}>
+                        }`}>
                         <i className={`fas ${banner.status === 'Active' ? 'fa-check-circle' : 'fa-times-circle'} me-1`}></i>
                         {banner.status}
                       </span>
@@ -270,14 +269,14 @@ const AdBanner = () => {
                         <small className="text-muted">Created</small>
                       </div>
                       <div className="fw-bold">
-                        {banner.createdAt 
+                        {banner.createdAt
                           ? new Date(banner.createdAt).toLocaleDateString('en-US', {
-                              year: 'numeric',
-                              month: 'long',
-                              day: 'numeric',
-                              hour: '2-digit',
-                              minute: '2-digit'
-                            })
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit'
+                          })
                           : 'Date not available'
                         }
                       </div>
@@ -290,21 +289,21 @@ const AdBanner = () => {
             {/* Action Buttons */}
             <div className="row mt-4">
               <div className="col-12 text-end">
-                <button 
+                <button
                   className="btn btn-outline-secondary me-2"
                   onClick={() => toggleBannerDetails(banner._id)}
                 >
                   <i className="fas fa-times me-1"></i>
                   Hide Details
                 </button>
-                <button 
+                <button
                   className="btn btn-outline-warning me-2"
                   onClick={() => handleEdit(banner)}
                 >
                   <i className="fas fa-edit me-1"></i>
                   Edit Banner
                 </button>
-                <button 
+                <button
                   className="btn btn-outline-danger"
                   onClick={() => handleDelete(banner._id)}
                 >
@@ -400,9 +399,9 @@ const AdBanner = () => {
                           }
                           alt={banner.name}
                           className="rounded-3 shadow-sm"
-                          style={{ 
-                            width: "100px", 
-                            height: "50px", 
+                          style={{
+                            width: "100px",
+                            height: "50px",
                             objectFit: "cover",
                             border: '1px solid #dee2e6'
                           }}
@@ -410,9 +409,8 @@ const AdBanner = () => {
                       </td>
                       <td>
                         <span
-                          className={`badge fs-6 px-3 py-2 ${
-                            banner.status === "Active" ? "bg-success" : "bg-danger"
-                          }`}
+                          className={`badge fs-6 px-3 py-2 ${banner.status === "Active" ? "bg-success" : "bg-danger"
+                            }`}
                         >
                           <i className={`fas ${banner.status === "Active" ? 'fa-check' : 'fa-times'} me-1`}></i>
                           {banner.status}
@@ -428,7 +426,7 @@ const AdBanner = () => {
                           >
                             <i className="fas fa-eye"></i>
                           </button>
-                          
+
                           {/* Edit Icon */}
                           <button
                             className="btn btn-outline-warning btn-sm"
@@ -437,7 +435,7 @@ const AdBanner = () => {
                           >
                             <i className="fas fa-edit"></i>
                           </button>
-                          
+
                           {/* Delete Icon */}
                           <button
                             className="btn btn-outline-danger btn-sm"
@@ -449,7 +447,7 @@ const AdBanner = () => {
                         </div>
                       </td>
                     </tr>
-                    
+
                     {/* Banner Details Row */}
                     {showDetails[banner._id] && (
                       <BannerDetailsRow banner={banner} />
@@ -480,9 +478,8 @@ const AdBanner = () => {
               (number) => (
                 <li
                   key={number}
-                  className={`page-item ${
-                    currentPage === number ? "active" : ""
-                  }`}
+                  className={`page-item ${currentPage === number ? "active" : ""
+                    }`}
                 >
                   <button
                     onClick={() => paginate(number)}
@@ -495,9 +492,8 @@ const AdBanner = () => {
             )}
 
             <li
-              className={`page-item ${
-                currentPage === totalPages ? "disabled" : ""
-              }`}
+              className={`page-item ${currentPage === totalPages ? "disabled" : ""
+                }`}
             >
               <button
                 className="page-link"
@@ -523,16 +519,16 @@ const AdBanner = () => {
         <div className="modal fade show d-block" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
           <div className="modal-dialog modal-lg modal-dialog-centered">
             <div className="modal-content border-0 shadow-lg">
-              <div className="modal-header border-0" style={{ 
+              <div className="modal-header border-0" style={{
                 background: 'linear-gradient(135deg, #28a745 0%, #20c997 100%)'
               }}>
                 <h4 className="modal-title text-white">
                   <i className="fas fa-plus me-2"></i>
                   Add New Banner
                 </h4>
-                <button 
-                  type="button" 
-                  className="btn-close btn-close-white" 
+                <button
+                  type="button"
+                  className="btn-close btn-close-white"
                   onClick={handleClose}
                 ></button>
               </div>
@@ -556,7 +552,7 @@ const AdBanner = () => {
                         <div className="invalid-feedback">{errors.name}</div>
                       )}
                     </div>
-                    
+
                     <div className="col-md-6 mb-3">
                       <label className="form-label fw-bold">
                         <i className="fas fa-toggle-on text-success me-1"></i>
@@ -573,7 +569,7 @@ const AdBanner = () => {
                       </select>
                     </div>
                   </div>
-                  
+
                   <div className="mb-3">
                     <label className="form-label fw-bold">
                       <i className="fas fa-image text-info me-1"></i>
@@ -599,14 +595,14 @@ const AdBanner = () => {
                       </div>
                     )}
                   </div>
-                  
+
                   {errors.form && (
                     <div className="alert alert-danger">
                       <i className="fas fa-exclamation-triangle me-2"></i>
                       {errors.form}
                     </div>
                   )}
-                  
+
                   <div className="d-flex justify-content-end gap-2">
                     <button
                       type="button"
@@ -633,16 +629,16 @@ const AdBanner = () => {
         <div className="modal fade show d-block" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
           <div className="modal-dialog modal-lg modal-dialog-centered">
             <div className="modal-content border-0 shadow-lg">
-              <div className="modal-header border-0" style={{ 
+              <div className="modal-header border-0" style={{
                 background: 'linear-gradient(135deg, #ffc107 0%, #fd7e14 100%)'
               }}>
                 <h4 className="modal-title text-white">
                   <i className="fas fa-edit me-2"></i>
                   Edit Banner
                 </h4>
-                <button 
-                  type="button" 
-                  className="btn-close btn-close-white" 
+                <button
+                  type="button"
+                  className="btn-close btn-close-white"
                   onClick={handleClose}
                 ></button>
               </div>
@@ -665,7 +661,7 @@ const AdBanner = () => {
                         <div className="invalid-feedback">{errors.name}</div>
                       )}
                     </div>
-                    
+
                     <div className="col-md-6 mb-3">
                       <label className="form-label fw-bold">
                         <i className="fas fa-toggle-on text-success me-1"></i>
@@ -682,7 +678,7 @@ const AdBanner = () => {
                       </select>
                     </div>
                   </div>
-                  
+
                   <div className="row">
                     <div className="col-md-6">
                       <label className="form-label fw-bold">
@@ -700,7 +696,7 @@ const AdBanner = () => {
                         style={{ border: '2px solid #dee2e6' }}
                       />
                     </div>
-                    
+
                     <div className="col-md-6">
                       <label className="form-label fw-bold">
                         <i className="fas fa-upload text-warning me-1"></i>
@@ -730,14 +726,14 @@ const AdBanner = () => {
                       )}
                     </div>
                   </div>
-                  
+
                   {errors.form && (
                     <div className="alert alert-danger mt-3">
                       <i className="fas fa-exclamation-triangle me-2"></i>
                       {errors.form}
                     </div>
                   )}
-                  
+
                   <div className="d-flex justify-content-end gap-2 mt-4">
                     <button
                       type="button"

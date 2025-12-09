@@ -4,8 +4,8 @@ import { useNavigate } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
 
 const ForgotPassword = () => {
-   const url = window.location.hostname.includes("localhost")
-    ? "http://localhost:5000" 
+  const url = window.location.hostname.includes("localhost")
+    ? "http://localhost:5000"
     : "https://gowcosmetic-backed.onrender.com";
   const [email, setEmail] = useState("");
   const [error, setError] = useState("");

@@ -5,8 +5,8 @@ import "bootstrap/dist/js/bootstrap.bundle.min.js";
 
 
 function AdCategory() {
-   const url = window.location.hostname.includes("localhost")
-    ? "http://localhost:5000" 
+  const url = window.location.hostname.includes("localhost")
+    ? "http://localhost:5000"
     : "https://gowcosmetic-backed.onrender.com";
   const [categories, setCategories] = useState([]);
   const [showForm, setShowForm] = useState(false);
@@ -96,7 +96,7 @@ function AdCategory() {
         res = await axios.post(
           `${url}/api/CategoryModel/add-category`,
           data
-          
+
         );
       }
       alert(res.data.message);
@@ -117,7 +117,7 @@ function AdCategory() {
       categoryName: category.categoryName,
       categoryStatus: category.categoryStatus,
     });
-      window.location.reload();
+    window.location.reload();
     setImagePreview(
       category.categoryImage
         ? `${url}/public/images/category_images/${category.categoryImage}`
@@ -135,7 +135,7 @@ function AdCategory() {
       );
       alert(res.data.message);
       fetchCategories();
-        window.location.reload();
+      window.location.reload();
     } catch (error) {
       console.error("Error deleting category:", error);
       alert("Delete failed");
@@ -151,7 +151,7 @@ function AdCategory() {
         <div className="modal-dialog modal-lg modal-dialog-centered">
           <div className="modal-content border-0 shadow-lg">
             {/* Header with gradient */}
-            <div className="modal-header border-0 position-relative" style={{ 
+            <div className="modal-header border-0 position-relative" style={{
               background: 'linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%)',
               borderRadius: '0.5rem 0.5rem 0 0'
             }}>
@@ -172,9 +172,8 @@ function AdCategory() {
                       boxShadow: '0 4px 15px rgba(0,0,0,0.2)'
                     }}
                   />
-                  <span className={`position-absolute bottom-0 end-0 badge rounded-pill ${
-                    selectedCategory.categoryStatus === 'Active' ? 'bg-success' : 'bg-danger'
-                  }`} style={{ fontSize: '0.7rem' }}>
+                  <span className={`position-absolute bottom-0 end-0 badge rounded-pill ${selectedCategory.categoryStatus === 'Active' ? 'bg-success' : 'bg-danger'
+                    }`} style={{ fontSize: '0.7rem' }}>
                     {selectedCategory.categoryStatus === 'Active' ? '●' : '●'}
                   </span>
                 </div>
@@ -186,9 +185,9 @@ function AdCategory() {
                   </p>
                 </div>
               </div>
-              <button 
-                type="button" 
-                className="btn-close btn-close-white position-absolute end-0 top-0 m-3" 
+              <button
+                type="button"
+                className="btn-close btn-close-white position-absolute end-0 top-0 m-3"
                 onClick={hideCategoryDetails}
                 style={{ fontSize: '1.2rem' }}
               ></button>
@@ -248,11 +247,10 @@ function AdCategory() {
                           <i className="fas fa-toggle-on text-success me-2"></i>
                           <small className="text-muted">Status</small>
                         </div>
-                        <span className={`badge fs-6 px-3 py-2 ${
-                          selectedCategory.categoryStatus === 'Active' 
-                            ? 'bg-success-subtle text-success border border-success' 
+                        <span className={`badge fs-6 px-3 py-2 ${selectedCategory.categoryStatus === 'Active'
+                            ? 'bg-success-subtle text-success border border-success'
                             : 'bg-danger-subtle text-danger border border-danger'
-                        }`}>
+                          }`}>
                           <i className={`fas ${selectedCategory.categoryStatus === 'Active' ? 'fa-check-circle' : 'fa-times-circle'} me-2`}></i>
                           {selectedCategory.categoryStatus}
                         </span>
@@ -264,12 +262,12 @@ function AdCategory() {
                           <small className="text-muted">Created</small>
                         </div>
                         <div className="fw-bold">
-                          {selectedCategory.createdAt 
+                          {selectedCategory.createdAt
                             ? new Date(selectedCategory.createdAt).toLocaleDateString('en-US', {
-                                year: 'numeric',
-                                month: 'long',
-                                day: 'numeric'
-                              })
+                              year: 'numeric',
+                              month: 'long',
+                              day: 'numeric'
+                            })
                             : 'Date not available'
                           }
                         </div>
@@ -295,8 +293,8 @@ function AdCategory() {
 
             {/* Footer with action buttons */}
             <div className="modal-footer border-0 bg-light">
-              <button 
-                type="button" 
+              <button
+                type="button"
                 className="btn btn-outline-warning"
                 onClick={() => {
                   hideCategoryDetails();
@@ -306,8 +304,8 @@ function AdCategory() {
                 <i className="fas fa-edit me-1"></i>
                 Edit Category
               </button>
-              <button 
-                type="button" 
+              <button
+                type="button"
                 className="btn btn-outline-danger"
                 onClick={() => {
                   hideCategoryDetails();
@@ -317,9 +315,9 @@ function AdCategory() {
                 <i className="fas fa-trash me-1"></i>
                 Delete Category
               </button>
-              <button 
-                type="button" 
-                className="btn btn-secondary" 
+              <button
+                type="button"
+                className="btn btn-secondary"
                 onClick={hideCategoryDetails}
               >
                 Close
@@ -382,8 +380,8 @@ function AdCategory() {
       {/* Form */}
       {showForm && (
         <div className="card shadow-lg border-0 p-4 mb-4">
-          <div className="card-header bg-gradient text-white border-0 rounded-top" 
-               style={{ background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' }}>
+          <div className="card-header bg-gradient text-white border-0 rounded-top"
+            style={{ background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' }}>
             <h4 className="mb-0">
               <i className={`fas ${isUpdate ? 'fa-edit' : 'fa-plus'} me-2`}></i>
               {isUpdate ? "Update" : "Add"} Category
@@ -526,11 +524,10 @@ function AdCategory() {
                     </td>
                     <td className="fw-bold text-primary">{cat.categoryName}</td>
                     <td>
-                      <span className={`badge fs-6 px-3 py-2 ${
-                        cat.categoryStatus === "Active"
+                      <span className={`badge fs-6 px-3 py-2 ${cat.categoryStatus === "Active"
                           ? "bg-success"
                           : "bg-danger"
-                      }`}>
+                        }`}>
                         <i className={`fas ${cat.categoryStatus === "Active" ? 'fa-check' : 'fa-times'} me-1`}></i>
                         {cat.categoryStatus}
                       </span>
@@ -545,7 +542,7 @@ function AdCategory() {
                         >
                           <i className="fas fa-eye"></i>
                         </button>
-                        
+
                         {/* Edit Icon */}
                         <button
                           className="btn btn-outline-warning btn-sm"
@@ -554,7 +551,7 @@ function AdCategory() {
                         >
                           <i className="fas fa-edit"></i>
                         </button>
-                        
+
                         {/* Delete Icon */}
                         <button
                           className="btn btn-outline-danger btn-sm"
@@ -596,9 +593,8 @@ function AdCategory() {
               </li>
             ))}
             <li
-              className={`page-item ${
-                currentPage === totalPages ? "disabled" : ""
-              }`}
+              className={`page-item ${currentPage === totalPages ? "disabled" : ""
+                }`}
             >
               <button
                 className="page-link"

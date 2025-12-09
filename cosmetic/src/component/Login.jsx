@@ -7,8 +7,8 @@ import axios from "axios";
 
 const Login = () => {
   const navigate = useNavigate();
- const url = window.location.hostname.includes("localhost")
-    ? "http://localhost:5000" 
+  const url = window.location.hostname.includes("localhost")
+    ? "http://localhost:5000"
     : "https://gowcosmetic-backed.onrender.com";
 
   const [formData, setFormData] = useState({

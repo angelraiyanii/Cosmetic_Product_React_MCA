@@ -19,8 +19,8 @@ import {
 } from 'react-icons/fa';
 
 const OrderHistory = () => {
-   const url = window.location.hostname.includes("localhost")
-    ? "http://localhost:5000" 
+  const url = window.location.hostname.includes("localhost")
+    ? "http://localhost:5000"
     : "https://gowcosmetic-backed.onrender.com";
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -34,16 +34,16 @@ const OrderHistory = () => {
 
   const getImageUrl = (imagePath) => {
     if (!imagePath) return null;
-    
+
     if (imagePath.startsWith('http')) {
       return imagePath;
     }
-    
+
     // Check if imagePath already contains the full URL structure
     if (imagePath.includes('product_images')) {
       return `${url}/public/images/${imagePath}`;
     }
-    
+
     // Default path for product images
     return `${url}/public/images/product_images/${imagePath}`;
   };
@@ -65,7 +65,7 @@ const OrderHistory = () => {
     try {
       const response = await fetch(`${url}/api/ProductModel/${productId}`);
       const data = await response.json();
-      
+
       // The API returns the product directly, not wrapped in a 'product' property
       const productImage = data?.productImage || data?.product_image || data?.image || null;
       console.log('📸 Fetched product image for', productId, ':', productImage);
@@ -131,12 +131,12 @@ const OrderHistory = () => {
             const productsWithImages = await Promise.all(order.products.map(async (item) => {
               // Use the image stored in the order
               let productImage = item.image;
-              
+
               // If no image is stored, try to fetch it from the API
               if (!productImage && item.productId) {
                 productImage = await fetchProductImage(item.productId);
               }
-              
+
               console.log('🖼️ Product image data:', {
                 productName: item.name,
                 productImage,
@@ -806,7 +806,7 @@ const OrderHistory = () => {
                                         {product.name.charAt(0)}
                                       </div>
                                     )}
-                                    
+
                                     {/* View Image Icon */}
                                     {imageUrl && (
                                       <div style={{

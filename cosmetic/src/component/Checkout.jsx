@@ -20,11 +20,11 @@ import {
 } from "react-icons/fa";
 
 const placeholderImage = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Crect fill='%23ddd' width='200' height='200'/%3E%3Ctext fill='%23999' x='50%25' y='50%25' text-anchor='middle' dy='.3em'%3ENo Image%3C/text%3E%3C/svg%3E";
- const url = window.location.hostname.includes("localhost")
-    ? "http://localhost:5000" 
+const url = window.location.hostname.includes("localhost")
+  ? "http://localhost:5000"
     : "https://gowcosmetic-backed.onrender.com";
 class CheckoutForm extends Component {
-  
+
   constructor(props) {
     super(props);
     this.state = {
@@ -700,49 +700,49 @@ class CheckoutForm extends Component {
       });
     }
   };
-sendOrderConfirmationEmail = async (orderId, orderData, shippingAddress) => {
-  try {
-    const userData = localStorage.getItem("user") || localStorage.getItem("admin");
-    if (!userData) return;
+  sendOrderConfirmationEmail = async (orderId, orderData, shippingAddress) => {
+    try {
+      const userData = localStorage.getItem("user") || localStorage.getItem("admin");
+      if (!userData) return;
 
-    const user = JSON.parse(userData);
-    const userId = user.id;
+      const user = JSON.parse(userData);
+      const userId = user.id;
 
-    // Prepare email data
-    const emailData = {
-      userId: userId,
-      orderId: orderId,
-      customerName: shippingAddress.name || "Customer",
-      customerEmail: shippingAddress.email,
-      orderDate: new Date().toLocaleDateString(),
-      orderTime: new Date().toLocaleTimeString(),
-      orderTotal: this.state.total.toFixed(2),
-      shippingAddress: shippingAddress,
-      orderItems: this.state.cartItems.map(item => ({
-        name: item.productId.name,
-        quantity: item.quantity,
-        price: item.productId.price,
-        total: (item.productId.price * item.quantity).toFixed(2)
-      }))
-    };
+      // Prepare email data
+      const emailData = {
+        userId: userId,
+        orderId: orderId,
+        customerName: shippingAddress.name || "Customer",
+        customerEmail: shippingAddress.email,
+        orderDate: new Date().toLocaleDateString(),
+        orderTime: new Date().toLocaleTimeString(),
+        orderTotal: this.state.total.toFixed(2),
+        shippingAddress: shippingAddress,
+        orderItems: this.state.cartItems.map(item => ({
+          name: item.productId.name,
+          quantity: item.quantity,
+          price: item.productId.price,
+          total: (item.productId.price * item.quantity).toFixed(2)
+        }))
+      };
 
-    // Send email request to backend
-    const response = await axios.post(
-      `${url}/api/Usermodel/send-order-confirmation`,
-      emailData
-    );
+      // Send email request to backend
+      const response = await axios.post(
+        `${url}/api/Usermodel/send-order-confirmation`,
+        emailData
+      );
 
-    if (response.data.success) {
-      console.log("Order confirmation email sent successfully");
-    } else {
-      console.warn("Failed to send order confirmation email:", response.data.message);
+      if (response.data.success) {
+        console.log("Order confirmation email sent successfully");
+      } else {
+        console.warn("Failed to send order confirmation email:", response.data.message);
+      }
+
+    } catch (error) {
+      console.error("Error sending order confirmation email:", error);
+      // Don't show error to user - email failure shouldn't affect payment success
     }
-
-  } catch (error) {
-    console.error("Error sending order confirmation email:", error);
-    // Don't show error to user - email failure shouldn't affect payment success
-  }
-};
+  };
   formatCurrency = (value) => {
     const num = typeof value === "number" ? value : parseFloat(value || 0);
     if (Number.isNaN(num)) return "0.00";

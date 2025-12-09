@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";  
+import { useNavigate } from "react-router-dom";
 import {
   User,
   Mail,
@@ -19,12 +19,12 @@ import {
 } from "lucide-react";
 
 function Account() {
-   const url = window.location.hostname.includes("localhost")
-    ? "http://localhost:5000" 
+  const url = window.location.hostname.includes("localhost")
+    ? "http://localhost:5000"
     : "https://gowcosmetic-backed.onrender.com";
 
   const navigate = useNavigate();
-    const [user, setUser] = useState(null);
+  const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
@@ -77,15 +77,15 @@ function Account() {
       if (!response.ok) throw new Error("Failed to fetch user data");
 
       const data = await response.json();
-      
+
       // ✅ FIX: Ensure _id is set properly
       const userData = {
         ...data.user,
         _id: data.user._id || data.user.id // Use _id if exists, fallback to id
       };
-      
+
       console.log("Fetched user data:", userData); // Debug log
-      
+
       setUser(userData);
       setEditedUser(userData);
       setLoading(false);
@@ -114,7 +114,7 @@ function Account() {
 
     // ✅ Get the ID (try both _id and id)
     const userId = user._id || user.id;
-    
+
     if (!userId) {
       setError("User ID not found. Please refresh the page.");
       console.error("User object:", user);
@@ -124,9 +124,9 @@ function Account() {
     try {
       setIsSaving(true);
       setError(null);
-      
+
       const formData = new FormData();
-      
+
       // ✅ Add all user fields to formData
       if (editedUser.fullname) formData.append("fullname", editedUser.fullname);
       if (editedUser.email) formData.append("email", editedUser.email);
@@ -141,9 +141,9 @@ function Account() {
 
       const response = await fetch(
         `${url}/api/Usermodel/${userId}`,
-        { 
-          method: "PUT", 
-          body: formData 
+        {
+          method: "PUT",
+          body: formData
         }
       );
 
@@ -154,21 +154,21 @@ function Account() {
 
       const data = await response.json();
       console.log("Update response:", data); // Debug log
-      
+
       // ✅ Ensure the updated user has _id
       const updatedUserData = {
         ...data.Usermodel,
         _id: data.Usermodel._id || data.Usermodel.id || userId
       };
-      
+
       setUser(updatedUserData);
       setEditedUser(updatedUserData);
       setIsEditing(false);
       setProfilePicPreview(null);
       setSelectedFile(null);
-      
+
       alert("Profile updated successfully!");
-      
+
     } catch (err) {
       console.error("Update error:", err);
       setError(err.message || "Failed to update profile");
@@ -212,7 +212,7 @@ function Account() {
 
     // ✅ Get the ID (try both _id and id)
     const userId = user._id || user.id;
-    
+
     if (!userId) {
       setPasswordErrors({ general: "User ID not found. Please refresh the page." });
       return;
@@ -289,12 +289,12 @@ function Account() {
         setError("Image size should be less than 5MB");
         return;
       }
-      
+
       if (!file.type.startsWith('image/')) {
         setError("Please select a valid image file");
         return;
       }
-      
+
       setSelectedFile(file);
       const reader = new FileReader();
       reader.onloadend = () => setProfilePicPreview(reader.result);

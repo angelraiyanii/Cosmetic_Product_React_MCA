@@ -15,8 +15,8 @@ import {
 import "../App.css";
 import placeholder from "./Images/c1.jpeg";
 
- const url = window.location.hostname.includes("localhost")
-    ? "http://localhost:5000" 
+const url = window.location.hostname.includes("localhost")
+  ? "http://localhost:5000"
     : "https://gowcosmetic-backed.onrender.com";
 
 export class Wishlist extends Component {

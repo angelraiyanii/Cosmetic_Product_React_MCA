@@ -5,10 +5,10 @@ import s1 from "./Images/banner1.jpeg"
 
 const Slider = () => {
   const [activeBanners, setActiveBanners] = useState([]);
- const url = window.location.hostname.includes("localhost")
-    ? "http://localhost:5000" 
+  const url = window.location.hostname.includes("localhost")
+    ? "http://localhost:5000"
     : "https://gowcosmetic-backed.onrender.com";
-    
+
   // Fetch banners on mount
   useEffect(() => {
     const fetchBanners = async () => {

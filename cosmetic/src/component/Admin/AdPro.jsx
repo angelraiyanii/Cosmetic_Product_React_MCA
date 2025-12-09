@@ -4,9 +4,9 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
 
 function AdProduct() {
-  
-   const url = window.location.hostname.includes("localhost")
-    ? "http://localhost:5000" 
+
+  const url = window.location.hostname.includes("localhost")
+    ? "http://localhost:5000"
     : "https://gowcosmetic-backed.onrender.com";
 
   const [products, setProducts] = useState([]);
@@ -94,7 +94,7 @@ function AdProduct() {
 
   const validateForm = () => {
     const newErrors = {};
-    
+
     if (!formData.name.trim()) newErrors.name = "Product name is required";
     if (!formData.price || formData.price <= 0) newErrors.price = "Valid price is required";
     if (!formData.stock || formData.stock < 0) newErrors.stock = "Valid stock quantity is required";
@@ -129,7 +129,7 @@ function AdProduct() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!validateForm()) {
       return;
     }
@@ -143,7 +143,7 @@ function AdProduct() {
     data.append("ml", formData.ml);
     data.append("discount", formData.discount || 0);
     data.append("category", formData.category);
-    
+
     if (image) {
       data.append("image", image);
     }
@@ -163,7 +163,7 @@ function AdProduct() {
           { headers: { "Content-Type": "multipart/form-data" } }
         );
       }
-      
+
       alert(res.data.message || `Product ${isUpdate ? 'updated' : 'added'} successfully!`);
       resetForm();
       fetchProducts();
@@ -187,7 +187,7 @@ function AdProduct() {
       discount: product.discount || "",
       category: product.category?._id || "",
     });
-    
+
     if (product.image) {
       setImagePreview(`${url}/public/images/product_images/${product.image}`);
     }
@@ -293,9 +293,9 @@ function AdProduct() {
                       </div>
                       <span className={`badge fs-6 px-3 py-2 ${
                         product.status === 'active' 
-                          ? 'bg-success-subtle text-success border border-success' 
+                          ? 'bg-success-subtle text-success border border-success'
                           : 'bg-danger-subtle text-danger border border-danger'
-                      }`}>
+                        }`}>
                         <i className={`fas ${product.status === 'active' ? 'fa-check-circle' : 'fa-times-circle'} me-1`}></i>
                         {product.status}
                       </span>
@@ -352,10 +352,9 @@ function AdProduct() {
                         <i className="fas fa-warehouse text-warning me-2"></i>
                         <small className="text-muted">Stock</small>
                       </div>
-                      <div className={`fw-bold ${
-                        product.stock === 0 ? 'text-danger' : 
-                        product.stock <= 10 ? 'text-warning' : 'text-success'
-                      }`}>
+                      <div className={`fw-bold ${product.stock === 0 ? 'text-danger' :
+                          product.stock <= 10 ? 'text-warning' : 'text-success'
+                        }`}>
                         {product.stock} units
                         {product.stock <= 10 && product.stock > 0 && (
                           <span className="badge bg-warning text-dark ms-2">Low Stock</span>
@@ -392,21 +391,21 @@ function AdProduct() {
             {/* Action Buttons */}
             <div className="row mt-4">
               <div className="col-12 text-end">
-                <button 
+                <button
                   className="btn btn-outline-secondary me-2"
                   onClick={() => toggleProductDetails(product._id)}
                 >
                   <i className="fas fa-times me-1"></i>
                   Hide Details
                 </button>
-                <button 
+                <button
                   className="btn btn-outline-warning me-2"
                   onClick={() => handleEdit(product)}
                 >
                   <i className="fas fa-edit me-1"></i>
                   Edit Product
                 </button>
-                <button 
+                <button
                   className="btn btn-outline-danger"
                   onClick={() => handleDelete(product._id)}
                 >
@@ -426,7 +425,7 @@ function AdProduct() {
     product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     (product.category?.categoryName || "").toLowerCase().includes(searchQuery.toLowerCase())
   );
-  
+
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentItems = filteredProducts.slice(indexOfFirstItem, indexOfLastItem);
@@ -471,8 +470,8 @@ function AdProduct() {
       {/* Product Form */}
       {showForm && (
         <div className="card shadow-lg border-0 p-4 mb-4">
-          <div className="card-header bg-gradient text-white border-0 rounded-top" 
-               style={{ background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' }}>
+          <div className="card-header bg-gradient text-white border-0 rounded-top"
+            style={{ background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' }}>
             <h4 className="mb-0">
               <i className={`fas ${isUpdate ? 'fa-edit' : 'fa-plus'} me-2`}></i>
               {isUpdate ? "Update" : "Add"} Product
@@ -679,9 +678,9 @@ function AdProduct() {
                   <i className={`fas ${isUpdate ? 'fa-save' : 'fa-plus'} me-1`}></i>
                   {isUpdate ? "Update" : "Add"} Product
                 </button>
-                <button 
-                  type="button" 
-                  className="btn btn-outline-secondary" 
+                <button
+                  type="button"
+                  className="btn btn-outline-secondary"
                   onClick={resetForm}
                 >
                   <i className="fas fa-times me-1"></i>
@@ -732,9 +731,9 @@ function AdProduct() {
                           }
                           alt={product.name}
                           className="rounded-3 shadow-sm"
-                          style={{ 
-                            width: "60px", 
-                            height: "60px", 
+                          style={{
+                            width: "60px",
+                            height: "60px",
                             objectFit: "cover"
                           }}
                         />
@@ -763,10 +762,9 @@ function AdProduct() {
                         </div>
                       </td>
                       <td>
-                        <span className={`fw-bold ${
-                          product.stock === 0 ? "text-danger" : 
-                          product.stock <= 10 ? "text-warning" : "text-success"
-                        }`}>
+                        <span className={`fw-bold ${product.stock === 0 ? "text-danger" :
+                            product.stock <= 10 ? "text-warning" : "text-success"
+                          }`}>
                           {product.stock}
                         </span>
                         {product.stock <= 10 && product.stock > 0 && (
@@ -785,11 +783,10 @@ function AdProduct() {
                       </td>
                       <td>
                         <span
-                          className={`badge fs-6 px-3 py-2 ${
-                            product.status === "active"
+                          className={`badge fs-6 px-3 py-2 ${product.status === "active"
                               ? "bg-success"
                               : "bg-danger"
-                          }`}
+                            }`}
                         >
                           <i className={`fas ${product.status === "active" ? 'fa-check' : 'fa-times'} me-1`}></i>
                           {product.status}
@@ -805,7 +802,7 @@ function AdProduct() {
                           >
                             <i className="fas fa-eye"></i>
                           </button>
-                          
+
                           {/* Edit Icon */}
                           <button
                             className="btn btn-outline-warning btn-sm"
@@ -814,7 +811,7 @@ function AdProduct() {
                           >
                             <i className="fas fa-edit"></i>
                           </button>
-                          
+
                           {/* Delete Icon */}
                           <button
                             className="btn btn-outline-danger btn-sm"
@@ -826,7 +823,7 @@ function AdProduct() {
                         </div>
                       </td>
                     </tr>
-                    
+
                     {/* Product Details Row */}
                     {showDetails[product._id] && (
                       <ProductDetailsRow product={product} />
@@ -852,25 +849,24 @@ function AdProduct() {
                 <i className="fas fa-chevron-left"></i> Previous
               </button>
             </li>
-            
+
             {Array.from({ length: totalPages }, (_, i) => i + 1).map((num) => (
               <li
                 key={num}
                 className={`page-item ${currentPage === num ? "active" : ""}`}
               >
-                <button 
-                  className="page-link" 
+                <button
+                  className="page-link"
                   onClick={() => setCurrentPage(num)}
                 >
                   {num}
                 </button>
               </li>
             ))}
-            
+
             <li
-              className={`page-item ${
-                currentPage === totalPages ? "disabled" : ""
-              }`}
+              className={`page-item ${currentPage === totalPages ? "disabled" : ""
+                }`}
             >
               <button
                 className="page-link"

@@ -4,8 +4,8 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
 
 const AdContact = () => {
-   const url = window.location.hostname.includes("localhost")
-    ? "http://localhost:5000" 
+  const url = window.location.hostname.includes("localhost")
+    ? "http://localhost:5000"
     : "https://gowcosmetic-backed.onrender.com";
 
   const [inquiries, setInquiries] = useState([]);
@@ -62,7 +62,7 @@ const AdContact = () => {
     } catch (err) {
       console.error('Error fetching inquiries:', err);
       setError(
-        err.response?.data?.message || 
+        err.response?.data?.message ||
         'Failed to connect to server. Please check if your backend is running.'
       );
     } finally {
@@ -113,7 +113,7 @@ const AdContact = () => {
 
     try {
       setSendingReply(true);
-      
+
       const response = await axios.put(`${API_BASE_URL}/${selectedInquiry._id}`, {
         reply: reply.trim(),
         status: 'Resolved'
@@ -121,9 +121,9 @@ const AdContact = () => {
 
       if (response.data.success) {
         // Update the inquiry in the local state
-        setInquiries(prev => 
-          prev.map(inquiry => 
-            inquiry._id === selectedInquiry._id 
+        setInquiries(prev =>
+          prev.map(inquiry =>
+            inquiry._id === selectedInquiry._id
               ? { ...inquiry, reply: reply.trim(), status: 'Resolved' }
               : inquiry
           )
@@ -169,7 +169,7 @@ const AdContact = () => {
     if (window.confirm("Are you sure you want to delete this inquiry? This action cannot be undone.")) {
       try {
         const response = await axios.delete(`${API_BASE_URL}/${id}`);
-        
+
         if (response.data.success) {
           // Refresh the data after deletion
           await fetchInquiries(currentPage, searchQuery, statusFilter);
@@ -329,27 +329,27 @@ const AdContact = () => {
                           {inquiry.status}
                         </span>
                         <div className="dropdown">
-                          <button className="btn btn-sm btn-outline-secondary dropdown-toggle" 
-                                  type="button" 
-                                  data-bs-toggle="dropdown">
+                          <button className="btn btn-sm btn-outline-secondary dropdown-toggle"
+                            type="button"
+                            data-bs-toggle="dropdown">
                             Change
                           </button>
                           <ul className="dropdown-menu">
                             <li>
-                              <button className="dropdown-item" 
-                                      onClick={() => updateStatus(inquiry._id, 'New')}>
+                              <button className="dropdown-item"
+                                onClick={() => updateStatus(inquiry._id, 'New')}>
                                 <i className="fas fa-star me-2 text-primary"></i>New
                               </button>
                             </li>
                             <li>
-                              <button className="dropdown-item" 
-                                      onClick={() => updateStatus(inquiry._id, 'In Progress')}>
+                              <button className="dropdown-item"
+                                onClick={() => updateStatus(inquiry._id, 'In Progress')}>
                                 <i className="fas fa-clock me-2 text-warning"></i>In Progress
                               </button>
                             </li>
                             <li>
-                              <button className="dropdown-item" 
-                                      onClick={() => updateStatus(inquiry._id, 'Resolved')}>
+                              <button className="dropdown-item"
+                                onClick={() => updateStatus(inquiry._id, 'Resolved')}>
                                 <i className="fas fa-check-circle me-2 text-success"></i>Resolved
                               </button>
                             </li>
@@ -446,7 +446,7 @@ const AdContact = () => {
             <i className="fas fa-chevron-left"></i> Previous
           </button>
         </li>
-        
+
         {Array.from({ length: Math.min(pagination.totalPages, 5) }, (_, index) => {
           let pageNumber;
           if (pagination.totalPages <= 5) {
@@ -455,7 +455,7 @@ const AdContact = () => {
             const start = Math.max(1, currentPage - 2);
             pageNumber = start + index;
           }
-          
+
           if (pageNumber <= pagination.totalPages) {
             return (
               <li
@@ -473,7 +473,7 @@ const AdContact = () => {
           }
           return null;
         })}
-        
+
         <li className={`page-item ${!pagination.hasNextPage ? 'disabled' : ''}`}>
           <button
             className="page-link"
@@ -507,8 +507,8 @@ const AdContact = () => {
           <i className="fas fa-exclamation-triangle me-2"></i>
           {error}
           <br />
-          <button 
-            className="btn btn-outline-danger mt-2" 
+          <button
+            className="btn btn-outline-danger mt-2"
             onClick={() => fetchInquiries(currentPage, searchQuery, statusFilter)}
           >
             <i className="fas fa-redo me-2"></i>
@@ -544,7 +544,7 @@ const AdContact = () => {
       {/* Stats Cards */}
       <div className="row mb-4">
         <div className="col-md-3">
-          <div className="card text-white" style={{background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'}}>
+          <div className="card text-white" style={{ background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' }}>
             <div className="card-body">
               <div className="d-flex justify-content-between">
                 <div>
@@ -675,7 +675,7 @@ const AdContact = () => {
                               </div>
                             </td>
                             <td>
-                              <span className="text-truncate d-inline-block" style={{maxWidth: '200px'}}>
+                              <span className="text-truncate d-inline-block" style={{ maxWidth: '200px' }}>
                                 {getSubject(inquiry.message)}
                               </span>
                             </td>
@@ -731,8 +731,8 @@ const AdContact = () => {
                             <i className="fas fa-inbox fa-3x mb-3 d-block"></i>
                             <h5>No inquiries found</h5>
                             <p>
-                              {searchQuery || statusFilter !== 'all' 
-                                ? 'Try adjusting your search or filter criteria.' 
+                              {searchQuery || statusFilter !== 'all'
+                                ? 'Try adjusting your search or filter criteria.'
                                 : 'No contact inquiries have been submitted yet.'}
                             </p>
                           </div>
@@ -758,7 +758,7 @@ const AdContact = () => {
 
       {/* Reply Modal */}
       {showModal && selectedInquiry && (
-        <div className="modal show d-block" tabIndex="-1" style={{backgroundColor: 'rgba(0,0,0,0.5)'}}>
+        <div className="modal show d-block" tabIndex="-1" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
           <div className="modal-dialog modal-lg">
             <div className="modal-content">
               <div className="modal-header">
@@ -782,7 +782,7 @@ const AdContact = () => {
                     </div>
                     <div className="col-md-6">
                       <strong>Phone:</strong> {selectedInquiry.phone || 'Not provided'}<br />
-                      <strong>Status:</strong> 
+                      <strong>Status:</strong>
                       <span className={`badge ms-1 ${getStatusBadgeClass(selectedInquiry.status)}`}>
                         {selectedInquiry.status}
                       </span>

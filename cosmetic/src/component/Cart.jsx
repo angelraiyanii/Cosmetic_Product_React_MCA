@@ -22,8 +22,8 @@ import {
 import "../App.css";
 
 const placeholderImage = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Crect fill='%23ddd' width='200' height='200'/%3E%3Ctext fill='%23999' x='50%25' y='50%25' text-anchor='middle' dy='.3em'%3ENo Image%3C/text%3E%3C/svg%3E";
- const url = window.location.hostname.includes("localhost")
-    ? "http://localhost:5000" 
+const url = window.location.hostname.includes("localhost")
+  ? "http://localhost:5000"
     : "https://gowcosmetic-backed.onrender.com";
 
 export class Cart extends Component {
@@ -196,7 +196,7 @@ export class Cart extends Component {
       shipping: this.calculateShipping(),
       total: this.calculateTotal()
     };
-    
+
     localStorage.setItem('checkoutData', JSON.stringify(checkoutData));
     window.location.href = "/Checkout";
   };

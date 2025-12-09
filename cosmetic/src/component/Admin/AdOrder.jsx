@@ -3,8 +3,8 @@ import axios from "axios";
 import "../../App.css";
 
 const AdOrder = () => {
-   const url = window.location.hostname.includes("localhost")
-    ? "http://localhost:5000" 
+const url = window.location.hostname.includes("localhost")
+    ? "http://localhost:5000"
     : "https://gowcosmetic-backed.onrender.com";
     
   const [orders, setOrders] = useState([]);

@@ -26,8 +26,8 @@ const ContactUs = () => {
     subject: "",
     message: "",
   });
- const url = window.location.hostname.includes("localhost")
-    ? "http://localhost:5000" 
+  const url = window.location.hostname.includes("localhost")
+    ? "http://localhost:5000"
     : "https://gowcosmetic-backed.onrender.com";
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);

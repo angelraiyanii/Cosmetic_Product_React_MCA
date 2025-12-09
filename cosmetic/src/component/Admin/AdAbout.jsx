@@ -6,10 +6,10 @@ import section2Default from "../Images/about3.jpeg";
 import "../../App.css";
 
 const AdAbout = () => {
-   const url = window.location.hostname.includes("localhost")
-    ? "http://localhost:5000" 
+  const url = window.location.hostname.includes("localhost")
+    ? "http://localhost:5000"
     : "https://gowcosmetic-backed.onrender.com";
-    
+
   const [aboutData, setAboutData] = useState(null);
   const [showAddForm, setShowAddForm] = useState(false);
   const [activeBannerIndex, setActiveBannerIndex] = useState(0);

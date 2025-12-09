@@ -6,8 +6,8 @@ import Category from "../component/Category";
 import placeholder from "./Images/c1.jpeg";
 
 export default function Ct_product() {
-   const url = window.location.hostname.includes("localhost")
-    ? "http://localhost:5000" 
+  const url = window.location.hostname.includes("localhost")
+    ? "http://localhost:5000"
     : "https://gowcosmetic-backed.onrender.com";
   const [products, setProducts] = useState([]);
   const [productRatings, setProductRatings] = useState({}); // Store ratings for each product
@@ -25,9 +25,9 @@ export default function Ct_product() {
   useEffect(() => {
     const fetchActiveCategories = async () => {
       try {
-       const response = await axios.get(
-  `${url}/api/CategoryModel/categories`
-);
+        const response = await axios.get(
+          `${url}/api/CategoryModel/categories`
+        );
 
         const activeCats = response.data.filter(
           (cat) => cat.categoryStatus === "Active"

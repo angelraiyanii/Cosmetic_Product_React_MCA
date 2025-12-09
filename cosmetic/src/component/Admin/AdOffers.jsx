@@ -3,8 +3,8 @@ import axios from "axios";
 import "../../App.css";
 
 const AdOffer = () => {
-   const url = window.location.hostname.includes("localhost")
-    ? "http://localhost:5000" 
+const url = window.location.hostname.includes("localhost")
+    ? "http://localhost:5000"
     : "https://gowcosmetic-backed.onrender.com";
     
   const [offers, setOffers] = useState([]);

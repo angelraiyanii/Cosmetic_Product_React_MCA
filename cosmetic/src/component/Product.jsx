@@ -6,8 +6,8 @@ import "../App.css";
 
 // Placeholder image for cosmetics
 import placeholder from "./Images/c1.jpeg";
- const url = window.location.hostname.includes("localhost")
-    ? "http://localhost:5000" 
+const url = window.location.hostname.includes("localhost")
+  ? "http://localhost:5000"
     : "https://gowcosmetic-backed.onrender.com";
 // Create a wrapper component to use navigate hook
 class ProductComponent extends Component {
@@ -126,7 +126,7 @@ class ProductComponent extends Component {
       });
     } catch (error) {
       console.error("Error fetching data:", error);
-      
+
       // Create fallback products
       const fallbackProducts = [
         {
@@ -619,7 +619,7 @@ class ProductComponent extends Component {
                               ) : (
                                 <>
                                   <FaShoppingCart className="me- -1" />
-                                   Add to Cart
+                                  Add to Cart
                                 </>
                               )}
                             </button>

@@ -6,10 +6,10 @@ import { Link, useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
 
 const ResetPassword = () => {
-   const url = window.location.hostname.includes("localhost")
-    ? "http://localhost:5000" 
+  const url = window.location.hostname.includes("localhost")
+    ? "http://localhost:5000"
     : "https://gowcosmetic-backed.onrender.com";
-    
+
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [errors, setErrors] = useState("");
@@ -54,7 +54,7 @@ const ResetPassword = () => {
       } catch (err) {
         setErrors(
           err.response?.data?.error ||
-            "Password reset failed. Please try again."
+          "Password reset failed. Please try again."
         );
       } finally {
         setIsLoading(false);
@@ -98,17 +98,15 @@ const ResetPassword = () => {
           <div className="mb-3 position-relative">
             <input
               type={showPassword ? "text" : "password"}
-              className={`form-control text-center ${
-                errors && password.length < 6 ? "is-invalid" : ""
-              }`}
+              className={`form-control text-center ${errors && password.length < 6 ? "is-invalid" : ""
+                }`}
               placeholder="Enter new password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
             />
             <i
-              className={`fa-solid ${
-                showPassword ? "fa-eye-slash" : "fa-eye"
-              } position-absolute end-0 top-50 translate-middle-y me-3 text-muted`}
+              className={`fa-solid ${showPassword ? "fa-eye-slash" : "fa-eye"
+                } position-absolute end-0 top-50 translate-middle-y me-3 text-muted`}
               style={{ cursor: "pointer" }}
               onClick={() => setShowPassword(!showPassword)}
             ></i>
@@ -123,17 +121,15 @@ const ResetPassword = () => {
           <div className="mb-3 position-relative">
             <input
               type={showConfirm ? "text" : "password"}
-              className={`form-control text-center ${
-                errors && password !== confirmPassword ? "is-invalid" : ""
-              }`}
+              className={`form-control text-center ${errors && password !== confirmPassword ? "is-invalid" : ""
+                }`}
               placeholder="Confirm new password"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
             />
             <i
-              className={`fa-solid ${
-                showConfirm ? "fa-eye-slash" : "fa-eye"
-              } position-absolute end-0 top-50 translate-middle-y me-3 text-muted`}
+              className={`fa-solid ${showConfirm ? "fa-eye-slash" : "fa-eye"
+                } position-absolute end-0 top-50 translate-middle-y me-3 text-muted`}
               style={{ cursor: "pointer" }}
               onClick={() => setShowConfirm(!showConfirm)}
             ></i>

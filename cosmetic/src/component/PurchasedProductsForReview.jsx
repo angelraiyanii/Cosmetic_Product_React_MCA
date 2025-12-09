@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { 
-  FaStar, 
-  FaCalendarAlt, 
+import {
+  FaStar,
+  FaCalendarAlt,
   FaShoppingBag,
   FaCheckCircle,
   FaEdit,
@@ -20,8 +20,8 @@ import placeholder from './Images/c1.jpeg'; // Your placeholder image
 import '../App.css';
 
 const PurchasedProductsForReview = ({ userId, isAuthenticated }) => {
-   const url = window.location.hostname.includes("localhost")
-    ? "http://localhost:5000" 
+  const url = window.location.hostname.includes("localhost")
+    ? "http://localhost:5000"
     : "https://gowcosmetic-backed.onrender.com";
   const [purchasedProducts, setPurchasedProducts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -34,17 +34,17 @@ const PurchasedProductsForReview = ({ userId, isAuthenticated }) => {
     if (!imagePath || imagePath === placeholder) {
       return placeholder;
     }
-    
+
     // If it's already a full URL
     if (imagePath.startsWith('http')) {
       return imagePath;
     }
-    
+
     // If it's a relative path
     if (imagePath.includes('/')) {
       return `${url}/public/images/${imagePath}`;
     }
-    
+
     // Otherwise, assume it's just a filename
     return `${url}/public/images/product_images/${imagePath}`;
   };
@@ -69,15 +69,15 @@ const PurchasedProductsForReview = ({ userId, isAuthenticated }) => {
         setLoading(false);
         return;
       }
-      
+
       try {
         setLoading(true);
         console.log('🔍 Fetching purchased products for user:', userId);
-        
+
         // First, get user's orders with paid status
         const ordersResponse = await axios.get(`${url}/api/orderModel/user/${userId}`);
         console.log('📦 Orders fetched:', ordersResponse.data);
-        
+
         // Extract orders from response
         let ordersArray = [];
         if (ordersResponse.data.orders && Array.isArray(ordersResponse.data.orders)) {
@@ -87,15 +87,15 @@ const PurchasedProductsForReview = ({ userId, isAuthenticated }) => {
         } else if (ordersResponse.data.data && Array.isArray(ordersResponse.data.data)) {
           ordersArray = ordersResponse.data.data;
         }
-        
+
         console.log('📋 Extracted orders array:', ordersArray);
-        
+
         if (!Array.isArray(ordersArray)) {
           console.warn('⚠️ Orders response is not an array:', ordersArray);
           ordersArray = [];
         }
-        
-        const paidOrders = ordersArray.filter(order => 
+
+        const paidOrders = ordersArray.filter(order =>
           order.paymentStatus === 'paid' || order.status === 'paid' || order.paymentStatus === 'completed' || order.status === 'completed'
         );
 
@@ -107,17 +107,17 @@ const PurchasedProductsForReview = ({ userId, isAuthenticated }) => {
           if (order.products && Array.isArray(order.products)) {
             for (const item of order.products) {
               const productId = item.productId?._id || item.productId;
-              
+
               if (productId) {
                 // Extract image - try multiple field names
                 let rawImage = item.productId?.image || item.image || item.productImage || null;
-                
+
                 // If no image from order, fetch it from product API
                 if (!rawImage || rawImage === placeholder) {
                   console.log('🖼️ No image in order for', productId, ', fetching from product API...');
                   rawImage = await fetchProductImage(productId);
                 }
-                
+
                 allPurchasedProducts.push({
                   _id: productId,
                   name: item.productId?.name || item.name || 'Product',
@@ -150,19 +150,19 @@ const PurchasedProductsForReview = ({ userId, isAuthenticated }) => {
               const reviewsResponse = await axios.get(
                 `${url}/api/reviewModel/product/${product._id}`
               );
-              
+
               let avgRating = 0;
               if (reviewsResponse.data.statistics && reviewsResponse.data.statistics.averageRating) {
                 avgRating = parseFloat(reviewsResponse.data.statistics.averageRating);
               }
-              
+
               // Check if user has already reviewed this product
               const reviewCheckResponse = await axios.get(
                 `${url}/api/reviewModel/check-review/${userId}/${product._id}`
               );
-              
+
               console.log(`📝 Product ${product._id} (${product.name}) - hasReviewed: ${reviewCheckResponse.data.hasReviewed}`);
-              
+
               return {
                 ...product,
                 rating: avgRating,
@@ -200,13 +200,13 @@ const PurchasedProductsForReview = ({ userId, isAuthenticated }) => {
         console.log('🔍 Products already reviewed:', productsWithReviewStatus.filter(p => p.hasReviewed).length);
         console.log('⭐ Products needing review (before dedup):', productsNeedingReview.length);
         console.log('✨ Unique products needing review:', uniqueProductsNeedingReview.length);
-        
+
         // Debug: Log which products were filtered out (already reviewed)
         const reviewedProducts = productsWithReviewStatus.filter(p => p.hasReviewed);
         if (reviewedProducts.length > 0) {
           console.log('✓ Already reviewed - filtered out:', reviewedProducts.map(p => ({ id: p._id, name: p.name })));
         }
-        
+
         setPurchasedProducts(uniqueProductsNeedingReview);
         setLoading(false);
       } catch (err) {
@@ -226,16 +226,16 @@ const PurchasedProductsForReview = ({ userId, isAuthenticated }) => {
       const now = new Date();
       const diffTime = Math.abs(now - date);
       const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-      
+
       if (diffDays === 0) return 'Today';
       if (diffDays === 1) return 'Yesterday';
       if (diffDays < 7) return `${diffDays} days ago`;
-      if (diffDays < 30) return `${Math.floor(diffDays/7)} weeks ago`;
-      
-      return date.toLocaleDateString('en-IN', { 
-        day: 'numeric', 
-        month: 'short', 
-        year: 'numeric' 
+      if (diffDays < 30) return `${Math.floor(diffDays / 7)} weeks ago`;
+
+      return date.toLocaleDateString('en-IN', {
+        day: 'numeric',
+        month: 'short',
+        year: 'numeric'
       });
     } catch (error) {
       return 'Recently purchased';
@@ -258,8 +258,8 @@ const PurchasedProductsForReview = ({ userId, isAuthenticated }) => {
                 background: 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)'
               }}>
                 <div className="mb-4">
-                  <div className="rounded-circle bg-white d-inline-flex align-items-center justify-content-center" 
-                       style={{ width: '80px', height: '80px' }}>
+                  <div className="rounded-circle bg-white d-inline-flex align-items-center justify-content-center"
+                    style={{ width: '80px', height: '80px' }}>
                     <FaEdit size={40} color="#667eea" />
                   </div>
                 </div>
@@ -268,11 +268,11 @@ const PurchasedProductsForReview = ({ userId, isAuthenticated }) => {
                   Sign in to see products you've purchased and share your valuable reviews.
                 </p>
                 <Link to="/login" className="btn btn-primary btn-lg px-5 py-2 rounded-pill"
-                      style={{
-                        background: 'linear-gradient(135deg, #8B5CF6 0%, #D946EF 100%)',
-                        border: 'none',
-                        fontWeight: '600'
-                      }}>
+                  style={{
+                    background: 'linear-gradient(135deg, #8B5CF6 0%, #D946EF 100%)',
+                    border: 'none',
+                    fontWeight: '600'
+                  }}>
                   Sign In to Review
                 </Link>
               </div>
@@ -287,7 +287,7 @@ const PurchasedProductsForReview = ({ userId, isAuthenticated }) => {
     return (
       <div className="container mt-5 cosmetic-products-container">
         <div className="text-center py-5">
-          <div className="spinner-border text-primary mb-3" style={{width: '3rem', height: '3rem'}} role="status">
+          <div className="spinner-border text-primary mb-3" style={{ width: '3rem', height: '3rem' }} role="status">
             <span className="visually-hidden">Loading...</span>
           </div>
           <p className="text-muted">Loading your purchased products...</p>
@@ -307,8 +307,8 @@ const PurchasedProductsForReview = ({ userId, isAuthenticated }) => {
               <p className="mb-0">{error}</p>
             </div>
           </div>
-          <button 
-            className="btn btn-outline-danger mt-3" 
+          <button
+            className="btn btn-outline-danger mt-3"
             onClick={() => window.location.reload()}
           >
             Retry
@@ -320,7 +320,7 @@ const PurchasedProductsForReview = ({ userId, isAuthenticated }) => {
 
   if (purchasedProducts.length === 0) {
     return (
-    <div></div>
+      <div></div>
     );
   }
 
@@ -340,8 +340,8 @@ const PurchasedProductsForReview = ({ userId, isAuthenticated }) => {
           <div className="row align-items-center">
             <div className="col-md-6">
               <div className="d-flex align-items-center">
-                <div className="rounded-circle bg-white d-flex align-items-center justify-content-center me-3" 
-                     style={{ width: '50px', height: '50px' }}>
+                <div className="rounded-circle bg-white d-flex align-items-center justify-content-center me-3"
+                  style={{ width: '50px', height: '50px' }}>
                   <FaEdit size={24} color="#8B5CF6" />
                 </div>
                 <div>
@@ -365,15 +365,15 @@ const PurchasedProductsForReview = ({ userId, isAuthenticated }) => {
       {/* Products Grid */}
       <div className="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4">
         {purchasedProducts.map((product) => {
-          const discountedPrice = product.discount 
+          const discountedPrice = product.discount
             ? (product.price - (product.price * product.discount / 100)).toFixed(2)
             : null;
           const isHovered = hoveredProduct === product._id;
-          
+
           return (
-            <div className="col" key={product._id} 
-                 onMouseEnter={() => setHoveredProduct(product._id)}
-                 onMouseLeave={() => setHoveredProduct(null)}>
+            <div className="col" key={product._id}
+              onMouseEnter={() => setHoveredProduct(product._id)}
+              onMouseLeave={() => setHoveredProduct(null)}>
               <div className="card cosmetic-product-card h-100 border-0">
                 {/* Product Image with Overlay */}
                 <div className="cosmetic-image-container position-relative overflow-hidden">
@@ -383,7 +383,7 @@ const PurchasedProductsForReview = ({ userId, isAuthenticated }) => {
                     className="cosmetic-product-img"
                     onError={(e) => (e.target.src = placeholder)}
                   />
-                  
+
                   {/* Purchase Date Badge */}
                   <div className="purchase-date-badge position-absolute top-0 start-0 bg-info text-white px-2 py-1 m-2 rounded d-flex align-items-center">
                     <FaCalendarAlt className="me-1" size={12} />
@@ -396,10 +396,10 @@ const PurchasedProductsForReview = ({ userId, isAuthenticated }) => {
                       -{product.discount}%
                     </div>
                   )}
-                  
+
                   {/* Action Buttons Overlay */}
                   <div className="cosmetic-action-buttons position-absolute top-0 end-0 d-flex flex-column p-2">
-                    <Link 
+                    <Link
                       to={`/SinglePro/${product._id}`}
                       className="btn btn-icon btn-light mb-2"
                       title="View Details"
@@ -407,7 +407,7 @@ const PurchasedProductsForReview = ({ userId, isAuthenticated }) => {
                       <FaEye />
                     </Link>
                   </div>
-                  
+
                   {/* Review Button on Hover */}
                   <div className="cosmetic-add-to-cart position-absolute bottom-0 w-100 p-2">
                     <button
@@ -425,7 +425,7 @@ const PurchasedProductsForReview = ({ userId, isAuthenticated }) => {
                     </button>
                   </div>
                 </div>
-                
+
                 {/* Product Info */}
                 <div className="card-body pb-0">
                   <div className="d-flex justify-content-between align-items-start mb-2">
@@ -435,12 +435,12 @@ const PurchasedProductsForReview = ({ userId, isAuthenticated }) => {
                       <small className="text-muted">{product.rating > 0 ? product.rating.toFixed(1) : "No ratings yet"}</small>
                     </div>
                   </div>
-                  
+
                   <div className="d-flex align-items-center mb-2">
                     <FaTag className="text-muted me-1" size={12} />
                     <small className="text-muted">{product.category || "General"}</small>
                   </div>
-                  
+
                   {product.variant && (
                     <div className="mb-2">
                       <small className="badge bg-light text-dark border">
@@ -448,7 +448,7 @@ const PurchasedProductsForReview = ({ userId, isAuthenticated }) => {
                       </small>
                     </div>
                   )}
-                  
+
                   <div className="d-flex align-items-center">
                     {discountedPrice ? (
                       <>
@@ -459,7 +459,7 @@ const PurchasedProductsForReview = ({ userId, isAuthenticated }) => {
                       <span className="h5 fw-bold text-dark mb-0">${product.price}</span>
                     )}
                   </div>
-                  
+
                   {/* Purchase Info */}
                   <div className="mt-3 pt-2 border-top">
                     <div className="d-flex align-items-center">
@@ -482,8 +482,8 @@ const PurchasedProductsForReview = ({ userId, isAuthenticated }) => {
           <div className="row">
             <div className="col-md-4 mb-3 mb-md-0">
               <div className="d-flex align-items-center">
-                <div className="rounded-circle bg-white d-flex align-items-center justify-content-center me-3" 
-                     style={{ width: '50px', height: '50px' }}>
+                <div className="rounded-circle bg-white d-flex align-items-center justify-content-center me-3"
+                  style={{ width: '50px', height: '50px' }}>
                   <FaStar size={20} color="#f6d365" />
                 </div>
                 <div>
@@ -494,8 +494,8 @@ const PurchasedProductsForReview = ({ userId, isAuthenticated }) => {
             </div>
             <div className="col-md-4 mb-3 mb-md-0">
               <div className="d-flex align-items-center">
-                <div className="rounded-circle bg-white d-flex align-items-center justify-content-center me-3" 
-                     style={{ width: '50px', height: '50px' }}>
+                <div className="rounded-circle bg-white d-flex align-items-center justify-content-center me-3"
+                  style={{ width: '50px', height: '50px' }}>
                   <FaEdit size={20} color="#f6d365" />
                 </div>
                 <div>
@@ -506,8 +506,8 @@ const PurchasedProductsForReview = ({ userId, isAuthenticated }) => {
             </div>
             <div className="col-md-4">
               <div className="d-flex align-items-center">
-                <div className="rounded-circle bg-white d-flex align-items-center justify-content-center me-3" 
-                     style={{ width: '50px', height: '50px' }}>
+                <div className="rounded-circle bg-white d-flex align-items-center justify-content-center me-3"
+                  style={{ width: '50px', height: '50px' }}>
                   <FaBolt size={20} color="#f6d365" />
                 </div>
                 <div>

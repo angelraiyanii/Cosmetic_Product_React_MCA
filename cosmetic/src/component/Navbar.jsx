@@ -6,8 +6,8 @@ import "bootstrap/dist/js/bootstrap.bundle.min.js";
 import "../App.css";
 
 function Navbar() {
-   const url = window.location.hostname.includes("localhost")
-    ? "http://localhost:5000" 
+  const url = window.location.hostname.includes("localhost")
+    ? "http://localhost:5000"
     : "https://gowcosmetic-backed.onrender.com";
   const [user, setUser] = useState(null);
   const [categories, setCategories] = useState([]);

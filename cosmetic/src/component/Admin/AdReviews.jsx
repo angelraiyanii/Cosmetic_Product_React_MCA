@@ -1,10 +1,10 @@
 import React, { Component } from "react";
 import axios from "axios";
 
- const url = window.location.hostname.includes("localhost")
-    ? "http://localhost:5000" 
+const url = window.location.hostname.includes("localhost")
+  ? "http://localhost:5000"
     : "https://gowcosmetic-backed.onrender.com";
-    
+
 export class AdReviews extends Component {
   constructor(props) {
     super(props);
