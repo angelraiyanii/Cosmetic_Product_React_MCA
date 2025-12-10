@@ -6,12 +6,30 @@ require("dotenv").config();
 
 const app = express();
 
-// ✅ CORS Configuration (ADD THIS PART)
+// ✅ CORS Configuration - Works for both local and production
+const allowedOrigins = [
+  'http://localhost:5173',      // Vite dev server
+  'http://localhost:3000',      // Create React App
+  'http://localhost:5174',      // Alternative Vite port
+  'http://127.0.0.1:5173',      // Alternative localhost
+  'https://cosmetic-frontend-n8im.onrender.com'  // Production frontend
+];
+
 app.use(
   cors({
-    origin: "https://cosmetic-frontend-n8im.onrender.com",  // your frontend URL
+    origin: function (origin, callback) {
+      // Allow requests with no origin (like mobile apps, Postman, curl)
+      if (!origin) return callback(null, true);
+      
+      if (allowedOrigins.indexOf(origin) !== -1) {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
-    credentials: true
+    credentials: true,
+    optionsSuccessStatus: 200
   })
 );
 

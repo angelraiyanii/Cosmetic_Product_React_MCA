@@ -480,7 +480,7 @@ body {
   color: #333;
 }
 
-/* -------Navbar Styles----------- */
+/* -------Navbar Styles end ----------- */
 .offers-banner {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
@@ -676,41 +676,37 @@ body {
 
 /* Responsive Navbar */
 @media (max-width: 991px) {
-  .search-input {
-    width: 250px;
-  }
-
-  .search-input:focus {
-    width: 270px;
-  }
-
   .navbar-actions {
-    margin-top: 15px;
-    justify-content: center;
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    width: auto !important;
+    gap: 15px !important;
+    margin-left: auto !important;
+  }
+  
+  .navbar-actions .search-container {
+    display: none !important; /* Hide search in mobile if needed, or keep it */
   }
 }
 
 @media (max-width: 768px) {
-  .search-input {
-    width: 200px;
-  }
-
-  .search-input:focus {
-    width: 220px;
-  }
-
-  .offers-banner {
-    font-size: 12px;
-    padding: 6px 0;
-  }
-
-  .offers-banner a {
-    margin-left: 10px;
-    display: block;
-    margin-top: 5px;
+  .navbar-actions {
+    gap: 10px !important;
   }
 }
 
+@media (max-width: 576px) {
+  .navbar-actions {
+    gap: 8px !important;
+  }
+  
+  /* Make icons smaller on mobile */
+  .navbar-actions a,
+  .navbar-actions button {
+    font-size: 14px !important;
+  }
+}
 /* Animation */
 .fade-in {
   animation: fadeIn 0.8s ease-out;

@@ -49,7 +49,7 @@ router.post("/add-Usermodel", upload.single("profilePic"), async (req, res) => {
 
     await newUser.save();
 
-    const verificationLink = `http://localhost:5000/api/Usermodel/verify-email/${verificationToken}`;
+const verificationLink = `https://cosmetic-frontend-n8im.onrender.com/api/Usermodel/verify-email/${verificationToken}`;
     await transporter.sendMail({
       from: process.env.EMAIL_USER,
       to: email,

@@ -889,9 +889,9 @@ function Navbar() {
             </ul>
 
             {/* Right side: search, wishlist, cart, login/user */}
-            <div className="d-flex align-items-center gap-3">
+            <div className="d-flex align-items-center gap-3 navbar-actions">
               {/* Enhanced Search */}
-              <div className="search-container position-relative" ref={searchRef}>
+              <div className="search-container position-relative me-3" ref={searchRef}>
                 <form onSubmit={handleSearchSubmit} className="position-relative">
                   <input
                     type="text"

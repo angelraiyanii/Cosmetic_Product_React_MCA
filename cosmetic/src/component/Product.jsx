@@ -6,6 +6,7 @@ import "../App.css";
 
 // Placeholder image for cosmetics
 import placeholder from "./Images/c1.jpeg";
+
 const url = window.location.hostname.includes("localhost")
   ? "http://localhost:5000"
     : "https://gowcosmetic-backed.onrender.com";
