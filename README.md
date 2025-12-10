@@ -121,12 +121,17 @@ RAZORPAY_KEY_ID=rzp_test_your_key
 RAZORPAY_KEY_SECRET=your_secret
 
 🚀 Running Full Project
+
 ▶️ Start Backend:
+
 cd backend
+
 nodemon server.js
 
 ▶️ Start Frontend:
+
 cd frontend
+
 npm run dev
 
 🔗 Important Notes
